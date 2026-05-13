@@ -1,0 +1,16 @@
+<div class="banner" style="
+    background: linear-gradient(135deg, #1e3a8a, #f59e0b);
+    height: 200px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+">
+    <div>
+        <h2 style="font-size: 28px; font-weight: bold;">🔥 Festive Sale 🔥</h2>
+        <p>Up to 70% OFF on Handloom Products</p>
+        <button style="background: white; color: #1e3a8a; padding: 8px 24px; border-radius: 30px; margin-top: 12px;">Shop Now →</button>
+    </div>
+</div>

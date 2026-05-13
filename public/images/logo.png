@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .text-logo {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+        }
+        .text-logo-icon {
+            font-size: 32px;
+        }
+        .text-logo-title {
+            font-size: 20px;
+            font-weight: 900;
+            color: #1e3a8a;
+            letter-spacing: -0.5px;
+        }
+        .text-logo-title span {
+            color: #f59e0b;
+        }
+        .text-logo-sub {
+            font-size: 8px;
+            color: #f59e0b;
+            letter-spacing: 2px;
+            margin-top: -2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="text-logo">
+        <div class="text-logo-icon">👑</div>
+        <div class="text-logo-title">SURIYANWA <span>SAFFARI</span></div>
+        <div class="text-logo-sub">PREMIUM MEMBER</div>
+    </div>
+</body>
+</html>

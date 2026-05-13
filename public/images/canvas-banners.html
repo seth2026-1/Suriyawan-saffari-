@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Canvas Banner Generator</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #1e293b; text-align: center; color: white; }
+        canvas { margin: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border-radius: 12px; cursor: pointer; }
+        .btn-group { margin: 20px; }
+        button { background: #f59e0b; color: #1e3a8a; border: none; padding: 10px 20px; margin: 5px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #d97706; }
+    </style>
+</head>
+<body>
+    <h1>🖼️ Banner Image Generator</h1>
+    <p>Click "Download" button below each banner to save as JPG</p>
+    
+    <div id="banners"></div>
+
+    <script>
+        const banners = [
+            {
+                id: 1,
+                name: 'banner1',
+                bg1: '#1e3a8a',
+                bg2: '#3b82f6',
+                tag: '🔥 LIMITED TIME OFFER 🔥',
+                title: 'Festival Special',
+                subtitle: 'Flat 50% OFF on Handloom Sarees & Dupattas',
+                btnText: 'Shop Now',
+                btnColor: '#1e3a8a'
+            },
+            {
+                id: 2,
+                name: 'banner2',
+                bg1: '#dc2626',
+                bg2: '#f97316',
+                tag: '⚡ FLASH SALE ⚡',
+                title: 'Up to 70% OFF',
+                subtitle: 'On Pottery, Handicrafts & Home Decor',
+                btnText: 'Grab Deal',
+                btnColor: '#dc2626'
+            },
+            {
+                id: 3,
+                name: 'banner3',
+                bg1: '#059669',
+                bg2: '#10b981',
+                tag: '✨ NEW ARRIVALS ✨',
+                title: 'Summer Collection 2025',
+                subtitle: 'Cotton Kurtas | Handloom Bags | Terracotta Jewellery',
+                btnText: 'Explore Now',
+                btnColor: '#059669'
+            },
+            {
+                id: 4,
+                name: 'banner4',
+                bg1: '#7c2d12',
+                bg2: '#b45309',
+                tag: '🎨 HANDLOOM SPECIAL 🎨',
+                title: 'Pure Handloom Collection',
+                subtitle: 'Banarasi Silk | Khadi Cotton | Pashmina Wool',
+                btnText: 'View Collection',
+                btnColor: '#7c2d12'
+            }
+        ];
+
+        const container = document.getElementById('banners');
+
+        banners.forEach(banner => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 300;
+            canvas.id = `canvas_${banner.name}`;
+            const ctx = canvas.getContext('2d');
+            
+            // Draw gradient background
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, banner.bg1);
+            gradient.addColorStop(1, banner.bg2);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw decorative circles
+            ctx.beginPath();
+            ctx.arc(canvas.width - 80, canvas.height - 80, 150, 0, 2 * Math.PI);
+            ctx.fillStyle = 'rgba(255,255,255,0.05)';
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(100, 50, 80, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Draw tag
+            ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            ctx.shadowBlur = 0;
+            const tagWidth = ctx.measureText(banner.tag).width + 30;
+            ctx.fillRect(50, 60, tagWidth, 28);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 12px Arial';
+            ctx.fillText(banner.tag, 65, 80);
+            
+            // Draw title
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 36px Arial';
+            ctx.fillText(banner.title, 50, 140);
+            
+            // Draw subtitle
+            ctx.fillStyle = 'rgba(255,255,255,0.9)';
+            ctx.font = '16px Arial';
+            ctx.fillText(banner.subtitle, 50, 180);
+            
+            // Draw button
+            ctx.fillStyle = 'white';
+            ctx.shadowBlur = 4;
+            ctx.shadowColor = 'rgba(0,0,0,0.3)';
+            const btnWidth = ctx.measureText(banner.btnText).width + 40;
+            ctx.fillRect(50, 210, btnWidth, 40);
+            ctx.fillStyle = banner.btnColor;
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText(banner.btnText, 70, 237);
+            
+            // Reset shadow
+            ctx.shadowBlur = 0;
+            
+            // Create download button
+            const btn = document.createElement('button');
+            btn.textContent = `📥 Download ${banner.name}.jpg`;
+            btn.onclick = () => {
+                const link = document.createElement('a');
+                link.download = `${banner.name}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.9);
+                link.click();
+            };
+            
+            const wrapper = document.createElement('div');
+            wrapper.style.display = 'inline-block';
+            wrapper.style.margin = '10px';
+            wrapper.appendChild(canvas);
+            wrapper.appendChild(btn);
+            container.appendChild(wrapper);
+        });
+        
+        document.body.innerHTML += '<p style="margin-top: 20px; color: #f59e0b;">✅ Click download buttons above to save all banner images to public/images/ folder</p>';
+    </script>
+</body>
+</html>
