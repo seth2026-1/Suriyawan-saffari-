@@ -1,0 +1,32 @@
+{
+  "version": 2,
+  "name": "suriyawan-saffari",
+  "builds": [
+    { "src": "public/**", "use": "@vercel/static" },
+    { "src": "api/**/*.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/", "dest": "/customer/auth.html" },
+    { "src": "/customer/(.*)", "dest": "/customer/$1" },
+    { "src": "/seller/(.*)", "dest": "/seller/$1" },
+    { "src": "/owner/(.*)", "dest": "/owner/$1" },
+    { "src": "/logistics/hub/(.*)", "dest": "/logistics/hub/$1" },
+    { "src": "/logistics/rider/(.*)", "dest": "/logistics/rider/$1" },
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/css/(.*)", "dest": "/css/$1" },
+    { "src": "/js/(.*)", "dest": "/js/$1" },
+    { "src": "/images/(.*)", "dest": "/images/$1" },
+    { "src": "/(.*)", "dest": "/$1" }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Credentials", "value": "true" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, OPTIONS, PATCH, DELETE, POST, PUT" },
+        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization" }
+      ]
+    }
+  ]
+}

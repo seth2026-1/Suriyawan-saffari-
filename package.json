@@ -1,0 +1,36 @@
+{
+  "name": "suriyawan-saffari",
+  "version": "1.0.0",
+  "description": "Complete E-commerce Platform with 4 Portals | COD Only | Barcode System | Cancel Code | Open Box Delivery",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo '✅ Build completed - Static HTML site ready for deployment'"
+  },
+  "keywords": [
+    "ecommerce",
+    "cod",
+    "barcode",
+    "qr-code",
+    "supabase",
+    "vercel",
+    "multi-vendor",
+    "logistics",
+    "delivery",
+    "cancel-code",
+    "open-box-delivery"
+  ],
+  "author": "Suriyawan Saffari",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "@vercel/node": "^3.0.0",
+    "bwip-js": "^4.0.0",
+    "qrcode": "^1.5.3",
+    "html-pdf-node": "^1.0.8",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.0",
+    "supabase": "^1.127.0"
+  }
+}
