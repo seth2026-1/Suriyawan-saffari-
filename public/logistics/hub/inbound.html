@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Inbound Scan - Suriyanwa Saffari Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="toast" class="toast"></div>
+
+<!-- Mobile Menu Toggle -->
+<button id="menuToggle" class="fixed bottom-20 left-4 z-50 bg-blue-900 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center md:hidden">
+    <i class="fa-solid fa-bars text-xl"></i>
+</button>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">L</div><div><h2 class="font-black text-blue-900">Suriyanwa</h2><p class="text-[10px] text-gray-500">Hub Portal</p></div></div></div>
+    <nav class="p-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-line w-5"></i><span class="text-sm font-medium">Dashboard</span></a>
+        <a href="runsheet.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-clipboard-list w-5"></i><span class="text-sm font-medium">Runsheets</span></a>
+        <a href="create-runsheet.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-plus-circle w-5"></i><span class="text-sm font-medium">Create Runsheet</span></a>
+        <a href="inbound.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-orange-50 text-orange-600 mb-1"><i class="fa-solid fa-download w-5"></i><span class="text-sm font-medium">Inbound Scan</span></a>
+        <a href="outbound.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-upload w-5"></i><span class="text-sm font-medium">Outbound Scan</span></a>
+        <a href="bagging.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-box w-5"></i><span class="text-sm font-medium">Bagging</span></a>
+        <a href="cod.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-money-bill w-5"></i><span class="text-sm font-medium">COD Collection</span></a>
+        <a href="rto.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-undo w-5"></i><span class="text-sm font-medium">RTO Processing</span></a>
+        <a href="riders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-motorcycle w-5"></i><span class="text-sm font-medium">Riders</span></a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-gear w-5"></i><span class="text-sm font-medium">Settings</span></a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t"><button onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 w-full"><i class="fa-solid fa-sign-out-alt w-5"></i><span class="text-sm font-medium">Logout</span></button></div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-64 p-4 pb-24">
+    <div class="mb-6"><h1 class="text-2xl font-black text-blue-900">Inbound Scan</h1><p class="text-sm text-gray-500">Scan incoming shipments</p></div>
+
+    <!-- Scanner Input -->
+    <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+        <div class="text-center"><i class="fa-solid fa-qrcode text-6xl text-gray-300 mb-3"></i><p class="text-sm text-gray-600 mb-4">Scan barcode or enter manually</p>
+            <div class="flex gap-3"><input type="text" id="barcodeInput" placeholder="Scan or enter barcode" class="flex-1 border rounded-xl p-3 text-sm" autofocus><button onclick="processScan()" class="bg-blue-900 text-white px-6 py-3 rounded-xl font-bold">Submit</button></div>
+            <p id="scanResult" class="text-sm mt-3 hidden"></p>
+        </div>
+    </div>
+
+    <!-- Today's Expected Shipments -->
+    <div class="bg-white rounded-2xl shadow-sm"><div class="px-4 py-3 border-b"><h3 class="font-bold text-gray-800">Today's Expected Shipments</h3></div><div id="expectedList" class="divide-y"><div class="p-4 text-center text-gray-500">Loading...</div></div></div>
+</main>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let hubData = null;
+    let expectedShipments = [];
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); loadExpectedShipments(); setupMobileMenu(); document.getElementById('barcodeInput').focus(); });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||!user.hub_id) location.href='login.html'; else hubData=user; }
+    
+    async function loadExpectedShipments() {
+        try {
+            const response = await fetch(`/api/logistics/hub/inbound-scan?hub_id=${hubData.hub_id}`, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) { expectedShipments = data.inbound_shipments||[]; renderExpectedList(); }
+        } catch(error) { console.error('Error loading expected:', error); showToast('Failed to load shipments', 'error'); }
+    }
+    
+    function renderExpectedList() {
+        const container = document.getElementById('expectedList');
+        if(!expectedShipments.length){ container.innerHTML='<div class="p-4 text-center text-gray-500">No expected shipments today</div>'; return; }
+        let html='';
+        expectedShipments.forEach(s=>{ html+=`<div class="p-3 flex justify-between items-center"><div><p class="font-medium">#${s.book_id}</p><p class="text-[9px] text-gray-500">${s.tracking_id}</p><p class="text-[9px] text-gray-400">Seller: ${s.seller_name}</p></div><button onclick="processBarcode('${s.tracking_id}')" class="bg-green-600 text-white px-3 py-1 rounded-lg text-xs">Scan</button></div>`; });
+        container.innerHTML=html;
+    }
+    
+    async function processScan() { const barcode = document.getElementById('barcodeInput').value.trim(); if(!barcode){ showToast('Enter barcode','warning'); return; } await processBarcode(barcode); }
+    
+    async function processBarcode(barcode) {
+        try {
+            const response = await fetch('/api/logistics/hub/inbound-scan', {
+                method: 'POST',
+                headers: { 'Content-Type':'application/json' },
+                body: JSON.stringify({ hub_id: hubData.hub_id, barcode: barcode, location: 'Hub Gate' })
+            });
+            const data = await response.json();
+            const resultDiv = document.getElementById('scanResult');
+            if(data.success) { resultDiv.className='text-sm mt-3 text-green-600'; resultDiv.innerHTML=`✅ ${data.message}`; showToast('Scan successful!','success'); document.getElementById('barcodeInput').value=''; loadExpectedShipments(); }
+            else { resultDiv.className='text-sm mt-3 text-red-600'; resultDiv.innerHTML=`❌ ${data.error}`; showToast(data.error,'error'); }
+            setTimeout(()=>{ resultDiv.classList.add('hidden'); },3000);
+        } catch(error) { showToast('Scan failed','error'); }
+    }
+    
+    function setupMobileMenu() { const menuBtn=document.getElementById('menuToggle'),sidebar=document.getElementById('sidebar'); if(menuBtn&&sidebar) menuBtn.addEventListener('click',()=>{ sidebar.classList.toggle('open'); sidebar.style.transform=sidebar.classList.contains('open')?'translateX(0)':'translateX(-100%)'; }); }
+    function logout() { AuthService.logout(); location.href='login.html'; }
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+</script>
+</body>
+</html>

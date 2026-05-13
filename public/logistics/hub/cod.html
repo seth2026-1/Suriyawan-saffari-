@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>COD Collection - Suriyanwa Saffari Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .status-badge { padding: 2px 8px; border-radius: 20px; font-size: 9px; font-weight: bold; }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="toast" class="toast"></div>
+
+<!-- Mobile Menu Toggle -->
+<button id="menuToggle" class="fixed bottom-20 left-4 z-50 bg-blue-900 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center md:hidden">
+    <i class="fa-solid fa-bars text-xl"></i>
+</button>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">L</div><div><h2 class="font-black text-blue-900">Suriyanwa</h2><p class="text-[10px] text-gray-500">Hub Portal</p></div></div></div>
+    <nav class="p-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-line w-5"></i><span class="text-sm font-medium">Dashboard</span></a>
+        <a href="runsheet.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-clipboard-list w-5"></i><span class="text-sm font-medium">Runsheets</span></a>
+        <a href="create-runsheet.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-plus-circle w-5"></i><span class="text-sm font-medium">Create Runsheet</span></a>
+        <a href="inbound.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-download w-5"></i><span class="text-sm font-medium">Inbound Scan</span></a>
+        <a href="outbound.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-upload w-5"></i><span class="text-sm font-medium">Outbound Scan</span></a>
+        <a href="bagging.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-box w-5"></i><span class="text-sm font-medium">Bagging</span></a>
+        <a href="cod.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-orange-50 text-orange-600 mb-1"><i class="fa-solid fa-money-bill w-5"></i><span class="text-sm font-medium">COD Collection</span></a>
+        <a href="rto.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-undo w-5"></i><span class="text-sm font-medium">RTO Processing</span></a>
+        <a href="riders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-motorcycle w-5"></i><span class="text-sm font-medium">Riders</span></a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-gear w-5"></i><span class="text-sm font-medium">Settings</span></a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t"><button onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 w-full"><i class="fa-solid fa-sign-out-alt w-5"></i><span class="text-sm font-medium">Logout</span></button></div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-64 p-4 pb-24">
+    <div class="mb-6"><h1 class="text-2xl font-black text-blue-900">COD Collection</h1><p class="text-sm text-gray-500">Track cash collections from riders</p></div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        <div class="bg-white rounded-2xl p-3 shadow-sm"><p class="text-[9px] text-gray-400">Total COD Collected</p><p id="totalCod" class="text-xl font-black text-green-600">₹0</p></div>
+        <div class="bg-white rounded-2xl p-3 shadow-sm"><p class="text-[9px] text-gray-400">Deposited</p><p id="depositedAmount" class="text-xl font-black text-blue-900">₹0</p></div>
+        <div class="bg-white rounded-2xl p-3 shadow-sm"><p class="text-[9px] text-gray-400">Pending Deposit</p><p id="pendingAmount" class="text-xl font-black text-yellow-600">₹0</p></div>
+        <div class="bg-white rounded-2xl p-3 shadow-sm"><p class="text-[9px] text-gray-400">Today's Collection</p><p id="todayCollection" class="text-xl font-black text-orange-600">₹0</p></div>
+    </div>
+
+    <!-- Pending Collections -->
+    <div class="bg-white rounded-2xl shadow-sm mb-6"><div class="px-4 py-3 border-b"><h3 class="font-bold text-gray-800">Pending Collections from Riders</h3></div><div id="pendingList" class="divide-y"><div class="p-4 text-center text-gray-500">Loading...</div></div></div>
+
+    <!-- Deposit Form -->
+    <div class="bg-white rounded-2xl shadow-sm p-4"><h3 class="font-bold mb-3">Record Cash Deposit</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3"><select id="runsheetSelect" class="border rounded-xl p-3 text-sm"><option value="">Select Runsheet</option></select>
+        <input type="number" id="depositAmount" placeholder="Amount" class="border rounded-xl p-3 text-sm"><input type="text" id="bankReference" placeholder="Bank Reference (Optional)" class="border rounded-xl p-3 text-sm"><button onclick="recordDeposit()" class="bg-blue-900 text-white py-3 rounded-xl font-bold">Record Deposit</button></div>
+    </div>
+</main>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let hubData = null;
+    let pendingRunsheets = [];
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); loadCodData(); setupMobileMenu(); });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||!user.hub_id) location.href='login.html'; else hubData=user; }
+    
+    async function loadCodData() {
+        try {
+            const response = await fetch(`/api/logistics/hub/cod-collect?hub_id=${hubData.hub_id}`, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                document.getElementById('totalCod').innerHTML = `₹${data.stats.total_cod_collected||0}`;
+                document.getElementById('depositedAmount').innerHTML = `₹${data.stats.total_deposited||0}`;
+                document.getElementById('pendingAmount').innerHTML = `₹${data.stats.pending_deposit||0}`;
+                document.getElementById('todayCollection').innerHTML = `₹${data.stats.today_collection||0}`;
+                pendingRunsheets = data.cod_runsheets||[];
+                renderPendingList();
+                const select = document.getElementById('runsheetSelect');
+                select.innerHTML = '<option value="">Select Runsheet</option>';
+                pendingRunsheets.forEach(r=>{ if(r.status==='pending') select.innerHTML+=`<option value="${r.run_id}" data-amount="${r.total_cod}">${r.run_id} - ${r.rider_name} (₹${r.total_cod})</option>`; });
+            }
+        } catch(error) { console.error('Error loading COD data:', error); showToast('Failed to load data', 'error'); }
+    }
+    
+    function renderPendingList() {
+        const container = document.getElementById('pendingList');
+        if(!pendingRunsheets.length){ container.innerHTML='<div class="p-4 text-center text-gray-500">No pending collections</div>'; return; }
+        let html='';
+        pendingRunsheets.forEach(r=>{ if(r.status==='pending') html+=`<div class="p-3 flex justify-between items-center"><div><p class="font-medium">${r.run_id}</p><p class="text-[9px] text-gray-500">${r.rider_name} • Shift: ${r.shift}</p></div><div class="text-right"><p class="font-bold">₹${r.total_cod}</p><button onclick="autoFillDeposit('${r.run_id}', ${r.total_cod})" class="text-orange-600 text-xs mt-1">Record Deposit</button></div></div>`; });
+        container.innerHTML=html;
+    }
+    
+    function autoFillDeposit(runId, amount) { document.getElementById('runsheetSelect').value=runId; document.getElementById('depositAmount').value=amount; }
+    
+    async function recordDeposit() {
+        const runId = document.getElementById('runsheetSelect').value;
+        const amount = parseInt(document.getElementById('depositAmount').value);
+        if(!runId) { showToast('Select runsheet','warning'); return; }
+        if(!amount||amount<=0) { showToast('Enter valid amount','warning'); return; }
+        try {
+            const response = await fetch('/api/logistics/hub/cod-collect', {
+                method: 'POST',
+                headers: { 'Content-Type':'application/json' },
+                body: JSON.stringify({ hub_id: hubData.hub_id, run_id: runId, amount: amount, deposit_method: 'cash', bank_reference: document.getElementById('bankReference').value })
+            });
+            const data = await response.json();
+            if(data.success) { showToast('Deposit recorded!','success'); document.getElementById('depositAmount').value=''; document.getElementById('bankReference').value=''; loadCodData(); }
+            else showToast(data.error||'Failed','error');
+        } catch(error) { showToast('Failed to record deposit','error'); }
+    }
+    
+    function setupMobileMenu() { const menuBtn=document.getElementById('menuToggle'),sidebar=document.getElementById('sidebar'); if(menuBtn&&sidebar) menuBtn.addEventListener('click',()=>{ sidebar.classList.toggle('open'); sidebar.style.transform=sidebar.classList.contains('open')?'translateX(0)':'translateX(-100%)'; }); }
+    function logout() { AuthService.logout(); location.href='login.html'; }
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+</script>
+</body>
+</html>

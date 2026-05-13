@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Runsheets - Suriyanwa Saffari Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .status-badge { padding: 2px 8px; border-radius: 20px; font-size: 9px; font-weight: bold; }
+        .status-assigned { background: #fef3c7; color: #d97706; }
+        .status-accepted { background: #dbeafe; color: #2563eb; }
+        .status-started { background: #e0e7ff; color: #4338ca; }
+        .status-completed { background: #d1fae5; color: #059669; }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="toast" class="toast"></div>
+
+<!-- Mobile Menu Toggle -->
+<button id="menuToggle" class="fixed bottom-20 left-4 z-50 bg-blue-900 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center md:hidden">
+    <i class="fa-solid fa-bars text-xl"></i>
+</button>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">L</div><div><h2 class="font-black text-blue-900">Suriyanwa</h2><p class="text-[10px] text-gray-500">Hub Portal</p></div></div></div>
+    <nav class="p-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-line w-5"></i><span class="text-sm font-medium">Dashboard</span></a>
+        <a href="runsheet.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-orange-50 text-orange-600 mb-1"><i class="fa-solid fa-clipboard-list w-5"></i><span class="text-sm font-medium">Runsheets</span></a>
+        <a href="create-runsheet.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-plus-circle w-5"></i><span class="text-sm font-medium">Create Runsheet</span></a>
+        <a href="inbound.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-download w-5"></i><span class="text-sm font-medium">Inbound Scan</span></a>
+        <a href="outbound.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-upload w-5"></i><span class="text-sm font-medium">Outbound Scan</span></a>
+        <a href="bagging.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-box w-5"></i><span class="text-sm font-medium">Bagging</span></a>
+        <a href="cod.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-money-bill w-5"></i><span class="text-sm font-medium">COD Collection</span></a>
+        <a href="rto.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-undo w-5"></i><span class="text-sm font-medium">RTO Processing</span></a>
+        <a href="riders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-motorcycle w-5"></i><span class="text-sm font-medium">Riders</span></a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-gear w-5"></i><span class="text-sm font-medium">Settings</span></a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t"><button onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 w-full"><i class="fa-solid fa-sign-out-alt w-5"></i><span class="text-sm font-medium">Logout</span></button></div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-64 p-4 pb-24">
+    <div class="flex justify-between items-center mb-6">
+        <div><h1 class="text-2xl font-black text-blue-900">Runsheets</h1><p class="text-sm text-gray-500">Manage delivery runsheets</p></div>
+        <button onclick="location.href='create-runsheet.html'" class="bg-blue-900 text-white px-4 py-2 rounded-xl text-sm font-bold"><i class="fa-solid fa-plus mr-1"></i> New Runsheet</button>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-xl p-3 mb-4 flex flex-wrap gap-2 items-center">
+        <select id="statusFilter" class="border rounded-lg px-3 py-2 text-sm"><option value="all">All Status</option><option value="ASSIGNED">Assigned</option><option value="ACCEPTED">Accepted</option><option value="STARTED">Started</option><option value="COMPLETED">Completed</option></select>
+        <input type="date" id="dateFilter" class="border rounded-lg px-3 py-2 text-sm">
+        <select id="riderFilter" class="border rounded-lg px-3 py-2 text-sm"><option value="">All Riders</option></select>
+        <button onclick="applyFilters()" class="bg-blue-900 text-white px-4 py-2 rounded-lg text-sm">Filter</button>
+    </div>
+
+    <!-- Runsheets List -->
+    <div id="runsheetsList" class="space-y-3">
+        <div class="bg-white rounded-xl p-4 animate-pulse"><div class="h-20 bg-gray-200 rounded"></div></div>
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="flex justify-center gap-2 mt-6"></div>
+</main>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let hubData = null;
+    let runsheets = [];
+    let riders = [];
+    let currentPage = 1;
+    let totalPages = 1;
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); loadRiders(); loadRunsheets(); setupMobileMenu(); });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||!user.hub_id) location.href='login.html'; else hubData=user; }
+    
+    async function loadRiders() {
+        try {
+            const response = await fetch(`/api/logistics/hub/riders?hub_id=${hubData.hub_id}`, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) { riders = data.riders; const select = document.getElementById('riderFilter'); select.innerHTML = '<option value="">All Riders</option>'; riders.forEach(r=>{ select.innerHTML += `<option value="${r.rider_id}">${r.name}</option>`; }); }
+        } catch(error) { console.error('Error loading riders:', error); }
+    }
+    
+    async function loadRunsheets() {
+        try {
+            const status = document.getElementById('statusFilter').value;
+            const date = document.getElementById('dateFilter').value;
+            const rider = document.getElementById('riderFilter').value;
+            let url = `/api/logistics/hub/runsheet?hub_id=${hubData.hub_id}&page=${currentPage}&limit=15`;
+            if(status !== 'all') url += `&status=${status}`;
+            if(date) url += `&date=${date}`;
+            if(rider) url += `&rider_id=${rider}`;
+            const response = await fetch(url, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) { runsheets = data.runsheets; totalPages = data.pagination.total_pages; renderRunsheets(); renderPagination(); }
+        } catch(error) { console.error('Error loading runsheets:', error); showToast('Failed to load runsheets', 'error'); }
+    }
+    
+    function renderRunsheets() {
+        const container = document.getElementById('runsheetsList');
+        if(!runsheets||runsheets.length===0) { container.innerHTML='<div class="text-center py-8 text-gray-500">No runsheets found</div>'; return; }
+        let html='';
+        runsheets.forEach(r=>{
+            html+=`<div class="bg-white rounded-xl border border-gray-100 p-4"><div class="flex justify-between items-start"><div><p class="text-xs font-mono text-gray-500">${r.run_id}</p><p class="font-medium">${r.riders?.name||'Unassigned'}</p><p class="text-[10px] text-gray-400">${r.date} • ${r.shift}</p></div><span class="status-badge status-${r.status.toLowerCase()}">${r.status}</span></div>
+            <div class="flex justify-between items-center mt-3"><div><p class="text-sm">📦 ${r.total_deliveries} deliveries | 📍 ${r.total_pickups} pickups</p><p class="text-[10px] text-gray-400">COD: ₹${r.total_cod||0}</p></div><button onclick="viewRunsheet('${r.run_id}')" class="text-orange-600 text-sm">View Details →</button></div></div>`;
+        });
+        container.innerHTML=html;
+    }
+    
+    function renderPagination() { const container = document.getElementById('pagination'); if(totalPages<=1){ container.innerHTML=''; return; } let html=''; for(let i=1;i<=totalPages;i++) html+=`<button onclick="goToPage(${i})" class="w-8 h-8 rounded-lg ${i===currentPage?'bg-blue-900 text-white':'bg-gray-100 text-gray-600'} text-sm">${i}</button>`; container.innerHTML=html; }
+    function goToPage(page) { currentPage=page; loadRunsheets(); window.scrollTo(0,0); }
+    function applyFilters() { currentPage=1; loadRunsheets(); }
+    function viewRunsheet(runId) { location.href=`runsheet-detail.html?run_id=${runId}`; }
+    
+    function setupMobileMenu() { const menuBtn=document.getElementById('menuToggle'),sidebar=document.getElementById('sidebar'); if(menuBtn&&sidebar) menuBtn.addEventListener('click',()=>{ sidebar.classList.toggle('open'); sidebar.style.transform=sidebar.classList.contains('open')?'translateX(0)':'translateX(-100%)'; }); }
+    function logout() { AuthService.logout(); location.href='login.html'; }
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+</script>
+</body>
+</html>

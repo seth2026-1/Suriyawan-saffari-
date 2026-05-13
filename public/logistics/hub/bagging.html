@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Bagging - Suriyanwa Saffari Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .order-item { transition: all 0.2s; cursor: pointer; }
+        .order-item.selected { background: #e0e7ff; border-color: #3b82f6; }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="toast" class="toast"></div>
+
+<!-- Mobile Menu Toggle -->
+<button id="menuToggle" class="fixed bottom-20 left-4 z-50 bg-blue-900 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center md:hidden">
+    <i class="fa-solid fa-bars text-xl"></i>
+</button>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">L</div><div><h2 class="font-black text-blue-900">Suriyanwa</h2><p class="text-[10px] text-gray-500">Hub Portal</p></div></div></div>
+    <nav class="p-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-line w-5"></i><span class="text-sm font-medium">Dashboard</span></a>
+        <a href="runsheet.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-clipboard-list w-5"></i><span class="text-sm font-medium">Runsheets</span></a>
+        <a href="create-runsheet.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-plus-circle w-5"></i><span class="text-sm font-medium">Create Runsheet</span></a>
+        <a href="inbound.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-download w-5"></i><span class="text-sm font-medium">Inbound Scan</span></a>
+        <a href="outbound.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-upload w-5"></i><span class="text-sm font-medium">Outbound Scan</span></a>
+        <a href="bagging.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-orange-50 text-orange-600 mb-1"><i class="fa-solid fa-box w-5"></i><span class="text-sm font-medium">Bagging</span></a>
+        <a href="cod.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-money-bill w-5"></i><span class="text-sm font-medium">COD Collection</span></a>
+        <a href="rto.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-undo w-5"></i><span class="text-sm font-medium">RTO Processing</span></a>
+        <a href="riders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-motorcycle w-5"></i><span class="text-sm font-medium">Riders</span></a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-gear w-5"></i><span class="text-sm font-medium">Settings</span></a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t"><button onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 w-full"><i class="fa-solid fa-sign-out-alt w-5"></i><span class="text-sm font-medium">Logout</span></button></div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-64 p-4 pb-24">
+    <div class="mb-6"><h1 class="text-2xl font-black text-blue-900">Bagging</h1><p class="text-sm text-gray-500">Create bags for line haul</p></div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Left Panel: Orders Selection -->
+        <div class="bg-white rounded-2xl shadow-sm p-4">
+            <div class="flex justify-between items-center mb-4"><h3 class="font-bold">Select Orders for Bag</h3><span class="text-xs text-gray-500">Max 50 orders per bag</span></div>
+            <div id="ordersList" class="space-y-2 max-h-96 overflow-y-auto"><div class="text-center text-gray-500 py-4">Loading orders...</div></div>
+        </div>
+
+        <!-- Right Panel: Bag Form -->
+        <div class="bg-white rounded-2xl shadow-sm p-4"><h3 class="font-bold mb-4">Bag Details</h3>
+            <div class="space-y-3"><div><label class="text-sm font-medium">Destination Hub</label><select id="toHub" class="w-full border rounded-xl p-3 text-sm mt-1"><option value="">Select destination hub</option></select></div>
+            <div><label class="text-sm font-medium">Seal Number (Optional)</label><input type="text" id="sealNumber" class="w-full border rounded-xl p-3 text-sm"></div>
+            <div><label class="text-sm font-medium">Total Weight (kg)</label><input type="number" id="totalWeight" step="0.1" class="w-full border rounded-xl p-3 text-sm"></div>
+            <div class="bg-gray-50 p-3 rounded-xl"><div class="flex justify-between"><span>Selected Orders:</span><span id="selectedCount">0</span></div><div class="flex justify-between mt-1"><span>Total Value:</span><span id="totalValue">₹0</span></div></div>
+            <button onclick="createBag()" class="w-full bg-blue-900 text-white py-3 rounded-xl font-bold mt-3">Create Bag</button></div>
+        </div>
+    </div>
+
+    <!-- Existing Bags -->
+    <div class="bg-white rounded-2xl shadow-sm mt-6"><div class="px-4 py-3 border-b"><h3 class="font-bold text-gray-800">Recent Bags</h3></div><div id="recentBags" class="divide-y"><div class="p-4 text-center text-gray-500">Loading...</div></div></div>
+</main>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let hubData = null;
+    let orders = [];
+    let selectedOrders = new Set();
+    let hubs = [];
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); loadOrders(); loadHubs(); loadRecentBags(); setupMobileMenu(); });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||!user.hub_id) location.href='login.html'; else hubData=user; }
+    
+    async function loadOrders() {
+        try {
+            const response = await fetch(`/api/logistics/hub/bagging?hub_id=${hubData.hub_id}`, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) { orders = data.ready_orders||[]; renderOrders(); }
+        } catch(error) { console.error('Error loading orders:', error); showToast('Failed to load orders', 'error'); }
+    }
+    
+    async function loadHubs() {
+        try {
+            const response = await fetch('/api/owner/users/hubs?status=active', { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) { hubs = data.hubs||[]; const select = document.getElementById('toHub'); select.innerHTML='<option value="">Select destination hub</option>'; hubs.forEach(h=>{ if(h.hub_id!==hubData.hub_id) select.innerHTML+=`<option value="${h.hub_id}">${h.name}</option>`; }); }
+        } catch(error) { console.error('Error loading hubs:', error); }
+    }
+    
+    function renderOrders() {
+        const container = document.getElementById('ordersList');
+        if(!orders.length){ container.innerHTML='<div class="text-center text-gray-500 py-4">No orders ready for bagging</div>'; return; }
+        let html='';
+        orders.forEach(o=>{ const isSelected=selectedOrders.has(o.book_id); html+=`<div class="order-item p-3 border rounded-xl ${isSelected?'selected':''}" onclick="toggleOrder('${o.book_id}', ${o.amount})"><div class="flex justify-between"><div><p class="font-medium">#${o.book_id}</p><p class="text-[9px] text-gray-500">${o.customer_name}</p></div><p class="font-bold">₹${o.amount}</p></div></div>`; });
+        container.innerHTML=html;
+        document.getElementById('selectedCount').innerText=selectedOrders.size;
+        let total=0; orders.forEach(o=>{ if(selectedOrders.has(o.book_id)) total+=o.amount; }); document.getElementById('totalValue').innerHTML=`₹${total}`;
+    }
+    
+    function toggleOrder(bookId, amount) { if(selectedOrders.has(bookId)) selectedOrders.delete(bookId); else if(selectedOrders.size<50) selectedOrders.add(bookId); else showToast('Max 50 orders per bag','warning'); renderOrders(); }
+    
+    async function createBag() {
+        const toHub = document.getElementById('toHub').value;
+        if(selectedOrders.size===0) { showToast('Select at least one order','warning'); return; }
+        if(!toHub) { showToast('Select destination hub','warning'); return; }
+        try {
+            const response = await fetch('/api/logistics/hub/bagging', {
+                method: 'POST',
+                headers: { 'Content-Type':'application/json' },
+                body: JSON.stringify({ hub_id: hubData.hub_id, order_ids: Array.from(selectedOrders), to_hub: toHub, seal_number: document.getElementById('sealNumber').value, total_weight: parseFloat(document.getElementById('totalWeight').value)||null })
+            });
+            const data = await response.json();
+            if(data.success) { showToast('Bag created successfully!','success'); selectedOrders.clear(); renderOrders(); loadRecentBags(); document.getElementById('sealNumber').value=''; document.getElementById('totalWeight').value=''; }
+            else showToast(data.error||'Creation failed','error');
+        } catch(error) { showToast('Creation failed','error'); }
+    }
+    
+    async function loadRecentBags() {
+        try {
+            const response = await fetch(`/api/logistics/hub/bagging?hub_id=${hubData.hub_id}&limit=10`, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success && data.bags) { const container = document.getElementById('recentBags'); if(!data.bags.length){ container.innerHTML='<div class="p-4 text-center text-gray-500">No bags created</div>'; return; } let html=''; data.bags.forEach(b=>{ html+=`<div class="p-3 flex justify-between items-center"><div><p class="font-medium">${b.bag_id}</p><p class="text-[9px] text-gray-500">${b.packet_count} packets • ${b.status}</p></div><button onclick="viewBag('${b.bag_id}')" class="text-orange-600 text-xs">View →</button></div>`; }); container.innerHTML=html; }
+        } catch(error) { console.error('Error loading bags:', error); }
+    }
+    
+    function viewBag(bagId) { location.href=`bag-detail.html?bag_id=${bagId}`; }
+    function setupMobileMenu() { const menuBtn=document.getElementById('menuToggle'),sidebar=document.getElementById('sidebar'); if(menuBtn&&sidebar) menuBtn.addEventListener('click',()=>{ sidebar.classList.toggle('open'); sidebar.style.transform=sidebar.classList.contains('open')?'translateX(0)':'translateX(-100%)'; }); }
+    function logout() { AuthService.logout(); location.href='login.html'; }
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+</script>
+</body>
+</html>
