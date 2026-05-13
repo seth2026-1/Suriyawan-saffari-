@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suriyawan Saffari - Select Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 90%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 60px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .portals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .portal-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .portal-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .portal-card.customer {
+            border-top: 5px solid #4CAF50;
+        }
+
+        .portal-card.customer:hover {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%);
+        }
+
+        .portal-card.seller {
+            border-top: 5px solid #FF9800;
+        }
+
+        .portal-card.seller:hover {
+            background: linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(255, 152, 0, 0.05) 100%);
+        }
+
+        .portal-card.logistics {
+            border-top: 5px solid #2196F3;
+        }
+
+        .portal-card.logistics:hover {
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(33, 150, 243, 0.05) 100%);
+        }
+
+        .portal-card.rider {
+            border-top: 5px solid #E91E63;
+        }
+
+        .portal-card.rider:hover {
+            background: linear-gradient(135deg, rgba(233, 30, 99, 0.1) 0%, rgba(233, 30, 99, 0.05) 100%);
+        }
+
+        .portal-card.owner {
+            border-top: 5px solid #9C27B0;
+        }
+
+        .portal-card.owner:hover {
+            background: linear-gradient(135deg, rgba(156, 39, 176, 0.1) 0%, rgba(156, 39, 176, 0.05) 100%);
+        }
+
+        .portal-icon {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        .portal-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .portal-card p {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .portal-btn {
+            display: inline-block;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .portal-card.customer .portal-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .portal-card.customer .portal-btn:hover {
+            background: #45a049;
+        }
+
+        .portal-card.seller .portal-btn {
+            background: #FF9800;
+            color: white;
+        }
+
+        .portal-card.seller .portal-btn:hover {
+            background: #e68900;
+        }
+
+        .portal-card.logistics .portal-btn {
+            background: #2196F3;
+            color: white;
+        }
+
+        .portal-card.logistics .portal-btn:hover {
+            background: #0b7dda;
+        }
+
+        .portal-card.rider .portal-btn {
+            background: #E91E63;
+            color: white;
+        }
+
+        .portal-card.rider .portal-btn:hover {
+            background: #c2185b;
+        }
+
+        .portal-card.owner .portal-btn {
+            background: #9C27B0;
+            color: white;
+        }
+
+        .portal-card.owner .portal-btn:hover {
+            background: #7b1fa2;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .portals-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .portal-card {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Suriyawan Saffari</h1>
+            <p>Complete E-commerce Platform | Select Your Portal</p>
+        </div>
+
+        <div class="portals-grid">
+            <!-- Customer Portal -->
+            <div class="portal-card customer">
+                <div class="portal-icon">🛍️</div>
+                <h3>Customer Portal</h3>
+                <p>Browse, Buy & Track Orders</p>
+                <button class="portal-btn" onclick="window.location.href='/customer/auth.html'">Enter Portal</button>
+            </div>
+
+            <!-- Seller Portal -->
+            <div class="portal-card seller">
+                <div class="portal-icon">🏪</div>
+                <h3>Seller Portal</h3>
+                <p>Manage Products & Orders</p>
+                <button class="portal-btn" onclick="window.location.href='/seller/login.html'">Enter Portal</button>
+            </div>
+
+            <!-- Logistics Hub Portal -->
+            <div class="portal-card logistics">
+                <div class="portal-icon">🏭</div>
+                <h3>Logistics Hub</h3>
+                <p>Manage Shipments & Inventory</p>
+                <button class="portal-btn" onclick="window.location.href='/logistics/hub/login.html'">Enter Portal</button>
+            </div>
+
+            <!-- Rider Portal -->
+            <div class="portal-card rider">
+                <div class="portal-icon">🏍️</div>
+                <h3>Rider Portal</h3>
+                <p>Deliveries & Earnings</p>
+                <button class="portal-btn" onclick="window.location.href='/logistics/rider/login.html'">Enter Portal</button>
+            </div>
+
+            <!-- Owner Portal -->
+            <div class="portal-card owner">
+                <div class="portal-icon">👑</div>
+                <h3>Owner Portal</h3>
+                <p>Analytics & Admin Control</p>
+                <button class="portal-btn" onclick="window.location.href='/owner/login.html'">Enter Portal</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2026 Suriyawan Saffari. All rights reserved. | Powered by Vercel & Supabase</p>
+        </div>
+    </div>
+
+    <script>
+        // Check if user is already logged in
+        window.addEventListener('load', function() {
+            const userRole = localStorage.getItem('userRole');
+            const userId = localStorage.getItem('userId');
+
+            if (userRole && userId) {
+                switch(userRole) {
+                    case 'customer':
+                        window.location.href = '/customer/index.html';
+                        break;
+                    case 'seller':
+                        window.location.href = '/seller/dashboard.html';
+                        break;
+                    case 'hub':
+                        window.location.href = '/logistics/hub/dashboard.html';
+                        break;
+                    case 'rider':
+                        window.location.href = '/logistics/rider/dashboard.html';
+                        break;
+                    case 'owner':
+                        window.location.href = '/owner/dashboard.html';
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
