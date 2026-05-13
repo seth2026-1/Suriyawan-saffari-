@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Pickups - Suriyanwa Saffari Rider</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .bottom-nav { transition: all 0.2s; }
+        .bottom-nav.active { color: #f59e0b; }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans pb-20">
+
+<div id="toast" class="toast"></div>
+
+<!-- Header -->
+<header class="bg-white sticky top-0 z-50 shadow-md px-4 py-3 flex justify-between items-center">
+    <div><h1 class="text-xl font-black text-blue-900">Pickups</h1><p class="text-[10px] text-gray-500">Scan seller pickups</p></div>
+    <button onclick="location.reload()" class="text-gray-500"><i class="fa-solid fa-arrows-rotate"></i></button>
+</header>
+
+<!-- Scanner Input -->
+<div class="bg-white rounded-2xl shadow-sm m-4 p-4">
+    <div class="text-center"><i class="fa-solid fa-qrcode text-5xl text-gray-300 mb-2"></i><p class="text-sm text-gray-600 mb-3">Scan order barcode</p>
+        <div class="flex gap-2"><input type="text" id="barcodeInput" placeholder="Scan or enter barcode" class="flex-1 border rounded-xl p-3 text-sm" autofocus><button onclick="processScan()" class="bg-blue-900 text-white px-6 py-3 rounded-xl">Submit</button></div>
+        <p id="scanResult" class="text-sm mt-2 hidden"></p>
+    </div>
+</div>
+
+<!-- Pending Pickups List -->
+<div class="bg-white rounded-2xl shadow-sm mx-4 mb-4"><div class="px-4 py-3 border-b"><h3 class="font-bold">Pending Pickups</h3></div><div id="pickupsList" class="divide-y"><div class="p-4 text-center text-gray-500">Loading...</div></div></div>
+
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-2 shadow-lg">
+    <button class="bottom-nav flex flex-col items-center py-1" onclick="location.href='dashboard.html'"><i class="fa-solid fa-house text-xl"></i><span class="text-[9px]">Home</span></button>
+    <button class="bottom-nav flex flex-col items-center py-1" onclick="location.href='my-runsheet.html'"><i class="fa-solid fa-clipboard-list text-xl"></i><span class="text-[9px]">Runsheet</span></button>
+    <button class="bottom-nav active flex flex-col items-center py-1" onclick="location.href='delivery.html'"><i class="fa-solid fa-truck-fast text-xl"></i><span class="text-[9px]">Deliveries</span></button>
+    <button class="bottom-nav flex flex-col items-center py-1" onclick="location.href='earnings.html'"><i class="fa-solid fa-wallet text-xl"></i><span class="text-[9px]">Earnings</span></button>
+    <button class="bottom-nav flex flex-col items-center py-1" onclick="location.href='profile.html'"><i class="fa-regular fa-user text-xl"></i><span class="text-[9px]">Profile</span></button>
+</nav>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let riderData = null;
+    let pendingPickups = [];
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); loadPickups(); document.getElementById('barcodeInput').focus(); });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||!user.rider_id) location.href='login.html'; else riderData=user; }
+    
+    async function loadPickups() {
+        try {
+            const response = await fetch(`/api/logistics/rider/pickup-scan?rider_id=${riderData.rider_id}`, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) { pendingPickups = data.pending_pickups||[]; renderPickups(); }
+        } catch(error) { console.error('Error loading pickups:', error); showToast('Failed to load pickups', 'error'); }
+    }
+    
+    function renderPickups() {
+        const container = document.getElementById('pickupsList');
+        if(!pendingPickups.length){ container.innerHTML='<div class="p-4 text-center text-gray-500">No pending pickups</div>'; return; }
+        let html='';
+        pendingPickups.forEach(p=>{ html+=`<div class="p-3 flex justify-between items-center"><div><p class="font-medium">#${p.book_id}</p><p class="text-[9px] text-gray-500">${p.seller_name}</p><p class="text-[9px] text-gray-400">📍 ${p.seller_address}</p></div><button onclick="processPickup('${p.book_id}')" class="bg-green-600 text-white px-3 py-1 rounded-lg text-xs">Scan Pickup</button></div>`; });
+        container.innerHTML=html;
+    }
+    
+    async function processScan() { const barcode = document.getElementById('barcodeInput').value.trim(); if(!barcode){ showToast('Enter barcode','warning'); return; } await processPickup(barcode); }
+    
+    async function processPickup(bookId) {
+        try {
+            const response = await fetch('/api/logistics/rider/pickup-scan', {
+                method: 'POST',
+                headers: { 'Content-Type':'application/json' },
+                body: JSON.stringify({ rider_id: riderData.rider_id, book_id: bookId, location: await getCurrentLocation() })
+            });
+            const data = await response.json();
+            const resultDiv = document.getElementById('scanResult');
+            if(data.success) { resultDiv.className='text-sm mt-2 text-green-600'; resultDiv.innerHTML=`✅ Pickup successful! +₹${data.pickup.earning}`; showToast('Pickup completed','success'); document.getElementById('barcodeInput').value=''; loadPickups(); }
+            else { resultDiv.className='text-sm mt-2 text-red-600'; resultDiv.innerHTML=`❌ ${data.error}`; showToast(data.error,'error'); }
+            setTimeout(()=>{ resultDiv.classList.add('hidden'); },3000);
+        } catch(error) { showToast('Pickup failed','error'); }
+    }
+    
+    async function getCurrentLocation() { return new Promise((resolve)=>{ if(navigator.geolocation) navigator.geolocation.getCurrentPosition((pos)=>resolve(`${pos.coords.latitude},${pos.coords.longitude}`),()=>resolve('Unknown')); else resolve('Unknown'); }); }
+    
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+</script>
+</body>
+</html>

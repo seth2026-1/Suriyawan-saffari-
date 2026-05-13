@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>My Profile - Suriyanwa Saffari Rider</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .bottom-nav { transition: all 0.2s; }
+        .bottom-nav.active { color: #f59e0b; }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans pb-20">
+
+<div id="toast" class="toast"></div>
+
+<!-- Header -->
+<header class="bg-white sticky top-0 z-50 shadow-md px-4 py-3 flex justify-between items-center">
+    <div><h1 class="text-xl font-black text-blue-900">My Profile</h1><p class="text-[10px] text-gray-500">Manage your account</p></div>
+    <button onclick="location.reload()" class="text-gray-500"><i class="fa-solid fa-arrows-rotate"></i></button>
+</header>
+
+<!-- Profile Card -->
+<div id="profileCard" class="bg-white rounded-2xl shadow-sm mx-4 mt-4 p-5 text-center">
+    <div class="w-24 h-24 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white text-3xl font-bold mx-auto mb-3">R</div>
+    <h2 id="profileName" class="text-xl font-bold">Loading...</h2>
+    <p id="profileId" class="text-xs text-gray-500 mt-1">RIDE ID: Loading...</p>
+    <div class="flex justify-center gap-2 mt-2"><span id="ratingBadge" class="px-2 py-0.5 rounded-full text-[9px] bg-yellow-100 text-yellow-800">⭐ 0.0</span><span id="onlineBadge" class="px-2 py-0.5 rounded-full text-[9px] bg-gray-100 text-gray-600">Offline</span></div>
+    <button onclick="location.href='edit-profile.html'" class="mt-3 text-orange-600 text-sm font-medium">Edit Profile</button>
+</div>
+
+<!-- Stats -->
+<div class="grid grid-cols-2 gap-3 px-4 mt-4">
+    <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-[9px] text-gray-400">Total Deliveries</p><p id="totalDeliveries" class="text-xl font-black text-blue-900">0</p></div>
+    <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-[9px] text-gray-400">Total Pickups</p><p id="totalPickups" class="text-xl font-black text-green-600">0</p></div>
+    <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-[9px] text-gray-400">Rate/Parcel</p><p id="ratePerParcel" class="text-xl font-black text-orange-600">₹0</p></div>
+    <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-[9px] text-gray-400">Wallet Balance</p><p id="walletBalance" class="text-xl font-black text-purple-600">₹0</p></div>
+</div>
+
+<!-- Details Sections -->
+<div class="bg-white rounded-2xl shadow-sm mx-4 mt-4 overflow-hidden">
+    <div class="border-b"><div class="flex justify-between p-4"><span class="font-medium">Personal Details</span><button onclick="toggleEdit('personal')" class="text-orange-600 text-sm">Edit</button></div><div id="personalDetails" class="px-4 pb-4 space-y-2"><div class="skeleton h-4 w-32"></div><div class="skeleton h-4 w-40"></div><div class="skeleton h-4 w-36"></div></div></div>
+    <div class="border-b"><div class="flex justify-between p-4"><span class="font-medium">Documents</span><button onclick="toggleEdit('documents')" class="text-orange-600 text-sm">Update</button></div><div id="documentsDetails" class="px-4 pb-4 space-y-2"><div class="skeleton h-4 w-28"></div><div class="skeleton h-4 w-32"></div></div></div>
+    <div><div class="flex justify-between p-4"><span class="font-medium">Bank/UPI Details</span><button onclick="toggleEdit('bank')" class="text-orange-600 text-sm">Update</button></div><div id="bankDetails" class="px-4 pb-4 space-y-2"><div class="skeleton h-4 w-36"></div></div></div>
+</div>
+
+<button onclick="logout()" class="w-full mx-4 mt-6 bg-red-50 text-red-600 py-3 rounded-xl font-bold text-sm" style="width: calc(100% - 2rem);">Logout</button>
+
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-2 shadow-lg">
+    <button class="bottom-nav flex flex-col items-center py-1" onclick="location.href='dashboard.html'"><i class="fa-solid fa-house text-xl"></i><span class="text-[9px]">Home</span></button>
+    <button class="bottom-nav flex flex-col items-center py-1" onclick="location.href='my-runsheet.html'"><i class="fa-solid fa-clipboard-list text-xl"></i><span class="text-[9px]">Runsheet</span></button>
+    <button class="bottom-nav flex flex-col items-center py-1" onclick="location.href='delivery.html'"><i class="fa-solid fa-truck-fast text-xl"></i><span class="text-[9px]">Deliveries</span></button>
+    <button class="bottom-nav flex flex-col items-center py-1" onclick="location.href='earnings.html'"><i class="fa-solid fa-wallet text-xl"></i><span class="text-[9px]">Earnings</span></button>
+    <button class="bottom-nav active flex flex-col items-center py-1" onclick="location.href='profile.html'"><i class="fa-regular fa-user text-xl"></i><span class="text-[9px]">Profile</span></button>
+</nav>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let riderData = null;
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); loadProfile(); });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||!user.rider_id) location.href='login.html'; else riderData=user; }
+    
+    async function loadProfile() {
+        try {
+            const response = await fetch(`/api/logistics/rider/profile?rider_id=${riderData.rider_id}`, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                const p = data.profile;
+                document.getElementById('profileName').innerText = p.name;
+                document.getElementById('profileId').innerHTML = `RIDE ID: ${p.rider_id}`;
+                document.getElementById('ratingBadge').innerHTML = `⭐ ${p.rating||0}`;
+                document.getElementById('onlineBadge').innerHTML = p.is_online ? '<span class="text-green-600">● Online</span>' : '<span class="text-gray-500">○ Offline</span>';
+                document.getElementById('totalDeliveries').innerText = p.total_deliveries||0;
+                document.getElementById('totalPickups').innerText = p.total_pickups||0;
+                document.getElementById('ratePerParcel').innerHTML = `₹${p.rate_per_parcel||18}`;
+                document.getElementById('walletBalance').innerHTML = `₹${p.wallet_balance||0}`;
+                
+                document.getElementById('personalDetails').innerHTML = `<p><span class="text-gray-500">Email:</span> ${p.email}</p><p><span class="text-gray-500">Mobile:</span> ${p.mobile}</p><p><span class="text-gray-500">Assigned Area:</span> ${p.assigned_area||'N/A'}</p><p><span class="text-gray-500">Pincodes:</span> ${p.assigned_pincodes?.join(', ')||'N/A'}</p>`;
+                document.getElementById('documentsDetails').innerHTML = `<p><span class="text-gray-500">DL Number:</span> ${p.dl_number||'Not added'}</p><p><span class="text-gray-500">RC Number:</span> ${p.rc_number||'Not added'}</p><p><span class="text-gray-500">Aadhar:</span> ${p.aadhar ? p.aadhar.slice(-4) : 'Not added'}</p>`;
+                document.getElementById('bankDetails').innerHTML = `<p><span class="text-gray-500">UPI ID:</span> ${p.upi_id||'Not added'}</p>`;
+            }
+        } catch(error) { console.error('Error loading profile:', error); showToast('Failed to load profile', 'error'); }
+    }
+    
+    function toggleEdit(section) { showToast(`Edit ${section} feature coming soon`, 'info'); }
+    function logout() { AuthService.logout(); location.href='login.html'; }
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+</script>
+</body>
+</html>

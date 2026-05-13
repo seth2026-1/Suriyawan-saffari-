@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Rider Login - Suriyanwa Saffari</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-900 to-blue-700 min-h-screen flex items-center justify-center p-4">
+
+<div id="toast" class="toast"></div>
+
+<div class="w-full max-w-md">
+    <div class="text-center mb-8">
+        <div class="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <i class="fa-solid fa-motorcycle text-3xl text-orange-600"></i>
+        </div>
+        <h1 class="text-3xl font-black text-white">Rider Portal</h1>
+        <p class="text-blue-200 text-sm mt-1">Suriyanwa Saffari Logistics</p>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-2xl p-6">
+        <div class="flex gap-4 mb-6 border-b">
+            <button class="tab-btn pb-3 text-gray-500 font-medium" data-tab="login" onclick="switchTab('login')">Login</button>
+            <button class="tab-btn pb-3 text-gray-500 font-medium" data-tab="fingerprint" onclick="switchTab('fingerprint')"><i class="fa-solid fa-fingerprint"></i> Fingerprint</button>
+        </div>
+
+        <div id="loginTab">
+            <div class="space-y-4">
+                <div><label class="text-sm font-medium text-gray-700 block mb-1">Email Address</label><div class="relative"><i class="fa-solid fa-envelope absolute left-3 top-3.5 text-gray-400"></i><input type="email" id="email" class="w-full border border-gray-200 rounded-xl pl-10 pr-3 py-3 text-sm" placeholder="rider@example.com"></div></div>
+                <div><label class="text-sm font-medium text-gray-700 block mb-1">Password</label><div class="relative"><i class="fa-solid fa-lock absolute left-3 top-3.5 text-gray-400"></i><input type="password" id="password" class="w-full border border-gray-200 rounded-xl pl-10 pr-3 py-3 text-sm" placeholder="••••••••"><i class="fa-regular fa-eye absolute right-3 top-3.5 text-gray-400 cursor-pointer" onclick="togglePassword()"></i></div></div>
+                <div class="flex justify-between items-center"><label class="flex items-center gap-2"><input type="checkbox" id="rememberMe" class="w-4 h-4"> <span class="text-xs text-gray-500">Remember me</span></label><a href="forgot-password.html" class="text-xs text-orange-600">Forgot password?</a></div>
+                <button onclick="login()" class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg active:scale-95 transition">Login</button>
+            </div>
+        </div>
+
+        <div id="fingerprintTab" class="hidden text-center py-6">
+            <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-fingerprint text-4xl text-gray-400"></i></div>
+            <p class="text-gray-600 text-sm mb-4">Place your finger on the sensor to login</p>
+            <button onclick="fingerprintLogin()" class="bg-blue-900 text-white px-6 py-2 rounded-xl text-sm">Use Fingerprint</button>
+        </div>
+    </div>
+
+    <p class="text-center text-blue-200 text-xs mt-6">© 2026 Suriyanwa Saffari. All rights reserved.</p>
+</div>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    function switchTab(tab) {
+        document.getElementById('loginTab').classList.toggle('hidden', tab !== 'login');
+        document.getElementById('fingerprintTab').classList.toggle('hidden', tab !== 'fingerprint');
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('text-orange-600', 'border-b-2', 'border-orange-600');
+            btn.classList.add('text-gray-500');
+        });
+        document.querySelector(`.tab-btn[data-tab="${tab}"]`).classList.add('text-orange-600', 'border-b-2', 'border-orange-600');
+    }
+
+    async function login() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        if (!email || !password) { showToast('Please enter email and password', 'warning'); return; }
+        const result = await AuthService.login(email, password, AuthService.USER_TYPES.RIDER);
+        if (result.success) location.href = 'dashboard.html';
+        else showToast(result.error || 'Login failed', 'error');
+    }
+
+    async function fingerprintLogin() {
+        if (!window.PublicKeyCredential) { showToast('Fingerprint not supported', 'error'); return; }
+        showToast('Place finger on sensor', 'info');
+        setTimeout(() => showToast('Fingerprint not registered', 'warning'), 2000);
+    }
+
+    function togglePassword() {
+        const pwd = document.getElementById('password');
+        pwd.type = pwd.type === 'password' ? 'text' : 'password';
+    }
+
+    function showToast(msg, type) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.style.backgroundColor = type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#10b981';
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 2000);
+    }
+</script>
+</body>
+</html>

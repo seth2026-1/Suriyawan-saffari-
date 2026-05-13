@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Earnings - Suriyanwa Saffari Rider</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .bottom-nav { transition: all 0.2s; }
+        .bottom-nav.active { color: #f59e0b; }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans pb-20">
+
+<div id="toast" class="toast"></div>
+
+<!-- Header -->
+<header class="bg-white sticky top-0 z-50 shadow-md px-4 py-3 flex justify-between items-center">
+    <div><h1 class="text-xl font-black text-blue-900">My Earnings</h1><p class="text-[10px] text-gray-500">Track your income</p></div>
+    <button onclick="location.reload()" class="text-gray-500"><i class="fa-solid fa-arrows-rotate"></i></button>
+</header>
+
+<!-- Wallet Card -->
+<div class="bg-gradient-to-r from-blue-900 to-blue-800 rounded-2xl m-4 p-5 text-white shadow-lg">
+    <p class="text-sm opacity-80">Wallet Balance</p>
+    <p id="walletBalance" class="text-3xl font-black">₹0</p>
+    <button onclick="openClaimModal()" class="mt-3 bg-orange-500 px-4 py-2 rounded-xl text-sm font-bold">Request Payout</button>
+</div>
+
+<!-- Stats -->
+<div class="grid grid-cols-3 gap-3 px-4 mb-6">
+    <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-[9px] text-gray-400">Today</p><p id="todayEarnings" class="text-xl font-black text-green-600">₹0</p></div>
+    <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-[9px] text-gray-400">This Week</p><p id="weekEarnings" class="text-xl font-black text-blue-900">₹0</p></div>
+    <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-[9px] text-gray-400">Total</p><p id="totalEarnings" class="text-xl font-black text-orange-600">₹0</p></div>
+</div>
+
+<!-- Earnings Chart -->
+<div class="bg-white rounded-2xl shadow-sm mx-4 p-3 mb-6"><canvas id="earningsChart" height="150"></canvas></div>
+
+<!-- Transactions -->
+<div class="bg-white rounded-2xl shadow-sm mx-4 mb-4"><div class="px-4 py-3 border-b flex justify-between"><h3 class="font-bold">Recent Transactions</h3><select id="periodSelect" class="text-xs border rounded px-2"><option value="week">Last 7 days</option><option value="month">Last 30 days</option><option value="all">All time</option></select></div><div id="transactionsList" class="divide-y"><div class="p-4 text-center text-gray-500">Loading...</div></div></div>
+
+<!-- Claim Modal -->
+<div id="claimModal" class="fixed inset-0 bg-black/50 z-[200] hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5"><h3 class="font-bold text-lg mb-3">Request Payout</h3>
+        <div class="space-y-3"><div><label class="text-xs font-medium">Amount (Min ₹100)</label><input type="number" id="claimAmount" class="w-full border rounded-xl p-3 text-sm mt-1" placeholder="Enter amount"><p id="maxAmountMsg" class="text-[10px] text-gray-400 mt-1">Max: ₹<span id="maxAmount">0</span></p></div>
+        <div><label class="text-xs font-medium">UPI ID</label><input type="text" id="upiId" class="w-full border rounded-xl p-3 text-sm mt-1" placeholder="username@ybl"></div>
+        <div class="bg-yellow-50 p-3 rounded-xl"><p class="text-[10px] text-yellow-800">TDS of 1% will be deducted</p></div></div>
+        <div class="flex gap-3 mt-5"><button onclick="closeClaimModal()" class="flex-1 border border-gray-300 py-2 rounded-xl">Cancel</button><button onclick="submitClaim()" class="flex-1 bg-orange-600 text-white py-2 rounded-xl font-bold">Request</button></div>
+    </div>
+</div>
+
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-2 shadow-lg">
+    <button class="bottom-nav flex flex-col items-center py-1" onclick="location.href='dashboard.html'"><i class="fa-solid fa-house text-xl"></i><span class="text-[9px]">Home</span></button>
+    <button class="bottom-nav flex flex-col items-center py-1" onclick="location.href='my-runsheet.html'"><i class="fa-solid fa-clipboard-list text-xl"></i><span class="text-[9px]">Runsheet</span></button>
+    <button class="bottom-nav flex flex-col items-center py-1" onclick="location.href='delivery.html'"><i class="fa-solid fa-truck-fast text-xl"></i><span class="text-[9px]">Deliveries</span></button>
+    <button class="bottom-nav active flex flex-col items-center py-1" onclick="location.href='earnings.html'"><i class="fa-solid fa-wallet text-xl"></i><span class="text-[9px]">Earnings</span></button>
+    <button class="bottom-nav flex flex-col items-center py-1" onclick="location.href='profile.html'"><i class="fa-regular fa-user text-xl"></i><span class="text-[9px]">Profile</span></button>
+</nav>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let riderData = null;
+    let earningsData = null;
+    let earningsChart = null;
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); loadEarnings(); document.getElementById('periodSelect').addEventListener('change', loadEarnings); });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||!user.rider_id) location.href='login.html'; else riderData=user; }
+    
+    async function loadEarnings() {
+        const period = document.getElementById('periodSelect').value;
+        try {
+            const response = await fetch(`/api/logistics/rider/earnings?rider_id=${riderData.rider_id}&period=${period}`, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                earningsData = data;
+                document.getElementById('walletBalance').innerHTML = `₹${data.rider.wallet_balance||0}`;
+                document.getElementById('todayEarnings').innerHTML = `₹${data.summary.period_earnings||0}`;
+                document.getElementById('weekEarnings').innerHTML = `₹${data.summary.period_earnings||0}`;
+                document.getElementById('totalEarnings').innerHTML = `₹${data.summary.total_earnings||0}`;
+                document.getElementById('maxAmount').innerText = data.rider.wallet_balance||0;
+                renderTransactions(data.transactions);
+                renderChart(data.daily_earnings);
+            }
+        } catch(error) { console.error('Error loading earnings:', error); showToast('Failed to load earnings', 'error'); }
+    }
+    
+    function renderTransactions(transactions) {
+        const container = document.getElementById('transactionsList');
+        if(!transactions||transactions.length===0){ container.innerHTML='<div class="p-4 text-center text-gray-500">No transactions</div>'; return; }
+        let html='';
+        transactions.slice(0,20).forEach(t=>{ html+=`<div class="p-3 flex justify-between items-center"><div><p class="text-sm font-medium">${t.reason}</p><p class="text-[9px] text-gray-400">${formatDate(t.created_at)}</p></div><p class="text-sm font-bold text-green-600">+₹${t.amount}</p></div>`; });
+        container.innerHTML=html;
+    }
+    
+    function renderChart(dailyData) {
+        if(earningsChart) earningsChart.destroy();
+        if(!dailyData||dailyData.length===0) return;
+        const ctx = document.getElementById('earningsChart').getContext('2d');
+        earningsChart = new Chart(ctx, { type: 'bar', data: { labels: dailyData.map(d=>d.date), datasets: [{ label: 'Earnings (₹)', data: dailyData.map(d=>d.earnings), backgroundColor: '#f59e0b', borderRadius: 8 }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } } });
+    }
+    
+    function openClaimModal() { if(earningsData?.rider?.wallet_balance<100) { showToast('Minimum ₹100 required','warning'); return; } document.getElementById('claimModal').classList.add('flex'); document.getElementById('claimModal').classList.remove('hidden'); document.getElementById('claimAmount').value = earningsData?.rider?.wallet_balance||0; }
+    function closeClaimModal() { document.getElementById('claimModal').classList.remove('flex'); document.getElementById('claimModal').classList.add('hidden'); }
+    
+    async function submitClaim() {
+        const amount = parseInt(document.getElementById('claimAmount').value);
+        const upiId = document.getElementById('upiId').value;
+        if(!amount||amount<100) { showToast('Minimum ₹100','warning'); return; }
+        if(amount>earningsData.rider.wallet_balance) { showToast('Amount exceeds balance','warning'); return; }
+        if(!upiId) { showToast('UPI ID required','warning'); return; }
+        try {
+            const response = await fetch('/api/logistics/rider/claim-payout', {
+                method: 'POST',
+                headers: { 'Content-Type':'application/json' },
+                body: JSON.stringify({ rider_id: riderData.rider_id, amount: amount, upi_id: upiId })
+            });
+            const data = await response.json();
+            if(data.success) { showToast('Payout request submitted!','success'); closeClaimModal(); loadEarnings(); }
+            else showToast(data.error||'Request failed','error');
+        } catch(error) { showToast('Request failed','error'); }
+    }
+    
+    function formatDate(d) { if(!d) return 'N/A'; return new Date(d).toLocaleDateString('en-IN'); }
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+</script>
+</body>
+</html>

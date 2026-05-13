@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Rider Dashboard - Suriyanwa Saffari</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .bottom-nav { transition: all 0.2s; }
+        .bottom-nav.active { color: #f59e0b; }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans pb-20">
+
+<div id="toast" class="toast"></div>
+
+<!-- Header -->
+<header class="bg-white sticky top-0 z-50 shadow-md px-4 py-3 flex justify-between items-center">
+    <div><h1 class="text-xl font-black text-blue-900">Rider Portal</h1><p id="riderName" class="text-[10px] text-gray-500">Loading...</p></div>
+    <div class="flex gap-3"><i class="fa-regular fa-bell text-xl text-gray-500"></i><i class="fa-regular fa-user text-xl text-gray-500" onclick="location.href='profile.html'"></i></div>
+</header>
+
+<!-- Online Status Toggle -->
+<div class="bg-white p-3 m-4 rounded-xl shadow-sm flex justify-between items-center">
+    <div><p class="text-sm font-bold">Online Status</p><p class="text-[9px] text-gray-500">Accept deliveries when online</p></div>
+    <label class="toggle-switch"><input type="checkbox" id="onlineToggle" onchange="toggleOnlineStatus()"><span class="toggle-slider"></span></label>
+</div>
+
+<!-- Stats Cards -->
+<div class="grid grid-cols-3 gap-3 px-4 mb-6">
+    <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-[9px] text-gray-400">Today's Earnings</p><p id="todayEarnings" class="text-xl font-black text-green-600">₹0</p></div>
+    <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-[9px] text-gray-400">Deliveries</p><p id="todayDeliveries" class="text-xl font-black text-blue-900">0</p></div>
+    <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-[9px] text-gray-400">Wallet</p><p id="walletBalance" class="text-xl font-black text-orange-600">₹0</p></div>
+</div>
+
+<!-- Today's Runsheet -->
+<div class="bg-white rounded-2xl shadow-sm mx-4 mb-6 overflow-hidden">
+    <div class="px-4 py-3 border-b flex justify-between items-center"><h3 class="font-bold">Today's Runsheet</h3><button onclick="location.href='my-runsheet.html'" class="text-orange-600 text-xs">View Details →</button></div>
+    <div id="runsheetCard" class="p-4 text-center text-gray-500">Loading...</div>
+</div>
+
+<!-- Recent Activity -->
+<div class="bg-white rounded-2xl shadow-sm mx-4"><div class="px-4 py-3 border-b"><h3 class="font-bold">Recent Activity</h3></div><div id="recentActivity" class="divide-y"><div class="p-4 text-center text-gray-500">Loading...</div></div></div>
+
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-2 shadow-lg">
+    <button class="bottom-nav active flex flex-col items-center py-1" onclick="location.href='index.html'"><i class="fa-solid fa-house text-xl"></i><span class="text-[9px]">Home</span></button>
+    <button class="bottom-nav flex flex-col items-center py-1" onclick="location.href='my-runsheet.html'"><i class="fa-solid fa-clipboard-list text-xl"></i><span class="text-[9px]">Runsheet</span></button>
+    <button class="bottom-nav flex flex-col items-center py-1" onclick="location.href='delivery.html'"><i class="fa-solid fa-truck-fast text-xl"></i><span class="text-[9px]">Deliveries</span></button>
+    <button class="bottom-nav flex flex-col items-center py-1" onclick="location.href='earnings.html'"><i class="fa-solid fa-wallet text-xl"></i><span class="text-[9px]">Earnings</span></button>
+    <button class="bottom-nav flex flex-col items-center py-1" onclick="location.href='profile.html'"><i class="fa-regular fa-user text-xl"></i><span class="text-[9px]">Profile</span></button>
+</nav>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let riderData = null;
+    let statusInterval = null;
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); loadDashboard(); startLocationTracking(); });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||!user.rider_id) location.href='login.html'; else { riderData=user; document.getElementById('riderName').innerText = user.name; document.getElementById('onlineToggle').checked = user.is_online||false; } }
+    
+    async function loadDashboard() {
+        try {
+            const response = await fetch(`/api/logistics/rider/dashboard?rider_id=${riderData.rider_id}`, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                document.getElementById('todayEarnings').innerHTML = `₹${data.earnings?.today||0}`;
+                document.getElementById('todayDeliveries').innerText = data.today_runsheet?.completed_deliveries||0;
+                document.getElementById('walletBalance').innerHTML = `₹${data.rider?.wallet_balance||0}`;
+                renderRunsheet(data.today_runsheet);
+                renderActivity(data.recent_activities);
+            }
+        } catch(error) { console.error('Error loading dashboard:', error); showToast('Failed to load dashboard', 'error'); }
+    }
+    
+    function renderRunsheet(runsheet) {
+        const container = document.getElementById('runsheetCard');
+        if(!runsheet) { container.innerHTML='<div class="text-center text-gray-500">No runsheet assigned today</div><button onclick="location.href=\'my-runsheet.html\'" class="mt-2 text-orange-600 text-xs">Check Status</button>'; return; }
+        const progress = runsheet.completion_percentage||0;
+        container.innerHTML = `<div><p class="font-medium">Shift: ${runsheet.shift}</p><p class="text-[9px] text-gray-500">Deliveries: ${runsheet.completed_deliveries}/${runsheet.total_deliveries} | Pickups: ${runsheet.completed_pickups}/${runsheet.total_pickups}</p><div class="w-full bg-gray-200 rounded-full h-2 mt-2"><div class="bg-green-600 rounded-full h-2" style="width:${progress}%"></div></div><button onclick="location.href='my-runsheet.html'" class="mt-3 w-full bg-blue-900 text-white py-2 rounded-lg text-sm font-bold">View Runsheet</button></div>`;
+    }
+    
+    function renderActivity(activities) {
+        const container = document.getElementById('recentActivity');
+        if(!activities||activities.length===0){ container.innerHTML='<div class="p-4 text-center text-gray-500">No recent activity</div>'; return; }
+        let html='';
+        activities.slice(0,5).forEach(a=>{ html+=`<div class="p-3 flex justify-between items-center"><div><p class="text-sm">${a.status_display||a.status}</p><p class="text-[9px] text-gray-400">Order #${a.book_id}</p></div><p class="text-[9px] text-gray-400">${formatTime(a.time||a.created_at)}</p></div>`; });
+        container.innerHTML=html;
+    }
+    
+    async function toggleOnlineStatus() {
+        const isOnline = document.getElementById('onlineToggle').checked;
+        try {
+            const response = await fetch('/api/logistics/hub/assign-rider', {
+                method: 'PUT',
+                headers: { 'Content-Type':'application/json' },
+                body: JSON.stringify({ rider_id: riderData.rider_id, is_online: isOnline })
+            });
+            const data = await response.json();
+            if(data.success) showToast(isOnline?'You are now online':'You are now offline','success');
+            else showToast('Status update failed','error');
+        } catch(error) { showToast('Status update failed','error'); }
+    }
+    
+    function startLocationTracking() {
+        if(navigator.geolocation){
+            statusInterval = setInterval(()=>{
+                navigator.geolocation.getCurrentPosition(async(position)=>{
+                    await fetch('/api/logistics/rider/profile', {
+                        method: 'POST',
+                        headers: { 'Content-Type':'application/json' },
+                        body: JSON.stringify({ rider_id: riderData.rider_id, lat: position.coords.latitude, lng: position.coords.longitude })
+                    });
+                }, ()=>{}); // silent fail
+            }, 30000);
+        }
+    }
+    
+    function formatTime(dateStr) { if(!dateStr) return 'N/A'; const date = new Date(dateStr); return date.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' }); }
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+    window.addEventListener('beforeunload',()=>{ if(statusInterval) clearInterval(statusInterval); });
+</script>
+</body>
+</html>
