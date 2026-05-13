@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Categories - Suriyanwa Saffari Owner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .category-item { transition: all 0.2s; }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="toast" class="toast"></div>
+
+<!-- Mobile Menu Toggle -->
+<button id="menuToggle" class="fixed bottom-20 left-4 z-50 bg-blue-900 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center md:hidden">
+    <i class="fa-solid fa-bars text-xl"></i>
+</button>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">O</div><div><h2 class="font-black text-blue-900">Suriyanwa</h2><p class="text-[10px] text-gray-500">Owner Portal</p></div></div></div>
+    <nav class="p-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-line w-5"></i><span class="text-sm font-medium">Dashboard</span></a>
+        <a href="customers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-users w-5"></i><span class="text-sm font-medium">Customers</span></a>
+        <a href="sellers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-store w-5"></i><span class="text-sm font-medium">Sellers</span></a>
+        <a href="riders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-motorcycle w-5"></i><span class="text-sm font-medium">Riders</span></a>
+        <a href="categories.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-orange-50 text-orange-600 mb-1"><i class="fa-solid fa-tags w-5"></i><span class="text-sm font-medium">Categories</span></a>
+        <a href="tags.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-hashtag w-5"></i><span class="text-sm font-medium">Tags</span></a>
+        <a href="products.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-box w-5"></i><span class="text-sm font-medium">Products</span></a>
+        <a href="orders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-truck w-5"></i><span class="text-sm font-medium">Orders</span></a>
+        <a href="payouts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-wallet w-5"></i><span class="text-sm font-medium">Payouts</span></a>
+        <a href="reports.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-simple w-5"></i><span class="text-sm font-medium">Reports</span></a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-gear w-5"></i><span class="text-sm font-medium">Settings</span></a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t"><button onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 w-full"><i class="fa-solid fa-sign-out-alt w-5"></i><span class="text-sm font-medium">Logout</span></button></div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-64 p-4 pb-24">
+    <div class="flex justify-between items-center mb-6">
+        <div><h1 class="text-2xl font-black text-blue-900">Product Categories</h1><p class="text-sm text-gray-500">Manage category structure and commission</p></div>
+        <button onclick="openCreateModal()" class="bg-blue-900 text-white px-4 py-2 rounded-xl text-sm font-bold"><i class="fa-solid fa-plus mr-1"></i> Add Category</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-blue-900" id="totalCategories">0</p><p class="text-[9px] text-gray-500">Total</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-green-600" id="mainCategories">0</p><p class="text-[9px] text-gray-500">Main Categories</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-orange-600" id="subCategories">0</p><p class="text-[9px] text-gray-500">Sub Categories</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-purple-600" id="activeCategories">0</p><p class="text-[9px] text-gray-500">Active</p></div>
+    </div>
+
+    <!-- Categories Tree -->
+    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-4 py-3 border-b bg-gray-50"><h3 class="font-bold">Category Tree</h3></div>
+        <div id="categoriesTree" class="p-4 space-y-2">
+            <div class="text-center text-gray-500">Loading categories...</div>
+        </div>
+    </div>
+
+    <!-- Create/Edit Modal -->
+    <div id="categoryModal" class="fixed inset-0 bg-black/50 z-[200] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5"><h3 id="modalTitle" class="font-bold text-lg mb-3">Add Category</h3>
+            <div class="space-y-3"><input type="text" id="catName" placeholder="Category Name" class="w-full border rounded-xl p-3 text-sm"><input type="text" id="catSlug" placeholder="Slug (URL-friendly)" class="w-full border rounded-xl p-3 text-sm"><input type="text" id="catIcon" placeholder="Icon class (fa-solid fa-xxx)" class="w-full border rounded-xl p-3 text-sm"><select id="catParent" class="w-full border rounded-xl p-3 text-sm"><option value="">Main Category (No Parent)</option></select><input type="number" id="catCommission" placeholder="Commission Rate (%)" class="w-full border rounded-xl p-3 text-sm"><input type="number" id="catSortOrder" placeholder="Sort Order" class="w-full border rounded-xl p-3 text-sm"><div class="flex items-center gap-2"><input type="checkbox" id="catActive" checked> <label class="text-sm">Active</label></div>
+            <div class="flex gap-3"><button onclick="closeModal()" class="flex-1 border border-gray-300 py-3 rounded-xl">Cancel</button><button onclick="saveCategory()" class="flex-1 bg-blue-900 text-white py-3 rounded-xl font-bold">Save</button></div></div>
+        </div>
+    </div>
+</main>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let categories = [];
+    let editingCategory = null;
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); loadCategories(); setupMobileMenu(); });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||user.user_type!=='owner') location.href='login.html'; }
+    
+    async function loadCategories() {
+        try {
+            const response = await fetch('/api/owner/catalog/categories', { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                categories = data.categories;
+                updateStats(data.stats);
+                renderCategoryTree();
+                populateParentSelect();
+            }
+        } catch(error) { console.error('Error loading categories:', error); showToast('Failed to load categories', 'error'); }
+    }
+    
+    function updateStats(stats) {
+        document.getElementById('totalCategories').innerText = stats.total||0;
+        document.getElementById('mainCategories').innerText = stats.main_categories||0;
+        document.getElementById('subCategories').innerText = stats.sub_categories||0;
+        document.getElementById('activeCategories').innerText = stats.active||0;
+    }
+    
+    function renderCategoryTree() {
+        const container = document.getElementById('categoriesTree');
+        if(!categories.length){ container.innerHTML='<div class="text-center text-gray-500 py-8">No categories found</div>'; return; }
+        let html = '';
+        const mainCats = categories.filter(c => !c.parent_id);
+        mainCats.forEach(main => {
+            html += `<div class="category-item bg-gray-50 rounded-xl p-3 mb-2"><div class="flex justify-between items-center"><div><i class="${main.icon||'fa-solid fa-folder'} mr-2 text-orange-600"></i><span class="font-bold">${main.name}</span><span class="text-[9px] text-gray-500 ml-2">ID: ${main.cat_id}</span><span class="text-[9px] text-gray-400 ml-2">Commission: ${main.commission_rate||'Default'}%</span></div><div><button onclick="editCategory(${main.cat_id})" class="text-blue-600 text-xs mr-2">Edit</button><button onclick="deleteCategory(${main.cat_id})" class="text-red-500 text-xs">Delete</button></div></div>`;
+            const subs = categories.filter(c => c.parent_id === main.cat_id);
+            if(subs.length){
+                html += `<div class="ml-6 mt-2 space-y-1">`;
+                subs.forEach(sub => {
+                    html += `<div class="flex justify-between items-center p-2 bg-white rounded-lg"><div><i class="${sub.icon||'fa-solid fa-tag'} mr-2 text-blue-600"></i><span>${sub.name}</span><span class="text-[9px] text-gray-500 ml-2">Commission: ${sub.commission_rate||'Inherit'}%</span></div><div><button onclick="editCategory(${sub.cat_id})" class="text-blue-600 text-xs mr-2">Edit</button><button onclick="deleteCategory(${sub.cat_id})" class="text-red-500 text-xs">Delete</button></div></div>`;
+                });
+                html += `</div>`;
+            }
+            html += `</div>`;
+        });
+        container.innerHTML = html;
+    }
+    
+    function populateParentSelect() {
+        const select = document.getElementById('catParent');
+        select.innerHTML = '<option value="">Main Category (No Parent)</option>';
+        const mainCats = categories.filter(c => !c.parent_id);
+        mainCats.forEach(cat => { select.innerHTML += `<option value="${cat.cat_id}">${cat.name}</option>`; });
+        if(editingCategory && editingCategory.parent_id) select.value = editingCategory.parent_id;
+    }
+    
+    function openCreateModal() { editingCategory = null; document.getElementById('modalTitle').innerText = 'Add Category'; document.getElementById('catName').value = ''; document.getElementById('catSlug').value = ''; document.getElementById('catIcon').value = ''; document.getElementById('catCommission').value = ''; document.getElementById('catSortOrder').value = ''; document.getElementById('catActive').checked = true; populateParentSelect(); document.getElementById('categoryModal').classList.add('flex'); document.getElementById('categoryModal').classList.remove('hidden'); }
+    function closeModal() { document.getElementById('categoryModal').classList.remove('flex'); document.getElementById('categoryModal').classList.add('hidden'); editingCategory = null; }
+    
+    function editCategory(catId) { editingCategory = categories.find(c => c.cat_id === catId); document.getElementById('modalTitle').innerText = 'Edit Category'; document.getElementById('catName').value = editingCategory.name; document.getElementById('catSlug').value = editingCategory.slug; document.getElementById('catIcon').value = editingCategory.icon || ''; document.getElementById('catCommission').value = editingCategory.commission_rate || ''; document.getElementById('catSortOrder').value = editingCategory.sort_order || ''; document.getElementById('catActive').checked = editingCategory.is_active; populateParentSelect(); document.getElementById('categoryModal').classList.add('flex'); document.getElementById('categoryModal').classList.remove('hidden'); }
+    
+    async function saveCategory() {
+        const data = { name: document.getElementById('catName').value, slug: document.getElementById('catSlug').value, icon: document.getElementById('catIcon').value, parent_id: document.getElementById('catParent').value || null, commission_rate: document.getElementById('catCommission').value ? parseInt(document.getElementById('catCommission').value) : null, sort_order: parseInt(document.getElementById('catSortOrder').value) || 0, is_active: document.getElementById('catActive').checked };
+        if(!data.name||!data.slug){ showToast('Name and slug required','warning'); return; }
+        try {
+            let url = '/api/owner/catalog/categories';
+            let method = 'POST';
+            if(editingCategory){ method = 'PUT'; data.cat_id = editingCategory.cat_id; }
+            const response = await fetch(url, { method: method, headers: { 'Content-Type':'application/json' }, body: JSON.stringify(data) });
+            const result = await response.json();
+            if(result.success) { showToast(editingCategory?'Category updated':'Category created','success'); closeModal(); loadCategories(); }
+            else showToast(result.error||'Operation failed','error');
+        } catch(error) { showToast('Operation failed','error'); }
+    }
+    
+    async function deleteCategory(catId) { if(confirm('Delete this category? Sub-categories will be orphaned.')){ try{
+        const response = await fetch(`/api/owner/catalog/categories?cat_id=${catId}`, { method: 'DELETE', headers: AuthService.getAuthHeaders() });
+        const data = await response.json();
+        if(data.success) { showToast('Category deleted','success'); loadCategories(); }
+        else showToast(data.error||'Delete failed','error');
+    } catch(error){ showToast('Delete failed','error'); } } }
+    
+    function setupMobileMenu() { const menuBtn=document.getElementById('menuToggle'),sidebar=document.getElementById('sidebar'); if(menuBtn&&sidebar) menuBtn.addEventListener('click',()=>{ sidebar.classList.toggle('open'); sidebar.style.transform=sidebar.classList.contains('open')?'translateX(0)':'translateX(-100%)'; }); }
+    function logout() { AuthService.logout(); location.href='login.html'; }
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+</script>
+</body>
+</html>

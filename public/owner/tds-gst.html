@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>TDS & GST Reports - Suriyanwa Saffari Owner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="toast" class="toast"></div>
+
+<!-- Mobile Menu Toggle -->
+<button id="menuToggle" class="fixed bottom-20 left-4 z-50 bg-blue-900 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center md:hidden">
+    <i class="fa-solid fa-bars text-xl"></i>
+</button>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">O</div><div><h2 class="font-black text-blue-900">Suriyanwa</h2><p class="text-[10px] text-gray-500">Owner Portal</p></div></div></div>
+    <nav class="p-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-line w-5"></i><span class="text-sm font-medium">Dashboard</span></a>
+        <a href="customers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-users w-5"></i><span class="text-sm font-medium">Customers</span></a>
+        <a href="sellers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-store w-5"></i><span class="text-sm font-medium">Sellers</span></a>
+        <a href="riders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-motorcycle w-5"></i><span class="text-sm font-medium">Riders</span></a>
+        <a href="tds-gst.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-orange-50 text-orange-600 mb-1"><i class="fa-solid fa-file-invoice w-5"></i><span class="text-sm font-medium">TDS & GST</span></a>
+        <a href="seller-payouts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-wallet w-5"></i><span class="text-sm font-medium">Seller Payouts</span></a>
+        <a href="rider-payouts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-motorcycle w-5"></i><span class="text-sm font-medium">Rider Payouts</span></a>
+        <a href="reports.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-simple w-5"></i><span class="text-sm font-medium">Reports</span></a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-gear w-5"></i><span class="text-sm font-medium">Settings</span></a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t"><button onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 w-full"><i class="fa-solid fa-sign-out-alt w-5"></i><span class="text-sm font-medium">Logout</span></button></div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-64 p-4 pb-24">
+    <div class="mb-6"><h1 class="text-2xl font-black text-blue-900">TDS & GST Reports</h1><p class="text-sm text-gray-500">Tax compliance reports</p></div>
+
+    <!-- Tabs -->
+    <div class="border-b bg-white mb-4 flex"><button class="tab-btn flex-1 py-3 text-sm font-bold text-orange-600 border-b-2 border-orange-600" data-tab="tds" onclick="switchTab('tds')">TDS Reports</button><button class="tab-btn flex-1 py-3 text-sm font-bold text-gray-500" data-tab="gst" onclick="switchTab('gst')">GST Reports</button></div>
+
+    <!-- TDS Tab -->
+    <div id="tdsTab" class="space-y-4">
+        <div class="bg-white rounded-2xl p-4 flex flex-wrap gap-3 items-center"><select id="tdsPeriod" class="border rounded-lg px-3 py-2 text-sm"><option value="quarter">Quarterly</option><option value="month">Monthly</option><option value="year">Financial Year</option></select><input type="month" id="tdsMonth" class="border rounded-lg px-3 py-2 text-sm"><select id="tdsUserType" class="border rounded-lg px-3 py-2 text-sm"><option value="all">All Users</option><option value="seller">Sellers Only</option><option value="rider">Riders Only</option></select><button onclick="loadTDSReport()" class="bg-blue-900 text-white px-4 py-2 rounded-lg text-sm">Generate</button><button onclick="exportTDS()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm"><i class="fa-solid fa-download"></i> Export</button></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3"><div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-blue-900" id="totalTDSAmount">₹0</p><p class="text-[9px] text-gray-500">Total TDS Deducted</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-green-600" id="sellerTDS">₹0</p><p class="text-[9px] text-gray-500">From Sellers</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-purple-600" id="riderTDS">₹0</p><p class="text-[9px] text-gray-500">From Riders</p></div></div>
+
+        <div class="bg-white rounded-2xl shadow-sm overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-50 border-b"><tr><th class="p-3 text-left">User Type</th><th class="p-3 text-left">Name</th><th class="p-3 text-left">PAN</th><th class="p-3 text-left">Total Amount</th><th class="p-3 text-left">TDS Amount</th><th class="p-3 text-left">UTR/Reference</th></tr></thead><tbody id="tdsTable"><tr><td colspan="6" class="p-4 text-center text-gray-500">Select period to load</td></tr></tbody></table></div>
+    </div>
+
+    <!-- GST Tab -->
+    <div id="gstTab" class="space-y-4 hidden">
+        <div class="bg-white rounded-2xl p-4 flex flex-wrap gap-3 items-center"><select id="gstPeriod" class="border rounded-lg px-3 py-2 text-sm"><option value="month">Monthly</option><option value="quarter">Quarterly</option></select><input type="month" id="gstMonth" class="border rounded-lg px-3 py-2 text-sm"><select id="gstType" class="border rounded-lg px-3 py-2 text-sm"><option value="GSTR1">GSTR-1 (Outward Supplies)</option><option value="GSTR3B">GSTR-3B (Summary)</option><option value="HSN">HSN Summary</option></select><button onclick="loadGSTReport()" class="bg-blue-900 text-white px-4 py-2 rounded-lg text-sm">Generate</button><button onclick="exportGST()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm"><i class="fa-solid fa-download"></i> Export</button></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3"><div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-blue-900" id="totalTaxable">₹0</p><p class="text-[9px] text-gray-500">Taxable Value</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-green-600" id="totalGST">₹0</p><p class="text-[9px] text-gray-500">Total GST</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-orange-600" id="totalCGST">₹0</p><p class="text-[9px] text-gray-500">CGST</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-purple-600" id="totalSGST">₹0</p><p class="text-[9px] text-gray-500">SGST/UTGST</p></div></div>
+
+        <div id="gstContent" class="bg-white rounded-2xl shadow-sm p-4"><div class="text-center text-gray-500">Select period to load</div></div>
+    </div>
+</main>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let tdsData = null;
+    let gstData = null;
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); setupMobileMenu(); const now = new Date(); document.getElementById('tdsMonth').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`; document.getElementById('gstMonth').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`; });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||user.user_type!=='owner') location.href='login.html'; }
+    
+    async function loadTDSReport() {
+        const period = document.getElementById('tdsPeriod').value;
+        const month = document.getElementById('tdsMonth').value;
+        const userType = document.getElementById('tdsUserType').value;
+        try {
+            const response = await fetch(`/api/owner/finance/tds-reports?financial_year=${month.split('-')[0]}-${parseInt(month.split('-')[0])+1}&month=${month.split('-')[1]}&user_type=${userType}`, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                tdsData = data;
+                document.getElementById('totalTDSAmount').innerHTML = `₹${data.summary.total_tds_deducted||0}`;
+                document.getElementById('sellerTDS').innerHTML = `₹${data.summary.seller_tds||0}`;
+                document.getElementById('riderTDS').innerHTML = `₹${data.summary.rider_tds||0}`;
+                renderTDSTable(data.certificates);
+            }
+        } catch(error) { console.error('Error loading TDS:', error); showToast('Failed to load TDS report', 'error'); }
+    }
+    
+    function renderTDSTable(certificates) {
+        const tbody = document.getElementById('tdsTable');
+        let allEntries = [...(certificates?.sellers||[]), ...(certificates?.riders||[])];
+        if(!allEntries.length){ tbody.innerHTML='<tr><td colspan="6" class="p-4 text-center text-gray-500">No TDS data found</td></tr>'; return; }
+        let html='';
+        allEntries.forEach(e=>{ html+=`<tr class="border-b"><td class="p-3">${e.seller_id?'Seller':'Rider'}</td><td class="p-3">${e.shop_name||e.name}</td><td class="p-3">${e.pan_number||'Not provided'}</td><td class="p-3">₹${e.total_amount}</td><td class="p-3 font-bold">₹${e.total_tds}</td><td class="p-3">-</td></tr>`; });
+        tbody.innerHTML=html;
+    }
+    
+    async function loadGSTReport() {
+        const period = document.getElementById('gstPeriod').value;
+        const month = document.getElementById('gstMonth').value;
+        const type = document.getElementById('gstType').value;
+        try {
+            const response = await fetch(`/api/owner/finance/gst-reports?month=${month.split('-')[1]}&year=${month.split('-')[0]}&return_type=${type}`, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                gstData = data;
+                document.getElementById('totalTaxable').innerHTML = `₹${data.summary.total_taxable_value||0}`;
+                document.getElementById('totalGST').innerHTML = `₹${data.summary.total_gst_amount||0}`;
+                document.getElementById('totalCGST').innerHTML = `₹${data.summary.total_cgst||0}`;
+                document.getElementById('totalSGST').innerHTML = `₹${data.summary.total_sgst||0}`;
+                if(type === 'GSTR1') renderGSTR1(data.gstr1);
+                else if(type === 'GSTR3B') renderGSTR3B(data.gstr3b);
+                else renderHSN(data.hsn_summary);
+            }
+        } catch(error) { console.error('Error loading GST:', error); showToast('Failed to load GST report', 'error'); }
+    }
+    
+    function renderGSTR1(gstr1) {
+        const container = document.getElementById('gstContent');
+        if(!gstr1?.b2b?.length && !gstr1?.b2cl?.length){ container.innerHTML='<div class="text-center text-gray-500">No GST data</div>'; return; }
+        container.innerHTML = `<h3 class="font-bold mb-3">B2B Invoices</h3><div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-50"><tr><th class="p-2">Invoice No</th><th class="p-2">Customer GST</th><th class="p-2">Taxable Value</th><th class="p-2">CGST</th><th class="p-2">SGST</th></tr></thead><tbody>${gstr1.b2b?.map(inv=>`<tr><td class="p-2">${inv.inum}</td><td>${inv.ctin}</td><td>₹${inv.val}</td><td>₹${inv.cgst}</td><td>₹${inv.sgst}</td></tr>`).join('')||'<tr><td colspan="5">No B2B invoices</td></tr>'}</tbody></table></div>`;
+    }
+    
+    function renderGSTR3B(gstr3b) { document.getElementById('gstContent').innerHTML = `<div class="grid grid-cols-2 gap-4"><div class="bg-gray-50 p-3 rounded"><p class="text-xs text-gray-500">Outward Supply</p><p class="text-xl font-bold">₹${gstr3b?.summary?.outward_supply?.total_taxable_value||0}</p><p class="text-xs">IGST: ₹${gstr3b?.summary?.outward_supply?.igst||0}</p></div><div class="bg-gray-50 p-3 rounded"><p class="text-xs text-gray-500">Net Tax Payable</p><p class="text-xl font-bold">₹${gstr3b?.summary?.net_tax_payable?.cgst+gstr3b?.summary?.net_tax_payable?.sgst+gstr3b?.summary?.net_tax_payable?.igst||0}</p><p class="text-xs">CGST: ₹${gstr3b?.summary?.net_tax_payable?.cgst||0} | SGST: ₹${gstr3b?.summary?.net_tax_payable?.sgst||0}</p></div></div>`; }
+    function renderHSN(hsn) { document.getElementById('gstContent').innerHTML = `<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-50"><tr><th class="p-2">HSN Code</th><th class="p-2">Description</th><th class="p-2">Quantity</th><th class="p-2">Taxable Value</th></tr></thead><tbody>${hsn?.map(h=>`<tr><td>${h.hsn_code}</td><td>${h.description}</td><td>${h.total_quantity}</td><td>₹${h.total_taxable_value}</td></tr>`).join('')||'<tr><td colspan="4">No HSN data</td></tr>'}</tbody></table></div>`; }
+    
+    function exportTDS() { alert('TDS export feature - download CSV'); }
+    function exportGST() { alert('GST export feature - download CSV'); }
+    function switchTab(tab) {
+        document.getElementById('tdsTab').classList.toggle('hidden',tab!=='tds');
+        document.getElementById('gstTab').classList.toggle('hidden',tab!=='gst');
+        document.querySelectorAll('.tab-btn').forEach(btn=>{ btn.classList.remove('text-orange-600','border-orange-600'); btn.classList.add('text-gray-500'); });
+        document.querySelector(`.tab-btn[data-tab="${tab}"]`).classList.add('text-orange-600','border-orange-600');
+        if(tab==='tds') loadTDSReport(); else loadGSTReport();
+    }
+    
+    function setupMobileMenu() { const menuBtn=document.getElementById('menuToggle'),sidebar=document.getElementById('sidebar'); if(menuBtn&&sidebar) menuBtn.addEventListener('click',()=>{ sidebar.classList.toggle('open'); sidebar.style.transform=sidebar.classList.contains('open')?'translateX(0)':'translateX(-100%)'; }); }
+    function logout() { AuthService.logout(); location.href='login.html'; }
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+</script>
+</body>
+</html>

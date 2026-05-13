@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Hubs - Suriyanwa Saffari Owner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="toast" class="toast"></div>
+
+<!-- Mobile Menu Toggle -->
+<button id="menuToggle" class="fixed bottom-20 left-4 z-50 bg-blue-900 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center md:hidden">
+    <i class="fa-solid fa-bars text-xl"></i>
+</button>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">O</div><div><h2 class="font-black text-blue-900">Suriyanwa</h2><p class="text-[10px] text-gray-500">Owner Portal</p></div></div></div>
+    <nav class="p-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-line w-5"></i><span class="text-sm font-medium">Dashboard</span></a>
+        <a href="customers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-users w-5"></i><span class="text-sm font-medium">Customers</span></a>
+        <a href="sellers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-store w-5"></i><span class="text-sm font-medium">Sellers</span></a>
+        <a href="riders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-motorcycle w-5"></i><span class="text-sm font-medium">Riders</span></a>
+        <a href="hubs.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-orange-50 text-orange-600 mb-1"><i class="fa-solid fa-warehouse w-5"></i><span class="text-sm font-medium">Hubs</span></a>
+        <a href="orders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-truck w-5"></i><span class="text-sm font-medium">Orders</span></a>
+        <a href="products.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-box w-5"></i><span class="text-sm font-medium">Products</span></a>
+        <a href="payouts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-wallet w-5"></i><span class="text-sm font-medium">Payouts</span></a>
+        <a href="reports.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-simple w-5"></i><span class="text-sm font-medium">Reports</span></a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-gear w-5"></i><span class="text-sm font-medium">Settings</span></a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t"><button onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 w-full"><i class="fa-solid fa-sign-out-alt w-5"></i><span class="text-sm font-medium">Logout</span></button></div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-64 p-4 pb-24">
+    <div class="flex justify-between items-center mb-6">
+        <div><h1 class="text-2xl font-black text-blue-900">Logistics Hubs</h1><p class="text-sm text-gray-500">Manage hub managers</p></div>
+        <button onclick="openCreateHubModal()" class="bg-blue-900 text-white px-4 py-2 rounded-xl text-sm font-bold"><i class="fa-solid fa-plus mr-1"></i> Add Hub</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-blue-900" id="totalHubs">0</p><p class="text-[9px] text-gray-500">Total Hubs</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-green-600" id="activeHubs">0</p><p class="text-[9px] text-gray-500">Active</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p id="totalRidersInHubs" class="text-xl font-black text-orange-600">0</p><p class="text-[9px] text-gray-500">Total Riders</p></div>
+    </div>
+
+    <!-- Hubs List -->
+    <div id="hubsList" class="space-y-4">
+        <div class="bg-white rounded-2xl p-4 text-center text-gray-500">Loading hubs...</div>
+    </div>
+</main>
+
+<!-- Create Hub Modal -->
+<div id="createHubModal" class="fixed inset-0 bg-black/50 z-[200] hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><h3 class="font-bold text-lg mb-3">Add New Hub</h3>
+        <div class="space-y-3"><input type="text" id="hubName" placeholder="Hub Name" class="w-full border rounded-xl p-3 text-sm"><input type="email" id="hubEmail" placeholder="Email" class="w-full border rounded-xl p-3 text-sm"><input type="tel" id="hubMobile" placeholder="Mobile" class="w-full border rounded-xl p-3 text-sm"><input type="text" id="hubZone" placeholder="Assigned Zone" class="w-full border rounded-xl p-3 text-sm"><input type="text" id="hubPincodes" placeholder="Assigned Pincodes (comma separated)" class="w-full border rounded-xl p-3 text-sm"><textarea id="hubAddress" rows="2" placeholder="Address" class="w-full border rounded-xl p-3 text-sm"></textarea>
+        <div class="flex gap-3"><button onclick="closeCreateHubModal()" class="flex-1 border border-gray-300 py-3 rounded-xl">Cancel</button><button onclick="createHub()" class="flex-1 bg-blue-900 text-white py-3 rounded-xl font-bold">Create</button></div></div>
+    </div>
+</div>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let hubs = [];
+    let currentPage = 1;
+    let totalPages = 1;
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); loadHubs(); setupMobileMenu(); });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||user.user_type!=='owner') location.href='login.html'; }
+    
+    async function loadHubs() {
+        try {
+            const response = await fetch('/api/owner/users/hubs', { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                hubs = data.hubs||[];
+                updateStats(data.stats);
+                renderHubs();
+            }
+        } catch(error) { console.error('Error loading hubs:', error); showToast('Failed to load hubs', 'error'); }
+    }
+    
+    function updateStats(stats) {
+        document.getElementById('totalHubs').innerText = stats?.total||0;
+        document.getElementById('activeHubs').innerText = stats?.active||0;
+        document.getElementById('totalRidersInHubs').innerText = stats?.total_riders||0;
+    }
+    
+    function renderHubs() {
+        const container = document.getElementById('hubsList');
+        if(!hubs.length){ container.innerHTML='<div class="bg-white rounded-2xl p-8 text-center text-gray-500">No hubs found</div>'; return; }
+        let html='';
+        hubs.forEach(hub=>{ html+=`<div class="bg-white rounded-2xl shadow-sm p-4"><div class="flex justify-between items-start"><div><h3 class="font-bold text-lg">${hub.name}</h3><p class="text-[9px] text-gray-500">${hub.hub_id}</p><p class="text-xs mt-1">📍 ${hub.assigned_zone||'Not assigned'}</p><p class="text-xs text-gray-600 mt-1">📞 ${hub.mobile} | ✉️ ${hub.email}</p><p class="text-[10px] text-gray-500 mt-1">Pincodes: ${hub.assigned_pincodes?.join(', ')||'All'}</p></div>
+                <div class="text-right"><span class="px-2 py-1 rounded-full text-[9px] font-bold ${hub.is_active?'bg-green-100 text-green-700':'bg-red-100 text-red-700'}">${hub.is_active?'Active':'Inactive'}</span>
+                <div class="mt-2"><button onclick="toggleHubStatus('${hub.hub_id}', ${!hub.is_active})" class="text-xs ${hub.is_active?'text-red-500':'text-green-600'} mr-2">${hub.is_active?'Deactivate':'Activate'}</button>
+                <button onclick="viewHub('${hub.hub_id}')" class="text-blue-600 text-xs">View Details</button></div></div></div></div>`; });
+        container.innerHTML=html;
+    }
+    
+    function openCreateHubModal() { document.getElementById('createHubModal').classList.add('flex'); document.getElementById('createHubModal').classList.remove('hidden'); }
+    function closeCreateHubModal() { document.getElementById('createHubModal').classList.remove('flex'); document.getElementById('createHubModal').classList.add('hidden'); }
+    async function createHub() {
+        const data = { name: document.getElementById('hubName').value, email: document.getElementById('hubEmail').value, mobile: document.getElementById('hubMobile').value, assigned_zone: document.getElementById('hubZone').value, assigned_pincodes: document.getElementById('hubPincodes').value.split(',').map(p=>p.trim()), address: document.getElementById('hubAddress').value };
+        if(!data.name||!data.email||!data.mobile){ showToast('Name, email and mobile required','warning'); return; }
+        try {
+            const response = await fetch('/api/owner/users/create-hub', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(data) });
+            const result = await response.json();
+            if(result.success) { showToast('Hub created successfully','success'); closeCreateHubModal(); loadHubs(); }
+            else showToast(result.error||'Creation failed','error');
+        } catch(error) { showToast('Creation failed','error'); }
+    }
+    
+    async function toggleHubStatus(hubId, activate) { if(confirm(activate?'Activate this hub?':'Deactivate this hub?')){ try{
+        const response = await fetch('/api/owner/users/block-user', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ user_id: hubId, user_type: 'hub', action: activate?'unblock':'block', reason: 'Admin action' }) });
+        const data = await response.json();
+        if(data.success) { showToast(activate?'Hub activated':'Hub deactivated','success'); loadHubs(); }
+        else showToast('Action failed','error');
+    } catch(error){ showToast('Action failed','error'); } } }
+    
+    function viewHub(hubId) { location.href=`hub-detail.html?hub_id=${hubId}`; }
+    function setupMobileMenu() { const menuBtn=document.getElementById('menuToggle'),sidebar=document.getElementById('sidebar'); if(menuBtn&&sidebar) menuBtn.addEventListener('click',()=>{ sidebar.classList.toggle('open'); sidebar.style.transform=sidebar.classList.contains('open')?'translateX(0)':'translateX(-100%)'; }); }
+    function logout() { AuthService.logout(); location.href='login.html'; }
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+</script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Profit & Loss - Suriyanwa Saffari Owner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="toast" class="toast"></div>
+
+<!-- Mobile Menu Toggle -->
+<button id="menuToggle" class="fixed bottom-20 left-4 z-50 bg-blue-900 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center md:hidden">
+    <i class="fa-solid fa-bars text-xl"></i>
+</button>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">O</div><div><h2 class="font-black text-blue-900">Suriyanwa</h2><p class="text-[10px] text-gray-500">Owner Portal</p></div></div></div>
+    <nav class="p-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-line w-5"></i><span class="text-sm font-medium">Dashboard</span></a>
+        <a href="customers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-users w-5"></i><span class="text-sm font-medium">Customers</span></a>
+        <a href="sellers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-store w-5"></i><span class="text-sm font-medium">Sellers</span></a>
+        <a href="riders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-motorcycle w-5"></i><span class="text-sm font-medium">Riders</span></a>
+        <a href="profit-loss.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-orange-50 text-orange-600 mb-1"><i class="fa-solid fa-chart-line w-5"></i><span class="text-sm font-medium">Profit & Loss</span></a>
+        <a href="seller-payouts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-wallet w-5"></i><span class="text-sm font-medium">Seller Payouts</span></a>
+        <a href="rider-payouts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-motorcycle w-5"></i><span class="text-sm font-medium">Rider Payouts</span></a>
+        <a href="reports.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-simple w-5"></i><span class="text-sm font-medium">Reports</span></a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-gear w-5"></i><span class="text-sm font-medium">Settings</span></a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t"><button onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 w-full"><i class="fa-solid fa-sign-out-alt w-5"></i><span class="text-sm font-medium">Logout</span></button></div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-64 p-4 pb-24">
+    <div class="mb-6"><h1 class="text-2xl font-black text-blue-900">Profit & Loss Statement</h1><p class="text-sm text-gray-500">Track business profitability</p></div>
+
+    <!-- Period Selection -->
+    <div class="bg-white rounded-2xl p-4 mb-6 flex flex-wrap gap-3 items-center">
+        <select id="periodSelect" class="border rounded-lg px-3 py-2 text-sm"><option value="month">This Month</option><option value="quarter">This Quarter</option><option value="year">This Year</option><option value="custom">Custom Range</option></select>
+        <input type="date" id="fromDate" class="border rounded-lg px-3 py-2 text-sm hidden">
+        <input type="date" id="toDate" class="border rounded-lg px-3 py-2 text-sm hidden">
+        <button onclick="loadPnL()" class="bg-blue-900 text-white px-4 py-2 rounded-lg text-sm">Generate</button>
+        <button onclick="exportPnL()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm"><i class="fa-solid fa-download"></i> Export</button>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
+        <div class="bg-gradient-to-r from-green-600 to-green-700 rounded-2xl p-4 text-white"><p class="text-xs opacity-80">Total Revenue</p><p id="totalRevenue" class="text-2xl font-black">₹0</p></div>
+        <div class="bg-gradient-to-r from-red-600 to-red-700 rounded-2xl p-4 text-white"><p class="text-xs opacity-80">Total Expenses</p><p id="totalExpenses" class="text-2xl font-black">₹0</p></div>
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-4 text-white"><p class="text-xs opacity-80">Gross Profit</p><p id="grossProfit" class="text-2xl font-black">₹0</p></div>
+        <div class="bg-gradient-to-r from-purple-600 to-purple-700 rounded-2xl p-4 text-white"><p class="text-xs opacity-80">Net Profit</p><p id="netProfit" class="text-2xl font-black">₹0</p></div>
+    </div>
+
+    <!-- Revenue vs Expenses Chart -->
+    <div class="bg-white rounded-2xl shadow-sm p-4 mb-6"><canvas id="pnlChart" height="200"></canvas></div>
+
+    <!-- Detailed Breakdown -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white rounded-2xl shadow-sm"><div class="px-4 py-3 border-b bg-green-50"><h3 class="font-bold text-green-700">Revenue Breakdown</h3></div>
+            <div class="p-4 space-y-2"><div class="flex justify-between"><span>Product Sales</span><span id="productSales" class="font-bold">₹0</span></div><div class="flex justify-between"><span>Delivery Charges</span><span id="deliveryIncome" class="font-bold">₹0</span></div><div class="flex justify-between font-bold pt-2 border-t"><span>Total Revenue</span><span id="totalRevenueDetail" class="text-green-600">₹0</span></div></div></div>
+        <div class="bg-white rounded-2xl shadow-sm"><div class="px-4 py-3 border-b bg-red-50"><h3 class="font-bold text-red-700">Expense Breakdown</h3></div>
+            <div class="p-4 space-y-2"><div class="flex justify-between"><span>Seller Commission</span><span id="commissionExpense" class="font-bold">₹0</span></div><div class="flex justify-between"><span>Rider Payments</span><span id="riderPayments" class="font-bold">₹0</span></div><div class="flex justify-between"><span>RTO Loss</span><span id="rtoLoss" class="font-bold">₹0</span></div><div class="flex justify-between"><span>Returns/Refunds</span><span id="refunds" class="font-bold">₹0</span></div><div class="flex justify-between"><span>Operational Costs</span><span id="operationalCosts" class="font-bold">₹0</span></div><div class="flex justify-between"><span>Marketing/Ads</span><span id="marketingCosts" class="font-bold">₹0</span></div><div class="flex justify-between font-bold pt-2 border-t"><span>Total Expenses</span><span id="totalExpenseDetail" class="text-red-600">₹0</span></div></div></div>
+    </div>
+
+    <!-- Monthly Breakdown -->
+    <div class="bg-white rounded-2xl shadow-sm mt-6"><div class="px-4 py-3 border-b"><h3 class="font-bold">Monthly Breakdown</h3></div><div id="monthlyBreakdown" class="divide-y"><div class="p-4 text-center text-gray-500">Select period to load</div></div></div>
+</main>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let pnlChart = null;
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); setupMobileMenu(); document.getElementById('periodSelect').addEventListener('change', toggleCustomDates); loadPnL(); });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||user.user_type!=='owner') location.href='login.html'; }
+    function toggleCustomDates() { const isCustom = document.getElementById('periodSelect').value === 'custom'; document.getElementById('fromDate').classList.toggle('hidden', !isCustom); document.getElementById('toDate').classList.toggle('hidden', !isCustom); }
+    
+    async function loadPnL() {
+        const period = document.getElementById('periodSelect').value;
+        let url = `/api/owner/finance/profit-loss?period=${period}`;
+        if(period === 'custom'){ 
+            const from = document.getElementById('fromDate').value;
+            const to = document.getElementById('toDate').value;
+            if(from && to) url += `&from_date=${from}&to_date=${to}`;
+        }
+        try {
+            const response = await fetch(url, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                updateSummary(data);
+                updateBreakdown(data);
+                renderChart(data.monthly_breakdown);
+                renderMonthlyTable(data.monthly_breakdown);
+            }
+        } catch(error) { console.error('Error loading P&L:', error); showToast('Failed to load data', 'error'); }
+    }
+    
+    function updateSummary(data) {
+        document.getElementById('totalRevenue').innerHTML = `₹${data.revenue.total||0}`;
+        document.getElementById('totalExpenses').innerHTML = `₹${data.expenses.total||0}`;
+        document.getElementById('grossProfit').innerHTML = `₹${data.costs.gross_profit||0}`;
+        document.getElementById('netProfit').innerHTML = `₹${data.profit.net||0}`;
+        document.getElementById('productSales').innerHTML = `₹${data.revenue.total||0}`;
+        document.getElementById('deliveryIncome').innerHTML = `₹${data.revenue.delivery_charge||0}`;
+        document.getElementById('totalRevenueDetail').innerHTML = `₹${data.revenue.total||0}`;
+        document.getElementById('commissionExpense').innerHTML = `₹${data.costs.commission||0}`;
+        document.getElementById('riderPayments').innerHTML = `₹${data.expenses.rider_payouts||0}`;
+        document.getElementById('rtoLoss').innerHTML = `₹${data.expenses.rto_loss||0}`;
+        document.getElementById('refunds').innerHTML = `₹${data.expenses.returns||0}`;
+        document.getElementById('operationalCosts').innerHTML = `₹${data.expenses.operational||0}`;
+        document.getElementById('marketingCosts').innerHTML = `₹${data.expenses.ad_expenses||0}`;
+        document.getElementById('totalExpenseDetail').innerHTML = `₹${data.expenses.total||0}`;
+    }
+    
+    function updateBreakdown(data) {
+        document.getElementById('profitMargin').innerHTML = `${data.profit.net_margin_percentage||0}%`;
+    }
+    
+    function renderChart(monthlyData) {
+        if(pnlChart) pnlChart.destroy();
+        if(!monthlyData||!monthlyData.length) return;
+        const ctx = document.getElementById('pnlChart').getContext('2d');
+        pnlChart = new Chart(ctx, { type: 'bar', data: { labels: monthlyData.map(m=>m.month), datasets: [{ label: 'Revenue (₹)', data: monthlyData.map(m=>m.revenue), backgroundColor: '#10b981' }, { label: 'Net Profit (₹)', data: monthlyData.map(m=>m.net), backgroundColor: '#f59e0b' }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } } });
+    }
+    
+    function renderMonthlyTable(monthlyData) {
+        const container = document.getElementById('monthlyBreakdown');
+        if(!monthlyData||!monthlyData.length){ container.innerHTML='<div class="p-4 text-center text-gray-500">No data available</div>'; return; }
+        let html='<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-50"><tr><th class="p-3 text-left">Month</th><th class="p-3 text-left">Revenue</th><th class="p-3 text-left">Commission</th><th class="p-3 text-left">Expenses</th><th class="p-3 text-left">Net Profit</th><th class="p-3 text-left">Margin %</th></tr></thead><tbody>';
+        monthlyData.forEach(m=>{ html+=`<tr class="border-b"><td class="p-3">${m.month}</td><td class="p-3">₹${m.revenue}</td><td class="p-3">₹${m.commission}</td><td class="p-3">₹${m.expenses||0}</td><td class="p-3 font-bold ${m.net>=0?'text-green-600':'text-red-600'}">₹${m.net}</td><td class="p-3">${((m.net/m.revenue)*100).toFixed(1)}%</td></tr>`; });
+        html+=`</tbody></table></div>`;
+        container.innerHTML = html;
+    }
+    
+    function exportPnL() { alert('Export P&L report as CSV feature'); }
+    function setupMobileMenu() { const menuBtn=document.getElementById('menuToggle'),sidebar=document.getElementById('sidebar'); if(menuBtn&&sidebar) menuBtn.addEventListener('click',()=>{ sidebar.classList.toggle('open'); sidebar.style.transform=sidebar.classList.contains('open')?'translateX(0)':'translateX(-100%)'; }); }
+    function logout() { AuthService.logout(); location.href='login.html'; }
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+</script>
+</body>
+</html>

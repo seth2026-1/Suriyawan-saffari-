@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Product Tags - Suriyanwa Saffari Owner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .tag-item { transition: all 0.2s; }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="toast" class="toast"></div>
+
+<!-- Mobile Menu Toggle -->
+<button id="menuToggle" class="fixed bottom-20 left-4 z-50 bg-blue-900 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center md:hidden">
+    <i class="fa-solid fa-bars text-xl"></i>
+</button>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">O</div><div><h2 class="font-black text-blue-900">Suriyanwa</h2><p class="text-[10px] text-gray-500">Owner Portal</p></div></div></div>
+    <nav class="p-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-line w-5"></i><span class="text-sm font-medium">Dashboard</span></a>
+        <a href="customers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-users w-5"></i><span class="text-sm font-medium">Customers</span></a>
+        <a href="sellers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-store w-5"></i><span class="text-sm font-medium">Sellers</span></a>
+        <a href="riders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-motorcycle w-5"></i><span class="text-sm font-medium">Riders</span></a>
+        <a href="categories.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-tags w-5"></i><span class="text-sm font-medium">Categories</span></a>
+        <a href="tags.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-orange-50 text-orange-600 mb-1"><i class="fa-solid fa-hashtag w-5"></i><span class="text-sm font-medium">Tags</span></a>
+        <a href="products.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-box w-5"></i><span class="text-sm font-medium">Products</span></a>
+        <a href="orders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-truck w-5"></i><span class="text-sm font-medium">Orders</span></a>
+        <a href="payouts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-wallet w-5"></i><span class="text-sm font-medium">Payouts</span></a>
+        <a href="reports.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-simple w-5"></i><span class="text-sm font-medium">Reports</span></a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-gear w-5"></i><span class="text-sm font-medium">Settings</span></a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t"><button onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 w-full"><i class="fa-solid fa-sign-out-alt w-5"></i><span class="text-sm font-medium">Logout</span></button></div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-64 p-4 pb-24">
+    <div class="flex justify-between items-center mb-6">
+        <div><h1 class="text-2xl font-black text-blue-900">Product Tags</h1><p class="text-sm text-gray-500">Manage product tags (40 default tags)</p></div>
+        <button onclick="openCreateModal()" class="bg-blue-900 text-white px-4 py-2 rounded-xl text-sm font-bold"><i class="fa-solid fa-plus mr-1"></i> Add Tag</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-blue-900" id="totalTags">0</p><p class="text-[9px] text-gray-500">Total</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-green-600" id="attractiveTags">0</p><p class="text-[9px] text-gray-500">Attractive</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-purple-600" id="premiumTags">0</p><p class="text-[9px] text-gray-500">Premium</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-orange-600" id="trendyTags">0</p><p class="text-[9px] text-gray-500">Trendy</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-pink-600" id="bonusTags">0</p><p class="text-[9px] text-gray-500">Bonus</p></div>
+    </div>
+
+    <!-- Tags by Category -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white rounded-2xl shadow-sm"><div class="px-4 py-3 border-b bg-red-50"><h3 class="font-bold text-red-700">🔥 Attractive Tags</h3></div><div id="attractiveList" class="p-3 flex flex-wrap gap-2"></div></div>
+        <div class="bg-white rounded-2xl shadow-sm"><div class="px-4 py-3 border-b bg-purple-50"><h3 class="font-bold text-purple-700">👑 Premium Tags</h3></div><div id="premiumList" class="p-3 flex flex-wrap gap-2"></div></div>
+        <div class="bg-white rounded-2xl shadow-sm"><div class="px-4 py-3 border-b bg-orange-50"><h3 class="font-bold text-orange-700">⚡ Trendy Tags</h3></div><div id="trendyList" class="p-3 flex flex-wrap gap-2"></div></div>
+        <div class="bg-white rounded-2xl shadow-sm"><div class="px-4 py-3 border-b bg-pink-50"><h3 class="font-bold text-pink-700">🎁 Bonus Tags</h3></div><div id="bonusList" class="p-3 flex flex-wrap gap-2"></div></div>
+    </div>
+
+    <!-- Reset Button -->
+    <div class="mt-6 text-center"><button onclick="resetToDefault()" class="bg-red-600 text-white px-6 py-2 rounded-xl text-sm font-bold">Reset to Default Tags (40 Tags)</button></div>
+
+    <!-- Create/Edit Modal -->
+    <div id="tagModal" class="fixed inset-0 bg-black/50 z-[200] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5"><h3 id="modalTitle" class="font-bold text-lg mb-3">Add Tag</h3>
+            <div class="space-y-3"><input type="text" id="tagName" placeholder="Tag Name" class="w-full border rounded-xl p-3 text-sm"><select id="tagCategory" class="w-full border rounded-xl p-3 text-sm"><option value="attractive">🔥 Attractive</option><option value="premium">👑 Premium</option><option value="trendy">⚡ Trendy</option><option value="bonus">🎁 Bonus</option></select><input type="text" id="tagIcon" placeholder="Icon (optional)" class="w-full border rounded-xl p-3 text-sm"><div class="flex items-center gap-2"><input type="checkbox" id="tagActive" checked> <label class="text-sm">Active</label></div>
+            <div class="flex gap-3"><button onclick="closeModal()" class="flex-1 border border-gray-300 py-3 rounded-xl">Cancel</button><button onclick="saveTag()" class="flex-1 bg-blue-900 text-white py-3 rounded-xl font-bold">Save</button></div></div>
+        </div>
+    </div>
+</main>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let tags = [];
+    let editingTag = null;
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); loadTags(); setupMobileMenu(); });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||user.user_type!=='owner') location.href='login.html'; }
+    
+    async function loadTags() {
+        try {
+            const response = await fetch('/api/owner/catalog/tags', { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                tags = data.tags;
+                updateStats(data.stats);
+                renderTagLists(data.grouped_tags);
+            }
+        } catch(error) { console.error('Error loading tags:', error); showToast('Failed to load tags', 'error'); }
+    }
+    
+    function updateStats(stats) {
+        document.getElementById('totalTags').innerText = stats.total||0;
+        document.getElementById('attractiveTags').innerText = stats.attractive||0;
+        document.getElementById('premiumTags').innerText = stats.premium||0;
+        document.getElementById('trendyTags').innerText = stats.trendy||0;
+        document.getElementById('bonusTags').innerText = stats.bonus||0;
+    }
+    
+    function renderTagLists(grouped) {
+        renderTagGroup('attractiveList', grouped.attractive);
+        renderTagGroup('premiumList', grouped.premium);
+        renderTagGroup('trendyList', grouped.trendy);
+        renderTagGroup('bonusList', grouped.bonus);
+    }
+    
+    function renderTagGroup(containerId, tagList) {
+        const container = document.getElementById(containerId);
+        if(!tagList||tagList.length===0){ container.innerHTML='<span class="text-gray-400 text-xs">No tags</span>'; return; }
+        let html='';
+        tagList.forEach(tag=>{ html+=`<div class="tag-item bg-gray-100 rounded-full px-3 py-1.5 text-xs flex items-center gap-2"><span>${tag.tag_name}</span><span class="text-[9px] text-gray-400">(used ${tag.usage_count||0}x)</span><button onclick="editTag(${tag.tag_id})" class="text-blue-600 ml-1"><i class="fa-solid fa-pen text-[10px]"></i></button><button onclick="deleteTag(${tag.tag_id})" class="text-red-500"><i class="fa-solid fa-trash text-[10px]"></i></button></div>`; });
+        container.innerHTML=html;
+    }
+    
+    function openCreateModal() { editingTag=null; document.getElementById('modalTitle').innerText='Add Tag'; document.getElementById('tagName').value=''; document.getElementById('tagCategory').value='attractive'; document.getElementById('tagIcon').value=''; document.getElementById('tagActive').checked=true; document.getElementById('tagModal').classList.add('flex'); document.getElementById('tagModal').classList.remove('hidden'); }
+    function closeModal() { document.getElementById('tagModal').classList.remove('flex'); document.getElementById('tagModal').classList.add('hidden'); editingTag=null; }
+    
+    function editTag(tagId) { editingTag=tags.find(t=>t.tag_id===tagId); document.getElementById('modalTitle').innerText='Edit Tag'; document.getElementById('tagName').value=editingTag.tag_name; document.getElementById('tagCategory').value=editingTag.category; document.getElementById('tagIcon').value=editingTag.icon||''; document.getElementById('tagActive').checked=editingTag.is_active; document.getElementById('tagModal').classList.add('flex'); document.getElementById('tagModal').classList.remove('hidden'); }
+    
+    async function saveTag() {
+        const data = { tag_name: document.getElementById('tagName').value, category: document.getElementById('tagCategory').value, icon: document.getElementById('tagIcon').value, is_active: document.getElementById('tagActive').checked };
+        if(!data.tag_name){ showToast('Tag name required','warning'); return; }
+        try {
+            let url = '/api/owner/catalog/tags';
+            let method = 'POST';
+            if(editingTag){ method='PUT'; data.tag_id=editingTag.tag_id; }
+            const response = await fetch(url, { method: method, headers: { 'Content-Type':'application/json' }, body: JSON.stringify(data) });
+            const result = await response.json();
+            if(result.success) { showToast(editingTag?'Tag updated':'Tag created','success'); closeModal(); loadTags(); }
+            else showToast(result.error||'Operation failed','error');
+        } catch(error) { showToast('Operation failed','error'); }
+    }
+    
+    async function deleteTag(tagId) { if(confirm('Delete this tag? It will be removed from all products.')){ try{
+        const response = await fetch(`/api/owner/catalog/tags?tag_id=${tagId}`, { method: 'DELETE', headers: AuthService.getAuthHeaders() });
+        const data = await response.json();
+        if(data.success) { showToast('Tag deleted','success'); loadTags(); }
+        else showToast(data.error||'Delete failed','error');
+    } catch(error){ showToast('Delete failed','error'); } } }
+    
+    async function resetToDefault() { if(confirm('Reset to default 40 tags? This will replace all existing tags.')){ try{
+        const response = await fetch('/api/owner/catalog/tags', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ action: 'reset' }) });
+        const data = await response.json();
+        if(data.success) { showToast('Reset to default tags successful','success'); loadTags(); }
+        else showToast('Reset failed','error');
+    } catch(error){ showToast('Reset failed','error'); } } }
+    
+    function setupMobileMenu() { const menuBtn=document.getElementById('menuToggle'),sidebar=document.getElementById('sidebar'); if(menuBtn&&sidebar) menuBtn.addEventListener('click',()=>{ sidebar.classList.toggle('open'); sidebar.style.transform=sidebar.classList.contains('open')?'translateX(0)':'translateX(-100%)'; }); }
+    function logout() { AuthService.logout(); location.href='login.html'; }
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+</script>
+</body>
+</html>

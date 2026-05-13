@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Support Tickets - Suriyanwa Saffari Owner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .status-badge { padding: 2px 8px; border-radius: 20px; font-size: 9px; font-weight: bold; }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="toast" class="toast"></div>
+
+<!-- Mobile Menu Toggle -->
+<button id="menuToggle" class="fixed bottom-20 left-4 z-50 bg-blue-900 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center md:hidden">
+    <i class="fa-solid fa-bars text-xl"></i>
+</button>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">O</div><div><h2 class="font-black text-blue-900">Suriyanwa</h2><p class="text-[10px] text-gray-500">Owner Portal</p></div></div></div>
+    <nav class="p-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-line w-5"></i><span class="text-sm font-medium">Dashboard</span></a>
+        <a href="customers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-users w-5"></i><span class="text-sm font-medium">Customers</span></a>
+        <a href="sellers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-store w-5"></i><span class="text-sm font-medium">Sellers</span></a>
+        <a href="riders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-motorcycle w-5"></i><span class="text-sm font-medium">Riders</span></a>
+        <a href="support-tickets.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-orange-50 text-orange-600 mb-1"><i class="fa-solid fa-ticket w-5"></i><span class="text-sm font-medium">Support Tickets</span></a>
+        <a href="reports.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-simple w-5"></i><span class="text-sm font-medium">Reports</span></a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-gear w-5"></i><span class="text-sm font-medium">Settings</span></a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t"><button onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 w-full"><i class="fa-solid fa-sign-out-alt w-5"></i><span class="text-sm font-medium">Logout</span></button></div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-64 p-4 pb-24">
+    <div class="mb-6"><h1 class="text-2xl font-black text-blue-900">Support Tickets</h1><p class="text-sm text-gray-500">Manage customer support requests</p></div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-blue-900" id="totalTickets">0</p><p class="text-[9px] text-gray-500">Total</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-yellow-600" id="openTickets">0</p><p class="text-[9px] text-gray-500">Open</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-orange-600" id="inProgressTickets">0</p><p class="text-[9px] text-gray-500">In Progress</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-green-600" id="resolvedTickets">0</p><p class="text-[9px] text-gray-500">Resolved</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-red-600" id="overdueTickets">0</p><p class="text-[9px] text-gray-500">Overdue SLA</p></div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-xl p-3 mb-4 flex flex-wrap gap-2 items-center">
+        <select id="statusFilter" class="border rounded-lg px-3 py-2 text-sm"><option value="all">All Status</option><option value="OPEN">Open</option><option value="IN_PROGRESS">In Progress</option><option value="RESOLVED">Resolved</option><option value="CLOSED">Closed</option></select>
+        <select id="priorityFilter" class="border rounded-lg px-3 py-2 text-sm"><option value="all">All Priority</option><option value="LOW">Low</option><option value="MEDIUM">Medium</option><option value="HIGH">High</option><option value="URGENT">Urgent</option></select>
+        <input type="text" id="searchInput" placeholder="Search by ticket ID, user..." class="flex-1 border rounded-lg px-3 py-2 text-sm">
+        <button onclick="loadTickets()" class="bg-blue-900 text-white px-4 py-2 rounded-lg text-sm">Filter</button>
+    </div>
+
+    <!-- Tickets Table -->
+    <div class="bg-white rounded-2xl shadow-sm overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b">\
+                <th class="p-3 text-left">Ticket ID</th><th class="p-3 text-left">User</th><th class="p-3 text-left">Subject</th><th class="p-3 text-left">Priority</th><th class="p-3 text-left">Status</th><th class="p-3 text-left">Created</th><th class="p-3 text-left">SLA</th><th class="p-3 text-left">Actions</th>\
+            </thead>
+            <tbody id="ticketsTable">\
+                <td colspan="8" class="p-4 text-center text-gray-500">Loading...\
+            </tbody>
+        \
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="flex justify-center gap-2 mt-6"></div>
+
+    <!-- Ticket Detail Modal -->
+    <div id="ticketModal" class="fixed inset-0 bg-black/50 z-[200] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto"><div class="sticky top-0 bg-white p-4 border-b flex justify-between"><h3 class="font-bold text-lg">Ticket Details</h3><button onclick="closeTicketModal()" class="text-gray-500"><i class="fa-solid fa-times"></i></button></div>
+            <div id="ticketDetailContent" class="p-4"></div>
+            <div class="sticky bottom-0 bg-white p-4 border-t flex gap-3"><select id="ticketAction" class="flex-1 border rounded-xl p-2 text-sm"><option value="">Select Action</option><option value="IN_PROGRESS">Mark In Progress</option><option value="RESOLVED">Mark Resolved</option><option value="CLOSED">Close</option></select>
+            <textarea id="ticketReply" rows="2" placeholder="Add reply..." class="flex-1 border rounded-xl p-2 text-sm"></textarea>
+            <button onclick="updateTicket()" class="bg-blue-900 text-white px-4 py-2 rounded-xl font-bold">Update</button></div>
+        </div>
+    </div>
+</main>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let tickets = [];
+    let currentPage = 1;
+    let totalPages = 1;
+    let selectedTicket = null;
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); loadTickets(); setupMobileMenu(); });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||user.user_type!=='owner') location.href='login.html'; }
+    
+    async function loadTickets() {
+        const status = document.getElementById('statusFilter').value;
+        const priority = document.getElementById('priorityFilter').value;
+        const search = document.getElementById('searchInput').value;
+        let url = `/api/owner/support/tickets?page=${currentPage}&limit=20`;
+        if(status !== 'all') url += `&status=${status}`;
+        if(priority !== 'all') url += `&priority=${priority}`;
+        if(search) url += `&search=${encodeURIComponent(search)}`;
+        try {
+            const response = await fetch(url, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                tickets = data.tickets;
+                totalPages = data.pagination.total_pages;
+                updateStats(data.stats);
+                renderTickets();
+                renderPagination();
+            }
+        } catch(error) { console.error('Error loading tickets:', error); showToast('Failed to load tickets', 'error'); }
+    }
+    
+    function updateStats(stats) {
+        document.getElementById('totalTickets').innerText = stats.total||0;
+        document.getElementById('openTickets').innerText = stats.open||0;
+        document.getElementById('inProgressTickets').innerText = stats.in_progress||0;
+        document.getElementById('resolvedTickets').innerText = stats.resolved||0;
+        document.getElementById('overdueTickets').innerText = stats.overdue||0;
+    }
+    
+    function renderTickets() {
+        const tbody = document.getElementById('ticketsTable');
+        if(!tickets.length){ tbody.innerHTML='<td colspan="8" class="p-4 text-center text-gray-500">No tickets found'; return; }
+        let html='';
+        tickets.forEach(t=>{
+            const isOverdue = new Date(t.sla_deadline) < new Date() && t.status !== 'RESOLVED' && t.status !== 'CLOSED';
+            html+=`<tr class="border-b hover:bg-gray-50"><td class="p-3">${t.ticket_id}<td class="p-3"><p class="text-sm">${t.user_name||t.user_id}</p><p class="text-[9px] text-gray-500">${t.user_type}</p><td class="p-3"><p class="font-medium">${t.subject}</p><p class="text-[9px] text-gray-500 line-clamp-1">${t.message}</p><td class="p-3"><span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${getPriorityClass(t.priority)}">${t.priority}</span><td class="p-3"><span class="status-badge ${getStatusClass(t.status)}">${t.status}</span>${isOverdue?'<span class="ml-1 text-red-500 text-[9px]">⚠️</span>':''}<td class="p-3 text-[10px]">${formatDate(t.created_at)}<td class="p-3 text-[10px] ${isOverdue?'text-red-600 font-bold':new Date(t.sla_deadline)<new Date()?'text-red-500':'text-gray-500'}">${formatDate(t.sla_deadline)}<td class="p-3"><button onclick="viewTicket('${t.ticket_id}')" class="text-blue-600 text-xs mr-2">View</button></tr>`;
+        });
+        tbody.innerHTML=html;
+    }
+    
+    function getPriorityClass(priority) {
+        const classes = { 'LOW':'bg-gray-100 text-gray-600', 'MEDIUM':'bg-blue-100 text-blue-700', 'HIGH':'bg-orange-100 text-orange-700', 'URGENT':'bg-red-100 text-red-700' };
+        return classes[priority]||'bg-gray-100';
+    }
+    
+    function getStatusClass(status) {
+        const classes = { 'OPEN':'bg-yellow-100 text-yellow-800', 'IN_PROGRESS':'bg-blue-100 text-blue-800', 'RESOLVED':'bg-green-100 text-green-800', 'CLOSED':'bg-gray-100 text-gray-600' };
+        return classes[status]||'bg-gray-100';
+    }
+    
+    function formatDate(d) { if(!d) return 'N/A'; return new Date(d).toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }); }
+    
+    function renderPagination() { const container = document.getElementById('pagination'); if(totalPages<=1){ container.innerHTML=''; return; } let html=''; for(let i=1;i<=totalPages;i++) html+=`<button onclick="goToPage(${i})" class="w-8 h-8 rounded-lg ${i===currentPage?'bg-blue-900 text-white':'bg-gray-100 text-gray-600'} text-sm">${i}</button>`; container.innerHTML=html; }
+    function goToPage(page) { currentPage=page; loadTickets(); window.scrollTo(0,0); }
+    
+    async function viewTicket(ticketId) {
+        try {
+            const response = await fetch(`/api/owner/support/ticket-detail?ticket_id=${ticketId}`, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                selectedTicket = data.ticket;
+                renderTicketDetail(data.ticket);
+                document.getElementById('ticketModal').classList.add('flex');
+                document.getElementById('ticketModal').classList.remove('hidden');
+            }
+        } catch(error) { showToast('Failed to load ticket details', 'error'); }
+    }
+    
+    function renderTicketDetail(ticket) {
+        document.getElementById('ticketDetailContent').innerHTML = `
+            <div class="space-y-3"><div class="bg-gray-50 p-3 rounded-xl"><p class="text-xs text-gray-500">Ticket #${ticket.ticket_id}</p><p class="font-bold">${ticket.subject}</p><p class="text-sm mt-1">${ticket.message}</p>${ticket.photo?`<img src="${ticket.photo}" class="mt-2 w-32 rounded">`:''}</div>
+            <div class="grid grid-cols-2 gap-2 text-sm"><div><span class="text-gray-500">User:</span> ${ticket.user_name||ticket.user_id}</div><div><span class="text-gray-500">Type:</span> ${ticket.user_type}</div><div><span class="text-gray-500">Priority:</span> ${ticket.priority}</div><div><span class="text-gray-500">Status:</span> ${ticket.status}</div><div><span class="text-gray-500">Created:</span> ${formatDate(ticket.created_at)}</div><div><span class="text-gray-500">SLA Deadline:</span> ${formatDate(ticket.sla_deadline)}</div></div>
+            ${ticket.resolution?`<div class="bg-green-50 p-3 rounded-xl"><p class="text-xs text-green-700">Resolution: ${ticket.resolution}</p></div>`:''}</div>`;
+    }
+    
+    function closeTicketModal() { document.getElementById('ticketModal').classList.remove('flex'); document.getElementById('ticketModal').classList.add('hidden'); selectedTicket=null; }
+    
+    async function updateTicket() {
+        const action = document.getElementById('ticketAction').value;
+        const reply = document.getElementById('ticketReply').value;
+        if(!action && !reply) { showToast('Select action or add reply', 'warning'); return; }
+        try {
+            const response = await fetch('/api/owner/support/update-ticket', {
+                method: 'POST',
+                headers: { 'Content-Type':'application/json' },
+                body: JSON.stringify({ ticket_id: selectedTicket.ticket_id, action: action, reply: reply })
+            });
+            const data = await response.json();
+            if(data.success) { showToast('Ticket updated', 'success'); closeTicketModal(); loadTickets(); }
+            else showToast('Update failed', 'error');
+        } catch(error) { showToast('Update failed', 'error'); }
+    }
+    
+    function setupMobileMenu() { const menuBtn=document.getElementById('menuToggle'),sidebar=document.getElementById('sidebar'); if(menuBtn&&sidebar) menuBtn.addEventListener('click',()=>{ sidebar.classList.toggle('open'); sidebar.style.transform=sidebar.classList.contains('open')?'translateX(0)':'translateX(-100%)'; }); }
+    function logout() { AuthService.logout(); location.href='login.html'; }
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+</script>
+</body>
+</html>

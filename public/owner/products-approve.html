@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Approve Products - Suriyanwa Saffari Owner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .product-card { transition: all 0.2s; }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="toast" class="toast"></div>
+
+<!-- Mobile Menu Toggle -->
+<button id="menuToggle" class="fixed bottom-20 left-4 z-50 bg-blue-900 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center md:hidden">
+    <i class="fa-solid fa-bars text-xl"></i>
+</button>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">O</div><div><h2 class="font-black text-blue-900">Suriyanwa</h2><p class="text-[10px] text-gray-500">Owner Portal</p></div></div></div>
+    <nav class="p-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-line w-5"></i><span class="text-sm font-medium">Dashboard</span></a>
+        <a href="customers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-users w-5"></i><span class="text-sm font-medium">Customers</span></a>
+        <a href="sellers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-store w-5"></i><span class="text-sm font-medium">Sellers</span></a>
+        <a href="riders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-motorcycle w-5"></i><span class="text-sm font-medium">Riders</span></a>
+        <a href="products-approve.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-orange-50 text-orange-600 mb-1"><i class="fa-solid fa-check-double w-5"></i><span class="text-sm font-medium">Approve Products</span></a>
+        <a href="categories.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-tags w-5"></i><span class="text-sm font-medium">Categories</span></a>
+        <a href="tags.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-hashtag w-5"></i><span class="text-sm font-medium">Tags</span></a>
+        <a href="orders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-truck w-5"></i><span class="text-sm font-medium">Orders</span></a>
+        <a href="payouts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-wallet w-5"></i><span class="text-sm font-medium">Payouts</span></a>
+        <a href="reports.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-simple w-5"></i><span class="text-sm font-medium">Reports</span></a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-gear w-5"></i><span class="text-sm font-medium">Settings</span></a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t"><button onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 w-full"><i class="fa-solid fa-sign-out-alt w-5"></i><span class="text-sm font-medium">Logout</span></button></div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-64 p-4 pb-24">
+    <div class="flex justify-between items-center mb-6">
+        <div><h1 class="text-2xl font-black text-blue-900">Approve Products</h1><p class="text-sm text-gray-500">Review and approve pending products</p></div>
+        <button onclick="openBulkModal()" class="bg-blue-900 text-white px-4 py-2 rounded-xl text-sm font-bold"><i class="fa-solid fa-layer-group mr-1"></i> Bulk Actions</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-2xl font-black text-yellow-600" id="pendingCount">0</p><p class="text-[9px] text-gray-500">Pending Approval</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-2xl font-black text-blue-900" id="sellersWithPending">0</p><p class="text-[9px] text-gray-500">Sellers with Pending</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p id="oldestPending" class="text-sm font-bold text-gray-600">-</p><p class="text-[9px] text-gray-500">Oldest Pending</p></div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-xl p-3 mb-4 flex flex-wrap gap-2 items-center">
+        <input type="text" id="searchInput" placeholder="Search by product name, seller..." class="flex-1 border rounded-lg px-3 py-2 text-sm">
+        <select id="sellerFilter" class="border rounded-lg px-3 py-2 text-sm"><option value="">All Sellers</option></select>
+        <select id="categoryFilter" class="border rounded-lg px-3 py-2 text-sm"><option value="">All Categories</option></select>
+        <button onclick="loadProducts()" class="bg-blue-900 text-white px-4 py-2 rounded-lg text-sm">Filter</button>
+    </div>
+
+    <!-- Products Grid -->
+    <div id="productsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="bg-white rounded-2xl p-4 text-center text-gray-500">Loading products...</div>
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="flex justify-center gap-2 mt-6"></div>
+
+    <!-- Bulk Action Modal -->
+    <div id="bulkModal" class="fixed inset-0 bg-black/50 z-[200] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5"><h3 class="font-bold text-lg mb-3">Bulk Approve Products</h3>
+            <p class="text-sm text-gray-600 mb-3">Select products to approve:</p>
+            <div id="bulkList" class="max-h-60 overflow-y-auto space-y-2 mb-4"></div>
+            <div class="flex gap-3"><button onclick="closeBulkModal()" class="flex-1 border border-gray-300 py-3 rounded-xl">Cancel</button><button onclick="bulkApprove()" class="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold">Approve Selected</button></div>
+        </div>
+    </div>
+</main>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let products = [];
+    let pendingProducts = [];
+    let sellers = [];
+    let categories = [];
+    let currentPage = 1;
+    let totalPages = 1;
+    let selectedBulkIds = new Set();
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); loadFilters(); loadProducts(); setupMobileMenu(); });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||user.user_type!=='owner') location.href='login.html'; }
+    
+    async function loadFilters() {
+        try {
+            const [sellersRes, catsRes] = await Promise.all([
+                fetch('/api/owner/users/sellers?limit=100', { headers: AuthService.getAuthHeaders() }),
+                fetch('/api/owner/catalog/categories', { headers: AuthService.getAuthHeaders() })
+            ]);
+            const sellersData = await sellersRes.json();
+            const catsData = await catsRes.json();
+            if(sellersData.success) { sellers = sellersData.sellers||[]; const sellerSelect = document.getElementById('sellerFilter'); sellerSelect.innerHTML='<option value="">All Sellers</option>'; sellers.forEach(s=>{ sellerSelect.innerHTML+=`<option value="${s.seller_id}">${s.shop_name}</option>`; }); }
+            if(catsData.success) { categories = catsData.categories||[]; const catSelect = document.getElementById('categoryFilter'); catSelect.innerHTML='<option value="">All Categories</option>'; categories.forEach(c=>{ if(!c.parent_id) catSelect.innerHTML+=`<option value="${c.cat_id}">${c.name}</option>`; }); }
+        } catch(error) { console.error('Error loading filters:', error); }
+    }
+    
+    async function loadProducts() {
+        const search = document.getElementById('searchInput').value;
+        const sellerId = document.getElementById('sellerFilter').value;
+        const categoryId = document.getElementById('categoryFilter').value;
+        let url = `/api/owner/catalog/approve-product?page=${currentPage}&limit=12`;
+        if(search) url += `&search=${encodeURIComponent(search)}`;
+        if(sellerId) url += `&seller_id=${sellerId}`;
+        if(categoryId) url += `&category_id=${categoryId}`;
+        try {
+            const response = await fetch(url, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                products = data.products;
+                pendingProducts = products;
+                totalPages = data.pagination.total_pages;
+                updateStats(data.stats);
+                renderProducts();
+                renderPagination();
+            }
+        } catch(error) { console.error('Error loading products:', error); showToast('Failed to load products', 'error'); }
+    }
+    
+    function updateStats(stats) {
+        document.getElementById('pendingCount').innerText = stats.total_pending||0;
+        document.getElementById('sellersWithPending').innerText = stats.sellers_with_pending||0;
+        document.getElementById('oldestPending').innerText = stats.oldest_pending ? new Date(stats.oldest_pending).toLocaleDateString() : '-';
+    }
+    
+    function renderProducts() {
+        const container = document.getElementById('productsGrid');
+        if(!products.length){ container.innerHTML='<div class="col-span-3 text-center py-8 text-gray-500">No pending products</div>'; return; }
+        let html='';
+        products.forEach(p=>{
+            const discount = Math.round(((p.mrp - p.selling_price) / p.mrp) * 100);
+            html+=`<div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm"><img src="${p.images?.[0]||'https://via.placeholder.com/300/f9f9f9/000?text=Product'}" class="w-full h-40 object-cover"><div class="p-3"><div class="flex justify-between items-start"><div><h3 class="font-bold text-sm">${p.name}</h3><p class="text-[9px] text-gray-500">Seller: ${p.seller?.shop_name}</p></div><span class="px-2 py-0.5 rounded-full text-[9px] bg-yellow-100 text-yellow-800">Pending</span></div>
+            <div class="flex justify-between items-center mt-2"><div><p class="text-sm font-bold text-blue-900">₹${p.selling_price}</p><p class="text-[9px] text-gray-400 line-through">₹${p.mrp}</p><p class="text-[9px] text-green-600">${discount}% OFF</p></div><p class="text-[9px] text-gray-400">Stock: ${p.stock}</p></div>
+            <div class="flex gap-2 mt-3"><button onclick="approveProduct('${p.prod_id}')" class="flex-1 bg-green-600 text-white py-1.5 rounded-lg text-xs font-bold">Approve</button><button onclick="rejectProduct('${p.prod_id}')" class="flex-1 bg-red-600 text-white py-1.5 rounded-lg text-xs font-bold">Reject</button></div></div></div>`;
+        });
+        container.innerHTML=html;
+    }
+    
+    function renderPagination() { const container = document.getElementById('pagination'); if(totalPages<=1){ container.innerHTML=''; return; } let html=''; for(let i=1;i<=totalPages;i++) html+=`<button onclick="goToPage(${i})" class="w-8 h-8 rounded-lg ${i===currentPage?'bg-blue-900 text-white':'bg-gray-100 text-gray-600'} text-sm">${i}</button>`; container.innerHTML=html; }
+    function goToPage(page) { currentPage=page; loadProducts(); window.scrollTo(0,0); }
+    
+    async function approveProduct(prodId) {
+        try {
+            const response = await fetch('/api/owner/catalog/approve-product', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ prod_id: prodId, action: 'approve' }) });
+            const data = await response.json();
+            if(data.success) { showToast('Product approved','success'); loadProducts(); }
+            else showToast(data.error||'Approval failed','error');
+        } catch(error) { showToast('Approval failed','error'); }
+    }
+    
+    async function rejectProduct(prodId) {
+        const reason = prompt('Reason for rejection:');
+        try {
+            const response = await fetch('/api/owner/catalog/approve-product', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ prod_id: prodId, action: 'reject', rejection_reason: reason }) });
+            const data = await response.json();
+            if(data.success) { showToast('Product rejected','success'); loadProducts(); }
+            else showToast(data.error||'Rejection failed','error');
+        } catch(error) { showToast('Rejection failed','error'); }
+    }
+    
+    function openBulkModal() { if(!products.length){ showToast('No products to approve','warning'); return; } selectedBulkIds.clear(); renderBulkList(); document.getElementById('bulkModal').classList.add('flex'); document.getElementById('bulkModal').classList.remove('hidden'); }
+    function closeBulkModal() { document.getElementById('bulkModal').classList.remove('flex'); document.getElementById('bulkModal').classList.add('hidden'); }
+    
+    function renderBulkList() { const container = document.getElementById('bulkList'); let html=''; products.forEach(p=>{ html+=`<label class="flex items-center gap-2 p-2 border rounded-lg"><input type="checkbox" value="${p.prod_id}" onchange="toggleBulkSelect('${p.prod_id}', this.checked)"> <span class="text-sm">${p.name} - ${p.seller?.shop_name}</span></label>`; }); container.innerHTML=html; }
+    function toggleBulkSelect(prodId, checked) { if(checked) selectedBulkIds.add(prodId); else selectedBulkIds.delete(prodId); }
+    async function bulkApprove() { if(selectedBulkIds.size===0){ showToast('Select products to approve','warning'); return; } try{
+        const response = await fetch('/api/owner/catalog/approve-product', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ prod_ids: Array.from(selectedBulkIds), action: 'approve', bulk: true }) });
+        const data = await response.json();
+        if(data.success) { showToast(`${data.results?.success||0} products approved`,'success'); closeBulkModal(); loadProducts(); }
+        else showToast('Bulk approval failed','error');
+    } catch(error){ showToast('Bulk approval failed','error'); } }
+    
+    function setupMobileMenu() { const menuBtn=document.getElementById('menuToggle'),sidebar=document.getElementById('sidebar'); if(menuBtn&&sidebar) menuBtn.addEventListener('click',()=>{ sidebar.classList.toggle('open'); sidebar.style.transform=sidebar.classList.contains('open')?'translateX(0)':'translateX(-100%)'; }); }
+    function logout() { AuthService.logout(); location.href='login.html'; }
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+</script>
+</body>
+</html>

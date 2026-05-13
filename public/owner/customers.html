@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Customers - Suriyanwa Saffari Owner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="toast" class="toast"></div>
+
+<!-- Mobile Menu Toggle -->
+<button id="menuToggle" class="fixed bottom-20 left-4 z-50 bg-blue-900 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center md:hidden">
+    <i class="fa-solid fa-bars text-xl"></i>
+</button>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">O</div><div><h2 class="font-black text-blue-900">Suriyanwa</h2><p class="text-[10px] text-gray-500">Owner Portal</p></div></div></div>
+    <nav class="p-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-line w-5"></i><span class="text-sm font-medium">Dashboard</span></a>
+        <a href="customers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-orange-50 text-orange-600 mb-1"><i class="fa-solid fa-users w-5"></i><span class="text-sm font-medium">Customers</span></a>
+        <a href="sellers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-store w-5"></i><span class="text-sm font-medium">Sellers</span></a>
+        <a href="riders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-motorcycle w-5"></i><span class="text-sm font-medium">Riders</span></a>
+        <a href="orders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-truck w-5"></i><span class="text-sm font-medium">Orders</span></a>
+        <a href="products.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-box w-5"></i><span class="text-sm font-medium">Products</span></a>
+        <a href="payouts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-wallet w-5"></i><span class="text-sm font-medium">Payouts</span></a>
+        <a href="reports.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-simple w-5"></i><span class="text-sm font-medium">Reports</span></a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-gear w-5"></i><span class="text-sm font-medium">Settings</span></a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t"><button onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 w-full"><i class="fa-solid fa-sign-out-alt w-5"></i><span class="text-sm font-medium">Logout</span></button></div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-64 p-4 pb-24">
+    <div class="flex justify-between items-center mb-6">
+        <div><h1 class="text-2xl font-black text-blue-900">Customers</h1><p class="text-sm text-gray-500">Manage customer accounts</p></div>
+        <div class="flex gap-2"><i class="fa-regular fa-bell text-xl text-gray-500"></i><i class="fa-regular fa-user text-xl text-gray-500"></i></div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-blue-900" id="totalCustomers">0</p><p class="text-[9px] text-gray-500">Total</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-green-600" id="activeCustomers">0</p><p class="text-[9px] text-gray-500">Active</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-red-600" id="inactiveCustomers">0</p><p class="text-[9px] text-gray-500">Inactive</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-orange-600" id="codBlocked">0</p><p class="text-[9px] text-gray-500">COD Blocked</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p id="avgTrustScore" class="text-xl font-black text-purple-600">0</p><p class="text-[9px] text-gray-500">Avg Trust Score</p></div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-xl p-3 mb-4 flex flex-wrap gap-2 items-center">
+        <input type="text" id="searchInput" placeholder="Search by name, email, mobile..." class="flex-1 border rounded-lg px-3 py-2 text-sm">
+        <select id="statusFilter" class="border rounded-lg px-3 py-2 text-sm"><option value="all">All Status</option><option value="active">Active</option><option value="inactive">Inactive</option></select>
+        <select id="codFilter" class="border rounded-lg px-3 py-2 text-sm"><option value="all">All COD</option><option value="active">COD Active</option><option value="blocked">COD Blocked</option></select>
+        <button onclick="loadCustomers()" class="bg-blue-900 text-white px-4 py-2 rounded-lg text-sm">Filter</button>
+        <button onclick="exportCustomers()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm"><i class="fa-solid fa-download"></i> Export</button>
+    </div>
+
+    <!-- Customers Table -->
+    <div class="bg-white rounded-2xl shadow-sm overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b"><tr><th class="p-3 text-left">Customer</th><th class="p-3 text-left">Contact</th><th class="p-3 text-left">Trust Score</th><th class="p-3 text-left">COD Status</th><th class="p-3 text-left">Wallet</th><th class="p-3 text-left">Orders</th><th class="p-3 text-left">Actions</th></tr></thead>
+            <tbody id="customersTable"><tr><td colspan="7" class="p-4 text-center text-gray-500">Loading...</td></tr></tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="flex justify-center gap-2 mt-6"></div>
+</main>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let customers = [];
+    let currentPage = 1;
+    let totalPages = 1;
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); loadCustomers(); setupMobileMenu(); });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||user.user_type!=='owner') location.href='login.html'; }
+    
+    async function loadCustomers() {
+        const search = document.getElementById('searchInput').value;
+        const status = document.getElementById('statusFilter').value;
+        const cod = document.getElementById('codFilter').value;
+        let url = `/api/owner/users/customers?page=${currentPage}&limit=20`;
+        if(search) url += `&search=${encodeURIComponent(search)}`;
+        if(status !== 'all') url += `&status=${status}`;
+        if(cod !== 'all') url += `&cod_status=${cod.toUpperCase()}`;
+        try {
+            const response = await fetch(url, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                customers = data.customers;
+                totalPages = data.pagination.total_pages;
+                updateStats(data.stats);
+                renderCustomers();
+                renderPagination();
+            }
+        } catch(error) { console.error('Error loading customers:', error); showToast('Failed to load customers', 'error'); }
+    }
+    
+    function updateStats(stats) {
+        document.getElementById('totalCustomers').innerText = stats.total||0;
+        document.getElementById('activeCustomers').innerText = stats.active||0;
+        document.getElementById('inactiveCustomers').innerText = stats.inactive||0;
+        document.getElementById('codBlocked').innerText = stats.cod_blocked||0;
+        document.getElementById('avgTrustScore').innerText = Math.round(stats.avg_trust_score||0);
+    }
+    
+    function renderCustomers() {
+        const tbody = document.getElementById('customersTable');
+        if(!customers.length){ tbody.innerHTML='<tr><td colspan="7" class="p-4 text-center text-gray-500">No customers found</td></tr>'; return; }
+        let html='';
+        customers.forEach(c=>{ html+=`<tr class="border-b hover:bg-gray-50"><td class="p-3"><p class="font-medium">${c.name}</p><p class="text-[9px] text-gray-500">${c.cust_id}</p></td><td class="p-3"><p class="text-xs">${c.mobile}</p><p class="text-[9px] text-gray-500">${c.email}</p></td><td class="p-3"><span class="px-2 py-1 rounded-full text-[9px] font-bold ${c.trust_score>=70?'bg-green-100 text-green-700':c.trust_score>=40?'bg-yellow-100 text-yellow-700':'bg-red-100 text-red-700'}">${c.trust_score}</span></td><td class="p-3"><span class="px-2 py-1 rounded-full text-[9px] font-bold ${c.cod_status==='ACTIVE'?'bg-green-100 text-green-700':'bg-red-100 text-red-700'}">${c.cod_status}</span></td><td class="p-3">₹${c.wallet_balance}</td><td class="p-3"><span class="text-xs font-bold">${c.order_stats?.total_orders||0}</span><p class="text-[9px] text-gray-500">₹${c.order_stats?.total_spent||0}</p></td><td class="p-3"><button onclick="viewCustomer('${c.cust_id}')" class="text-blue-600 text-xs mr-2">View</button><button onclick="toggleBlock('${c.cust_id}', ${!c.is_active})" class="text-xs ${c.is_active?'text-red-500':'text-green-600'}">${c.is_active?'Block':'Activate'}</button></td></tr>`; });
+        tbody.innerHTML=html;
+    }
+    
+    function renderPagination() { const container = document.getElementById('pagination'); if(totalPages<=1){ container.innerHTML=''; return; } let html=''; for(let i=1;i<=totalPages;i++) html+=`<button onclick="goToPage(${i})" class="w-8 h-8 rounded-lg ${i===currentPage?'bg-blue-900 text-white':'bg-gray-100 text-gray-600'} text-sm">${i}</button>`; container.innerHTML=html; }
+    function goToPage(page) { currentPage=page; loadCustomers(); window.scrollTo(0,0); }
+    function viewCustomer(id) { location.href=`customer-detail.html?cust_id=${id}`; }
+    async function toggleBlock(custId, activate) { if(confirm(activate?'Activate this customer?':'Block this customer?')){ try{
+        const response = await fetch('/api/owner/users/block-user', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ user_id: custId, user_type: 'customer', action: activate?'unblock':'block', reason: 'Admin action' }) });
+        const data = await response.json();
+        if(data.success) { showToast(activate?'Customer activated':'Customer blocked','success'); loadCustomers(); }
+        else showToast('Action failed','error');
+    } catch(error){ showToast('Action failed','error'); } } }
+    function exportCustomers() { window.location.href='/api/owner/reports/export?export_type=customers&format=csv'; }
+    function setupMobileMenu() { const menuBtn=document.getElementById('menuToggle'),sidebar=document.getElementById('sidebar'); if(menuBtn&&sidebar) menuBtn.addEventListener('click',()=>{ sidebar.classList.toggle('open'); sidebar.style.transform=sidebar.classList.contains('open')?'translateX(0)':'translateX(-100%)'; }); }
+    function logout() { AuthService.logout(); location.href='login.html'; }
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+</script>
+</body>
+</html>

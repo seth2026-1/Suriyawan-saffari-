@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Rider Rate Settings - Suriyanwa Saffari Owner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="toast" class="toast"></div>
+
+<!-- Mobile Menu Toggle -->
+<button id="menuToggle" class="fixed bottom-20 left-4 z-50 bg-blue-900 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center md:hidden">
+    <i class="fa-solid fa-bars text-xl"></i>
+</button>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">O</div><div><h2 class="font-black text-blue-900">Suriyanwa</h2><p class="text-[10px] text-gray-500">Owner Portal</p></div></div></div>
+    <nav class="p-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-line w-5"></i><span class="text-sm font-medium">Dashboard</span></a>
+        <a href="customers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-users w-5"></i><span class="text-sm font-medium">Customers</span></a>
+        <a href="sellers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-store w-5"></i><span class="text-sm font-medium">Sellers</span></a>
+        <a href="riders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-motorcycle w-5"></i><span class="text-sm font-medium">Riders</span></a>
+        <a href="rider-rate-settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-orange-50 text-orange-600 mb-1"><i class="fa-solid fa-motorcycle w-5"></i><span class="text-sm font-medium">Rider Rates</span></a>
+        <a href="commission-settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-percent w-5"></i><span class="text-sm font-medium">Commission</span></a>
+        <a href="cod-settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-money-bill w-5"></i><span class="text-sm font-medium">COD Settings</span></a>
+        <a href="delivery-charge-settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-truck w-5"></i><span class="text-sm font-medium">Delivery Charges</span></a>
+        <a href="return-policy.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-rotate-left w-5"></i><span class="text-sm font-medium">Return Policy</span></a>
+        <a href="general-settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-gear w-5"></i><span class="text-sm font-medium">General</span></a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t"><button onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 w-full"><i class="fa-solid fa-sign-out-alt w-5"></i><span class="text-sm font-medium">Logout</span></button></div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-64 p-4 pb-24">
+    <div class="mb-6"><h1 class="text-2xl font-black text-blue-900">Rider Rate Settings</h1><p class="text-sm text-gray-500">Configure rider earnings and incentives</p></div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Global Rate Settings -->
+        <div class="bg-white rounded-2xl shadow-sm p-5"><h2 class="font-bold text-gray-800 mb-4">Base Rates</h2>
+            <div class="space-y-4"><div><label class="text-sm font-medium block mb-1">Rate per Delivery (₹)</label><input type="number" id="ratePerDelivery" class="w-full border rounded-xl p-3 text-sm" placeholder="18"></div>
+            <div><label class="text-sm font-medium block mb-1">Rate per Pickup (₹)</label><input type="number" id="pickupRate" class="w-full border rounded-xl p-3 text-sm" placeholder="10"></div>
+            <div><label class="text-sm font-medium block mb-1">Rate per Service (₹)</label><input type="number" id="serviceRate" class="w-full border rounded-xl p-3 text-sm" placeholder="50"></div>
+            <div><label class="text-sm font-medium block mb-1">Fuel Reimbursement (₹/km)</label><input type="number" id="fuelRate" step="0.5" class="w-full border rounded-xl p-3 text-sm" placeholder="2"></div>
+            <button onclick="saveGlobalRates()" class="w-full bg-blue-900 text-white py-2 rounded-xl font-bold mt-4">Save Rates</button></div>
+        </div>
+
+        <!-- Incentive Settings -->
+        <div class="bg-white rounded-2xl shadow-sm p-5"><h2 class="font-bold text-gray-800 mb-4">Incentives & Bonuses</h2>
+            <div class="space-y-4"><div class="flex items-center justify-between"><span class="text-sm">Enable Incentives</span><label class="toggle-switch"><input type="checkbox" id="incentiveEnabled"><span class="toggle-slider"></span></label></div>
+            <div><label class="text-sm font-medium block mb-1">Min Deliveries for Bonus</label><input type="number" id="minDeliveriesBonus" class="w-full border rounded-xl p-3 text-sm" placeholder="30"></div>
+            <div><label class="text-sm font-medium block mb-1">Bonus Amount (₹)</label><input type="number" id="bonusAmount" class="w-full border rounded-xl p-3 text-sm" placeholder="100"></div>
+            <div><label class="text-sm font-medium block mb-1">Weekend Multiplier (×)</label><input type="number" id="weekendMultiplier" step="0.1" class="w-full border rounded-xl p-3 text-sm" placeholder="1.2"></div>
+            <div><label class="text-sm font-medium block mb-1">Night Delivery Multiplier (×)</label><input type="number" id="nightMultiplier" step="0.1" class="w-full border rounded-xl p-3 text-sm" placeholder="1.5"></div>
+            <div><label class="text-sm font-medium block mb-1">Rating Bonus (4⭐)</label><input type="number" id="rating4Bonus" class="w-full border rounded-xl p-3 text-sm" placeholder="50"></div>
+            <div><label class="text-sm font-medium block mb-1">Rating Bonus (5⭐)</label><input type="number" id="rating5Bonus" class="w-full border rounded-xl p-3 text-sm" placeholder="100"></div>
+            <button onclick="saveIncentives()" class="w-full bg-green-600 text-white py-2 rounded-xl font-bold mt-4">Save Incentives</button></div>
+        </div>
+    </div>
+
+    <!-- Rider-wise Rate Override -->
+    <div class="bg-white rounded-2xl shadow-sm p-5 mt-6"><h2 class="font-bold text-gray-800 mb-4">Rider-wise Rate Override</h2>
+        <div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-50"><tr><th class="p-2">Rider</th><th class="p-2">Current Delivery Rate</th><th class="p-2">Current Pickup Rate</th><th class="p-2">New Delivery Rate</th><th class="p-2">New Pickup Rate</th><th class="p-2"></th></tr></thead><tbody id="riderRateList"><tr><td colspan="6" class="text-center p-4">Loading riders...</td></tr></tbody></table></div>
+    </div>
+</main>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let riders = [];
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); loadRateData(); setupMobileMenu(); });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||user.user_type!=='owner') location.href='login.html'; }
+    
+    async function loadRateData() {
+        try {
+            const response = await fetch('/api/owner/settings/rider-rate', { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                document.getElementById('ratePerDelivery').value = data.global_settings.rider_rate_per_parcel;
+                document.getElementById('pickupRate').value = data.global_settings.rider_pickup_rate;
+                document.getElementById('serviceRate').value = data.global_settings.rider_service_rate;
+                document.getElementById('fuelRate').value = data.global_settings.rider_fuel_reimbursement_rate;
+                document.getElementById('incentiveEnabled').checked = data.global_settings.rider_incentive_enabled === 'true';
+                document.getElementById('minDeliveriesBonus').value = data.global_settings.rider_incentive_min_deliveries;
+                document.getElementById('bonusAmount').value = data.global_settings.rider_incentive_bonus;
+                document.getElementById('weekendMultiplier').value = data.global_settings.rider_incentive_weekend_multiplier;
+                document.getElementById('nightMultiplier').value = data.global_settings.rider_incentive_night_multiplier;
+                document.getElementById('rating4Bonus').value = data.global_settings.rider_rating_4_bonus;
+                document.getElementById('rating5Bonus').value = data.global_settings.rider_rating_5_bonus;
+                riders = data.rider_rates;
+                renderRiderList();
+            }
+        } catch(error) { console.error('Error loading rate data:', error); showToast('Failed to load data', 'error'); }
+    }
+    
+    function renderRiderList() {
+        const tbody = document.getElementById('riderRateList');
+        if(!riders.length){ tbody.innerHTML='<tr><td colspan="6" class="text-center p-4">No riders found</td></tr>'; return; }
+        let html='';
+        riders.forEach(r=>{ html+=`<tr class="border-b"><td class="p-2">${r.name} (⭐${r.rating||0})</td><td class="p-2">₹${r.rate_per_parcel}</td><td class="p-2">₹${r.pickup_rate}</td>
+            <td class="p-2"><input type="number" id="delivery_${r.rider_id}" value="${r.rate_per_parcel}" class="w-24 border rounded-lg p-1 text-sm"></td>
+            <td class="p-2"><input type="number" id="pickup_${r.rider_id}" value="${r.pickup_rate}" class="w-24 border rounded-lg p-1 text-sm"></td>
+            <td class="p-2"><button onclick="updateRiderRate('${r.rider_id}')" class="bg-blue-600 text-white px-2 py-1 rounded text-xs">Update</button></td></tr>`; });
+        tbody.innerHTML=html;
+    }
+    
+    async function saveGlobalRates() {
+        const data = { type: 'global', rider_rate_per_parcel: parseInt(document.getElementById('ratePerDelivery').value), rider_pickup_rate: parseInt(document.getElementById('pickupRate').value), rider_service_rate: parseInt(document.getElementById('serviceRate').value), rider_fuel_reimbursement_rate: parseFloat(document.getElementById('fuelRate').value) };
+        try {
+            const response = await fetch('/api/owner/settings/rider-rate', { method: 'PUT', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(data) });
+            const result = await response.json();
+            if(result.success) showToast('Rates saved', 'success');
+            else showToast('Save failed', 'error');
+        } catch(error) { showToast('Save failed', 'error'); }
+    }
+    
+    async function saveIncentives() {
+        const data = { type: 'global', rider_incentive_enabled: document.getElementById('incentiveEnabled').checked, rider_incentive_min_deliveries: parseInt(document.getElementById('minDeliveriesBonus').value), rider_incentive_bonus: parseInt(document.getElementById('bonusAmount').value), rider_incentive_weekend_multiplier: parseFloat(document.getElementById('weekendMultiplier').value), rider_incentive_night_multiplier: parseFloat(document.getElementById('nightMultiplier').value), rider_rating_4_bonus: parseInt(document.getElementById('rating4Bonus').value), rider_rating_5_bonus: parseInt(document.getElementById('rating5Bonus').value) };
+        try {
+            const response = await fetch('/api/owner/settings/rider-rate', { method: 'PUT', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(data) });
+            const result = await response.json();
+            if(result.success) showToast('Incentives saved', 'success');
+            else showToast('Save failed', 'error');
+        } catch(error) { showToast('Save failed', 'error'); }
+    }
+    
+    async function updateRiderRate(riderId) {
+        const deliveryRate = parseInt(document.getElementById(`delivery_${riderId}`).value);
+        const pickupRate = parseInt(document.getElementById(`pickup_${riderId}`).value);
+        try {
+            const response = await fetch('/api/owner/settings/rider-rate', { method: 'PUT', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ type: 'rider', rider_id: riderId, rate_per_parcel: deliveryRate, pickup_rate: pickupRate }) });
+            const result = await response.json();
+            if(result.success) { showToast('Rider rate updated', 'success'); loadRateData(); }
+            else showToast('Update failed', 'error');
+        } catch(error) { showToast('Update failed', 'error'); }
+    }
+    
+    function setupMobileMenu() { const menuBtn=document.getElementById('menuToggle'),sidebar=document.getElementById('sidebar'); if(menuBtn&&sidebar) menuBtn.addEventListener('click',()=>{ sidebar.classList.toggle('open'); sidebar.style.transform=sidebar.classList.contains('open')?'translateX(0)':'translateX(-100%)'; }); }
+    function logout() { AuthService.logout(); location.href='login.html'; }
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+</script>
+</body>
+</html>

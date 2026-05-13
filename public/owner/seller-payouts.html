@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Seller Payouts - Suriyanwa Saffari Owner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .status-badge { padding: 2px 8px; border-radius: 20px; font-size: 9px; font-weight: bold; }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="toast" class="toast"></div>
+
+<!-- Mobile Menu Toggle -->
+<button id="menuToggle" class="fixed bottom-20 left-4 z-50 bg-blue-900 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center md:hidden">
+    <i class="fa-solid fa-bars text-xl"></i>
+</button>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">O</div><div><h2 class="font-black text-blue-900">Suriyanwa</h2><p class="text-[10px] text-gray-500">Owner Portal</p></div></div></div>
+    <nav class="p-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-line w-5"></i><span class="text-sm font-medium">Dashboard</span></a>
+        <a href="customers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-users w-5"></i><span class="text-sm font-medium">Customers</span></a>
+        <a href="sellers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-store w-5"></i><span class="text-sm font-medium">Sellers</span></a>
+        <a href="riders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-motorcycle w-5"></i><span class="text-sm font-medium">Riders</span></a>
+        <a href="seller-payouts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-orange-50 text-orange-600 mb-1"><i class="fa-solid fa-wallet w-5"></i><span class="text-sm font-medium">Seller Payouts</span></a>
+        <a href="rider-payouts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-motorcycle w-5"></i><span class="text-sm font-medium">Rider Payouts</span></a>
+        <a href="orders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-truck w-5"></i><span class="text-sm font-medium">Orders</span></a>
+        <a href="reports.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-simple w-5"></i><span class="text-sm font-medium">Reports</span></a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-gear w-5"></i><span class="text-sm font-medium">Settings</span></a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t"><button onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 w-full"><i class="fa-solid fa-sign-out-alt w-5"></i><span class="text-sm font-medium">Logout</span></button></div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-64 p-4 pb-24">
+    <div class="flex justify-between items-center mb-6">
+        <div><h1 class="text-2xl font-black text-blue-900">Seller Payouts</h1><p class="text-sm text-gray-500">Manage seller payout requests</p></div>
+        <button onclick="exportPayouts()" class="bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-bold"><i class="fa-solid fa-download mr-1"></i> Export</button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-blue-900" id="totalRequested">₹0</p><p class="text-[9px] text-gray-500">Total Requested</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-yellow-600" id="pendingAmount">₹0</p><p class="text-[9px] text-gray-500">Pending</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-green-600" id="completedAmount">₹0</p><p class="text-[9px] text-gray-500">Completed</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-purple-600" id="totalWalletBalance">₹0</p><p class="text-[9px] text-gray-500">Total Seller Wallet</p></div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-xl p-3 mb-4 flex flex-wrap gap-2 items-center">
+        <select id="statusFilter" class="border rounded-lg px-3 py-2 text-sm"><option value="all">All Status</option><option value="PENDING">Pending</option><option value="PROCESSING">Processing</option><option value="COMPLETED">Completed</option><option value="FAILED">Failed</option><option value="REJECTED">Rejected</option></select>
+        <input type="date" id="fromDate" class="border rounded-lg px-3 py-2 text-sm">
+        <input type="date" id="toDate" class="border rounded-lg px-3 py-2 text-sm">
+        <button onclick="loadPayouts()" class="bg-blue-900 text-white px-4 py-2 rounded-lg text-sm">Filter</button>
+        <button onclick="bulkApprove()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm">Bulk Approve</button>
+    </div>
+
+    <!-- Payouts Table -->
+    <div class="bg-white rounded-2xl shadow-sm overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b"><tr><th class="p-3 text-left">Payout ID</th><th class="p-3 text-left">Seller</th><th class="p-3 text-left">Amount</th><th class="p-3 text-left">TDS</th><th class="p-3 text-left">Net Amount</th><th class="p-3 text-left">UPI ID</th><th class="p-3 text-left">Status</th><th class="p-3 text-left">Requested</th><th class="p-3 text-left">Actions</th></tr></thead>
+            <tbody id="payoutsTable"><tr><td colspan="9" class="p-4 text-center text-gray-500">Loading...</td></tr></tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="flex justify-center gap-2 mt-6"></div>
+
+    <!-- Process Modal -->
+    <div id="processModal" class="fixed inset-0 bg-black/50 z-[200] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5"><h3 class="font-bold text-lg mb-3">Process Payout</h3><p id="processPayoutId" class="text-sm text-gray-600 mb-3"></p>
+            <div class="space-y-3"><select id="processAction" class="w-full border rounded-xl p-3 text-sm"><option value="approve">Approve & Process</option><option value="complete">Mark as Completed</option><option value="fail">Mark as Failed</option><option value="reject">Reject</option></select>
+            <input type="text" id="utrNumber" placeholder="UTR Number (for completed)" class="w-full border rounded-xl p-3 text-sm"><textarea id="processNotes" rows="2" placeholder="Notes / Reason" class="w-full border rounded-xl p-3 text-sm"></textarea>
+            <div class="flex gap-3"><button onclick="closeProcessModal()" class="flex-1 border border-gray-300 py-3 rounded-xl">Cancel</button><button onclick="processPayout()" class="flex-1 bg-blue-900 text-white py-3 rounded-xl font-bold">Process</button></div></div>
+        </div>
+    </div>
+
+    <div id="bulkModal" class="fixed inset-0 bg-black/50 z-[200] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5"><h3 class="font-bold text-lg mb-3">Bulk Approve Payouts</h3><div id="bulkList" class="max-h-60 overflow-y-auto space-y-2 mb-4"></div><div class="flex gap-3"><button onclick="closeBulkModal()" class="flex-1 border border-gray-300 py-3 rounded-xl">Cancel</button><button onclick="submitBulkApprove()" class="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold">Approve Selected</button></div></div>
+    </div>
+</main>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let payouts = [];
+    let currentPage = 1;
+    let totalPages = 1;
+    let selectedPayout = null;
+    let selectedBulkIds = new Set();
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); loadPayouts(); setupMobileMenu(); });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||user.user_type!=='owner') location.href='login.html'; }
+    
+    async function loadPayouts() {
+        const status = document.getElementById('statusFilter').value;
+        const fromDate = document.getElementById('fromDate').value;
+        const toDate = document.getElementById('toDate').value;
+        let url = `/api/owner/finance/seller-payouts?page=${currentPage}&limit=20`;
+        if(status !== 'all') url += `&status=${status}`;
+        if(fromDate) url += `&from_date=${fromDate}`;
+        if(toDate) url += `&to_date=${toDate}`;
+        try {
+            const response = await fetch(url, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                payouts = data.payouts;
+                totalPages = data.pagination.total_pages;
+                updateStats(data.stats);
+                renderPayouts();
+                renderPagination();
+            }
+        } catch(error) { console.error('Error loading payouts:', error); showToast('Failed to load payouts', 'error'); }
+    }
+    
+    function updateStats(stats) {
+        document.getElementById('totalRequested').innerHTML = `₹${stats.total_requested||0}`;
+        document.getElementById('pendingAmount').innerHTML = `₹${stats.total_pending||0}`;
+        document.getElementById('completedAmount').innerHTML = `₹${stats.total_completed||0}`;
+        document.getElementById('totalWalletBalance').innerHTML = `₹${stats.total_wallet_balance||0}`;
+    }
+    
+    function renderPayouts() {
+        const tbody = document.getElementById('payoutsTable');
+        if(!payouts.length){ tbody.innerHTML='<tr><td colspan="9" class="p-4 text-center text-gray-500">No payouts found</td></tr>'; return; }
+        let html='';
+        payouts.forEach(p=>{ html+=`<tr class="border-b hover:bg-gray-50"><td class="p-3">${p.payout_id}</td><td class="p-3"><p class="font-medium">${p.seller?.shop_name}</p><p class="text-[9px] text-gray-500">${p.seller?.owner_name}</p></td>
+            <td class="p-3">₹${p.amount}</td><td class="p-3">₹${p.tds_amount||0}</td><td class="p-3 font-bold">₹${p.net_amount}</td><td class="p-3 text-xs">${p.upi_id}</td>
+            <td class="p-3"><span class="status-badge ${getStatusClass(p.status)}">${p.status_display}</span></td><td class="p-3 text-[10px]">${formatDate(p.requested_at)}</td>
+            <td class="p-3">${p.status==='PENDING'?`<button onclick="openProcessModal('${p.payout_id}')" class="text-blue-600 text-xs mr-2">Process</button>`:''}<button onclick="viewPayout('${p.payout_id}')" class="text-gray-500 text-xs">View</button></td></tr>`; });
+        tbody.innerHTML=html;
+    }
+    
+    function getStatusClass(status) { const classes = { 'PENDING':'bg-yellow-100 text-yellow-800','PROCESSING':'bg-blue-100 text-blue-800','COMPLETED':'bg-green-100 text-green-800','FAILED':'bg-red-100 text-red-800','REJECTED':'bg-red-100 text-red-800' }; return classes[status]||'bg-gray-100 text-gray-600'; }
+    function formatDate(d) { if(!d) return 'N/A'; return new Date(d).toLocaleDateString('en-IN'); }
+    
+    function renderPagination() { const container = document.getElementById('pagination'); if(totalPages<=1){ container.innerHTML=''; return; } let html=''; for(let i=1;i<=totalPages;i++) html+=`<button onclick="goToPage(${i})" class="w-8 h-8 rounded-lg ${i===currentPage?'bg-blue-900 text-white':'bg-gray-100 text-gray-600'} text-sm">${i}</button>`; container.innerHTML=html; }
+    function goToPage(page) { currentPage=page; loadPayouts(); window.scrollTo(0,0); }
+    
+    function openProcessModal(payoutId) { selectedPayout = payouts.find(p=>p.payout_id===payoutId); document.getElementById('processPayoutId').innerText=`Payout #${payoutId} - ${selectedPayout.seller?.shop_name} - ₹${selectedPayout.amount}`; document.getElementById('processModal').classList.add('flex'); document.getElementById('processModal').classList.remove('hidden'); }
+    function closeProcessModal() { document.getElementById('processModal').classList.remove('flex'); document.getElementById('processModal').classList.add('hidden'); selectedPayout=null; }
+    async function processPayout() {
+        const action = document.getElementById('processAction').value;
+        const utr = document.getElementById('utrNumber').value;
+        const notes = document.getElementById('processNotes').value;
+        try {
+            const response = await fetch('/api/owner/finance/seller-payouts', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ payout_id: selectedPayout.payout_id, action: action, utr_number: utr, notes: notes }) });
+            const data = await response.json();
+            if(data.success) { showToast(`Payout ${action}d successfully`,'success'); closeProcessModal(); loadPayouts(); }
+            else showToast(data.error||'Process failed','error');
+        } catch(error) { showToast('Process failed','error'); }
+    }
+    
+    function viewPayout(payoutId) { alert(`Payout Details: ${payoutId}`); }
+    function exportPayouts() { window.location.href='/api/owner/reports/export?export_type=payouts&user_type=seller&format=csv'; }
+    
+    function bulkApprove() { const pending = payouts.filter(p=>p.status==='PENDING'); if(!pending.length){ showToast('No pending payouts','warning'); return; } selectedBulkIds.clear(); renderBulkList(pending); document.getElementById('bulkModal').classList.add('flex'); document.getElementById('bulkModal').classList.remove('hidden'); }
+    function renderBulkList(pending) { const container = document.getElementById('bulkList'); let html=''; pending.forEach(p=>{ html+=`<label class="flex items-center gap-2 p-2 border rounded-lg"><input type="checkbox" value="${p.payout_id}" onchange="toggleBulkSelect('${p.payout_id}', this.checked)"> <span>${p.payout_id} - ${p.seller?.shop_name} - ₹${p.amount}</span></label>`; }); container.innerHTML=html; }
+    function toggleBulkSelect(payoutId, checked) { if(checked) selectedBulkIds.add(payoutId); else selectedBulkIds.delete(payoutId); }
+    function closeBulkModal() { document.getElementById('bulkModal').classList.remove('flex'); document.getElementById('bulkModal').classList.add('hidden'); }
+    async function submitBulkApprove() { if(selectedBulkIds.size===0){ showToast('Select payouts to approve','warning'); return; } try{
+        const response = await fetch('/api/owner/finance/seller-payouts', { method: 'PUT', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ payout_ids: Array.from(selectedBulkIds), action: 'approve' }) });
+        const data = await response.json();
+        if(data.success) { showToast(`${data.results?.success||0} payouts approved`,'success'); closeBulkModal(); loadPayouts(); }
+        else showToast('Bulk approval failed','error');
+    } catch(error){ showToast('Bulk approval failed','error'); } }
+    
+    function setupMobileMenu() { const menuBtn=document.getElementById('menuToggle'),sidebar=document.getElementById('sidebar'); if(menuBtn&&sidebar) menuBtn.addEventListener('click',()=>{ sidebar.classList.toggle('open'); sidebar.style.transform=sidebar.classList.contains('open')?'translateX(0)':'translateX(-100%)'; }); }
+    function logout() { AuthService.logout(); location.href='login.html'; }
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+</script>
+</body>
+</html>

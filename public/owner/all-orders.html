@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>All Orders - Suriyanwa Saffari Owner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .status-badge { padding: 2px 8px; border-radius: 20px; font-size: 9px; font-weight: bold; }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="toast" class="toast"></div>
+
+<!-- Mobile Menu Toggle -->
+<button id="menuToggle" class="fixed bottom-20 left-4 z-50 bg-blue-900 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center md:hidden">
+    <i class="fa-solid fa-bars text-xl"></i>
+</button>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">O</div><div><h2 class="font-black text-blue-900">Suriyanwa</h2><p class="text-[10px] text-gray-500">Owner Portal</p></div></div></div>
+    <nav class="p-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-line w-5"></i><span class="text-sm font-medium">Dashboard</span></a>
+        <a href="customers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-users w-5"></i><span class="text-sm font-medium">Customers</span></a>
+        <a href="sellers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-store w-5"></i><span class="text-sm font-medium">Sellers</span></a>
+        <a href="riders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-motorcycle w-5"></i><span class="text-sm font-medium">Riders</span></a>
+        <a href="all-orders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-orange-50 text-orange-600 mb-1"><i class="fa-solid fa-truck w-5"></i><span class="text-sm font-medium">All Orders</span></a>
+        <a href="products-approve.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-check-double w-5"></i><span class="text-sm font-medium">Approve Products</span></a>
+        <a href="categories.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-tags w-5"></i><span class="text-sm font-medium">Categories</span></a>
+        <a href="payouts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-wallet w-5"></i><span class="text-sm font-medium">Payouts</span></a>
+        <a href="reports.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-simple w-5"></i><span class="text-sm font-medium">Reports</span></a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-gear w-5"></i><span class="text-sm font-medium">Settings</span></a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t"><button onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 w-full"><i class="fa-solid fa-sign-out-alt w-5"></i><span class="text-sm font-medium">Logout</span></button></div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-64 p-4 pb-24">
+    <div class="flex justify-between items-center mb-6">
+        <div><h1 class="text-2xl font-black text-blue-900">All Orders</h1><p class="text-sm text-gray-500">View and manage all orders</p></div>
+        <button onclick="exportOrders()" class="bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-bold"><i class="fa-solid fa-download mr-1"></i> Export</button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-blue-900" id="totalOrders">0</p><p class="text-[9px] text-gray-500">Total</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-yellow-600" id="pendingOrders">0</p><p class="text-[9px] text-gray-500">Pending</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-green-600" id="deliveredOrders">0</p><p class="text-[9px] text-gray-500">Delivered</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-red-600" id="cancelledOrders">0</p><p class="text-[9px] text-gray-500">Cancelled</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-purple-600" id="rtoOrders">0</p><p class="text-[9px] text-gray-500">RTO</p></div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-xl p-3 mb-4 flex flex-wrap gap-2 items-center">
+        <input type="text" id="searchInput" placeholder="Search by Order ID, Customer, Seller..." class="flex-1 border rounded-lg px-3 py-2 text-sm">
+        <select id="statusFilter" class="border rounded-lg px-3 py-2 text-sm"><option value="all">All Status</option><option value="PENDING">Pending</option><option value="ACCEPTED">Accepted</option><option value="PACKED">Packed</option><option value="SHIPPED">Shipped</option><option value="OUT_FOR_DELIVERY">Out for Delivery</option><option value="DELIVERED">Delivered</option><option value="CANCELLED">Cancelled</option><option value="RTO">RTO</option></select>
+        <input type="date" id="fromDate" class="border rounded-lg px-3 py-2 text-sm">
+        <input type="date" id="toDate" class="border rounded-lg px-3 py-2 text-sm">
+        <button onclick="loadOrders()" class="bg-blue-900 text-white px-4 py-2 rounded-lg text-sm">Filter</button>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="bg-white rounded-2xl shadow-sm overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b"><tr><th class="p-3 text-left">Order ID</th><th class="p-3 text-left">Customer</th><th class="p-3 text-left">Seller</th><th class="p-3 text-left">Amount</th><th class="p-3 text-left">Status</th><th class="p-3 text-left">Date</th><th class="p-3 text-left">Actions</th></tr></thead>
+            <tbody id="ordersTable"><tr><td colspan="7" class="p-4 text-center text-gray-500">Loading...</td></tr></tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="flex justify-center gap-2 mt-6"></div>
+
+    <!-- Order Detail Modal -->
+    <div id="orderModal" class="fixed inset-0 bg-black/50 z-[200] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto"><div class="sticky top-0 bg-white p-4 border-b flex justify-between"><h3 class="font-bold text-lg">Order Details</h3><button onclick="closeOrderModal()" class="text-gray-500"><i class="fa-solid fa-times"></i></button></div>
+            <div id="orderDetailContent" class="p-4"></div>
+            <div class="sticky bottom-0 bg-white p-4 border-t flex gap-3"><button onclick="forceStatusUpdate()" class="flex-1 bg-orange-600 text-white py-2 rounded-xl font-bold">Force Update Status</button><button onclick="closeOrderModal()" class="flex-1 border border-gray-300 py-2 rounded-xl">Close</button></div>
+        </div>
+    </div>
+</main>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let orders = [];
+    let currentPage = 1;
+    let totalPages = 1;
+    let selectedOrder = null;
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); loadOrders(); setupMobileMenu(); });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||user.user_type!=='owner') location.href='login.html'; }
+    
+    async function loadOrders() {
+        const search = document.getElementById('searchInput').value;
+        const status = document.getElementById('statusFilter').value;
+        const fromDate = document.getElementById('fromDate').value;
+        const toDate = document.getElementById('toDate').value;
+        let url = `/api/owner/orders/all-orders?page=${currentPage}&limit=20`;
+        if(search) url += `&search=${encodeURIComponent(search)}`;
+        if(status !== 'all') url += `&status=${status}`;
+        if(fromDate) url += `&from_date=${fromDate}`;
+        if(toDate) url += `&to_date=${toDate}`;
+        try {
+            const response = await fetch(url, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                orders = data.orders;
+                totalPages = data.pagination.total_pages;
+                updateStats(data.stats);
+                renderOrders();
+                renderPagination();
+            }
+        } catch(error) { console.error('Error loading orders:', error); showToast('Failed to load orders', 'error'); }
+    }
+    
+    function updateStats(stats) {
+        document.getElementById('totalOrders').innerText = stats.total||0;
+        document.getElementById('pendingOrders').innerText = stats.by_status?.pending||0;
+        document.getElementById('deliveredOrders').innerText = stats.by_status?.delivered||0;
+        document.getElementById('cancelledOrders').innerText = stats.by_status?.cancelled||0;
+        document.getElementById('rtoOrders').innerText = stats.by_status?.rto||0;
+    }
+    
+    function renderOrders() {
+        const tbody = document.getElementById('ordersTable');
+        if(!orders.length){ tbody.innerHTML='<tr><td colspan="7" class="p-4 text-center text-gray-500">No orders found</td></tr>'; return; }
+        let html='';
+        orders.forEach(o=>{ html+=`<tr class="border-b hover:bg-gray-50"><td class="p-3"><span class="font-mono text-xs">${o.book_id}</span></td>
+            <td class="p-3"><p class="text-sm">${o.customer?.name}</p><p class="text-[9px] text-gray-500">${o.customer?.mobile}</p></td>
+            <td class="p-3">${o.seller?.shop_name||'-'}</td>
+            <td class="p-3 font-bold">₹${o.final_amount}</td>
+            <td class="p-3"><span class="status-badge ${getStatusClass(o.status)}">${o.status_display}</span></td>
+            <td class="p-3 text-[10px]">${formatDate(o.placed_at)}</td>
+            <td class="p-3"><button onclick="viewOrder('${o.book_id}')" class="text-blue-600 text-xs mr-2">View</button><button onclick="forceStatus('${o.book_id}')" class="text-orange-600 text-xs">Force Status</button></td></tr>`; });
+        tbody.innerHTML=html;
+    }
+    
+    function getStatusClass(status) { const classes = { 'PENDING':'bg-yellow-100 text-yellow-800','ACCEPTED':'bg-blue-100 text-blue-800','PACKED':'bg-purple-100 text-purple-800','SHIPPED':'bg-cyan-100 text-cyan-800','OUT_FOR_DELIVERY':'bg-green-100 text-green-800','DELIVERED':'bg-emerald-100 text-emerald-800','CANCELLED':'bg-red-100 text-red-800','RTO':'bg-red-100 text-red-800' }; return classes[status]||'bg-gray-100 text-gray-600'; }
+    function formatDate(d) { if(!d) return 'N/A'; return new Date(d).toLocaleDateString('en-IN'); }
+    
+    function renderPagination() { const container = document.getElementById('pagination'); if(totalPages<=1){ container.innerHTML=''; return; } let html=''; for(let i=1;i<=totalPages;i++) html+=`<button onclick="goToPage(${i})" class="w-8 h-8 rounded-lg ${i===currentPage?'bg-blue-900 text-white':'bg-gray-100 text-gray-600'} text-sm">${i}</button>`; container.innerHTML=html; }
+    function goToPage(page) { currentPage=page; loadOrders(); window.scrollTo(0,0); }
+    
+    async function viewOrder(bookId) {
+        try {
+            const response = await fetch(`/api/owner/orders/order-detail?book_id=${bookId}`, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                selectedOrder = data.order;
+                renderOrderDetail(data.order);
+                document.getElementById('orderModal').classList.add('flex');
+                document.getElementById('orderModal').classList.remove('hidden');
+            }
+        } catch(error) { showToast('Failed to load order details','error'); }
+    }
+    
+    function renderOrderDetail(order) {
+        document.getElementById('orderDetailContent').innerHTML = `
+            <div class="space-y-3"><div class="bg-gray-50 p-3 rounded-xl"><p class="text-xs text-gray-500">Order #${order.book_id}</p><p class="text-sm font-bold">₹${order.final_amount}</p><p class="text-[10px]">Status: ${order.status_display}</p></div>
+            <div><h4 class="font-bold text-sm">Customer</h4><p>${order.customer?.name}<br>${order.customer?.mobile}<br>${order.customer?.email}</p><p class="text-xs">📍 ${order.address?.address_line1}, ${order.address?.city}</p></div>
+            <div><h4 class="font-bold text-sm">Items</h4>${order.items?.map(i=>`<div class="flex justify-between py-1"><span>${i.name} x${i.quantity}</span><span>₹${i.total}</span></div>`).join('')}</div>
+            <div class="bg-yellow-50 p-3 rounded-xl"><p class="text-xs">Cancel Code: ${order.cancel_code} (Expires: ${formatDate(order.cancel_code_expiry)})</p></div></div>`;
+    }
+    
+    function forceStatus(bookId) { selectedOrder = { book_id: bookId }; viewOrder(bookId); }
+    async function forceStatusUpdate() { if(!selectedOrder) return; const newStatus = prompt('Enter new status (PENDING, ACCEPTED, PACKED, SHIPPED, OUT_FOR_DELIVERY, DELIVERED, CANCELLED, RTO):'); if(!newStatus) return; try{
+        const response = await fetch('/api/owner/orders/force-status', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ book_id: selectedOrder.book_id, new_status: newStatus, reason: 'Owner force update', notify_customer: true }) });
+        const data = await response.json();
+        if(data.success) { showToast('Status updated','success'); closeOrderModal(); loadOrders(); }
+        else showToast('Update failed','error');
+    } catch(error){ showToast('Update failed','error'); } }
+    
+    function closeOrderModal() { document.getElementById('orderModal').classList.remove('flex'); document.getElementById('orderModal').classList.add('hidden'); selectedOrder=null; }
+    function exportOrders() { window.location.href='/api/owner/reports/export?export_type=orders&format=csv'; }
+    function setupMobileMenu() { const menuBtn=document.getElementById('menuToggle'),sidebar=document.getElementById('sidebar'); if(menuBtn&&sidebar) menuBtn.addEventListener('click',()=>{ sidebar.classList.toggle('open'); sidebar.style.transform=sidebar.classList.contains('open')?'translateX(0)':'translateX(-100%)'; }); }
+    function logout() { AuthService.logout(); location.href='login.html'; }
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+</script>
+</body>
+</html>

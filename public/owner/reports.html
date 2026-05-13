@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Reports - Suriyanwa Saffari Owner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="toast" class="toast"></div>
+
+<!-- Mobile Menu Toggle -->
+<button id="menuToggle" class="fixed bottom-20 left-4 z-50 bg-blue-900 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center md:hidden">
+    <i class="fa-solid fa-bars text-xl"></i>
+</button>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">O</div><div><h2 class="font-black text-blue-900">Suriyanwa</h2><p class="text-[10px] text-gray-500">Owner Portal</p></div></div></div>
+    <nav class="p-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-line w-5"></i><span class="text-sm font-medium">Dashboard</span></a>
+        <a href="customers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-users w-5"></i><span class="text-sm font-medium">Customers</span></a>
+        <a href="sellers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-store w-5"></i><span class="text-sm font-medium">Sellers</span></a>
+        <a href="riders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-motorcycle w-5"></i><span class="text-sm font-medium">Riders</span></a>
+        <a href="reports.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-orange-50 text-orange-600 mb-1"><i class="fa-solid fa-chart-simple w-5"></i><span class="text-sm font-medium">Reports</span></a>
+        <a href="seller-payouts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-wallet w-5"></i><span class="text-sm font-medium">Seller Payouts</span></a>
+        <a href="rider-payouts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-motorcycle w-5"></i><span class="text-sm font-medium">Rider Payouts</span></a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-gear w-5"></i><span class="text-sm font-medium">Settings</span></a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t"><button onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 w-full"><i class="fa-solid fa-sign-out-alt w-5"></i><span class="text-sm font-medium">Logout</span></button></div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-64 p-4 pb-24">
+    <div class="mb-6"><h1 class="text-2xl font-black text-blue-900">Reports Center</h1><p class="text-sm text-gray-500">Generate and export business reports</p></div>
+
+    <!-- Report Type Tabs -->
+    <div class="border-b bg-white mb-4 flex overflow-x-auto no-scrollbar">
+        <button class="report-tab px-4 py-2 text-sm font-bold text-orange-600 border-b-2 border-orange-600" data-tab="sales" onclick="switchReport('sales')">Sales Report</button>
+        <button class="report-tab px-4 py-2 text-sm font-bold text-gray-500" data-tab="rto" onclick="switchReport('rto')">RTO Report</button>
+        <button class="report-tab px-4 py-2 text-sm font-bold text-gray-500" data-tab="product" onclick="switchReport('product')">Product Report</button>
+        <button class="report-tab px-4 py-2 text-sm font-bold text-gray-500" data-tab="customer" onclick="switchReport('customer')">Customer Report</button>
+    </div>
+
+    <!-- Sales Report -->
+    <div id="salesReport" class="space-y-4">
+        <div class="bg-white rounded-2xl p-4 flex flex-wrap gap-3 items-center"><select id="salesPeriod" class="border rounded-lg px-3 py-2 text-sm"><option value="today">Today</option><option value="week">Last 7 Days</option><option value="month">Last 30 Days</option><option value="custom">Custom Range</option></select>
+        <input type="date" id="salesFrom" class="border rounded-lg px-3 py-2 text-sm hidden"><input type="date" id="salesTo" class="border rounded-lg px-3 py-2 text-sm hidden">
+        <button onclick="loadSalesReport()" class="bg-blue-900 text-white px-4 py-2 rounded-lg text-sm">Generate</button>
+        <button onclick="exportReport('sales')" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm"><i class="fa-solid fa-download"></i> Export CSV</button></div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3"><div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-blue-900" id="totalRevenue">₹0</p><p class="text-[9px] text-gray-500">Total Revenue</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p id="totalOrders" class="text-xl font-black text-green-600">0</p><p class="text-[9px] text-gray-500">Orders</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p id="avgOrderValue" class="text-xl font-black text-purple-600">₹0</p><p class="text-[9px] text-gray-500">Avg Order Value</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p id="growthRate" class="text-xl font-black text-orange-600">0%</p><p class="text-[9px] text-gray-500">Growth vs Prev</p></div></div>
+        <div class="bg-white rounded-2xl shadow-sm p-4"><canvas id="salesChart" height="200"></canvas></div>
+        <div class="bg-white rounded-2xl shadow-sm overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-50"><tr><th class="p-3">Date</th><th class="p-3">Orders</th><th class="p-3">Revenue</th><th class="p-3">Avg Value</th></tr></thead><tbody id="salesTable"><tr><td colspan="4" class="text-center p-4">Select period to load</td></tr></tbody></table></div>
+    </div>
+
+    <!-- RTO Report -->
+    <div id="rtoReport" class="space-y-4 hidden"><div class="bg-white rounded-2xl p-4 flex flex-wrap gap-3"><select id="rtoPeriod" class="border rounded-lg px-3 py-2 text-sm"><option value="week">Last 7 Days</option><option value="month">Last 30 Days</option><option value="custom">Custom</option></select><input type="date" id="rtoFrom" class="border rounded-lg px-3 py-2 text-sm hidden"><input type="date" id="rtoTo" class="border rounded-lg px-3 py-2 text-sm hidden"><button onclick="loadRTOReport()" class="bg-blue-900 text-white px-4 py-2 rounded-lg text-sm">Generate</button><button onclick="exportReport('rto')" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm">Export CSV</button></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3"><div class="bg-white rounded-2xl p-3 text-center"><p id="totalRto" class="text-2xl font-black text-red-600">0</p><p class="text-[9px] text-gray-500">Total RTO</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center"><p id="rtoAmount" class="text-2xl font-black text-orange-600">₹0</p><p class="text-[9px] text-gray-500">RTO Amount</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center"><p id="rtoRate" class="text-2xl font-black text-purple-600">0%</p><p class="text-[9px] text-gray-500">RTO Rate</p></div></div>
+        <div class="bg-white rounded-2xl shadow-sm overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-50"><tr><th class="p-3">Order ID</th><th class="p-3">Amount</th><th class="p-3">Reason</th><th class="p-3">Date</th></tr></thead><tbody id="rtoTable"><tr><td colspan="4" class="text-center p-4">Loading...</td></tr></tbody></table></div>
+    </div>
+
+    <!-- Product Report -->
+    <div id="productReport" class="space-y-4 hidden"><div class="bg-white rounded-2xl p-4 flex flex-wrap gap-3"><select id="productPeriod" class="border rounded-lg px-3 py-2 text-sm"><option value="month">This Month</option><option value="quarter">This Quarter</option></select><button onclick="loadProductReport()" class="bg-blue-900 text-white px-4 py-2 rounded-lg text-sm">Generate</button><button onclick="exportReport('product')" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm">Export CSV</button></div>
+        <div class="bg-white rounded-2xl shadow-sm overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-50"><tr><th class="p-3">Product</th><th class="p-3">Category</th><th class="p-3">Quantity Sold</th><th class="p-3">Revenue</th><th class="p-3">Orders</th></tr></thead><tbody id="productTable"><tr><td colspan="5" class="text-center p-4">Loading...</td></tr></tbody></table></div>
+    </div>
+
+    <!-- Customer Report -->
+    <div id="customerReport" class="space-y-4 hidden"><div class="bg-white rounded-2xl p-4 flex flex-wrap gap-3"><select id="customerPeriod" class="border rounded-lg px-3 py-2 text-sm"><option value="month">This Month</option><option value="year">This Year</option></select><button onclick="loadCustomerReport()" class="bg-blue-900 text-white px-4 py-2 rounded-lg text-sm">Generate</button><button onclick="exportReport('customer')" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm">Export CSV</button></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3"><div class="bg-white rounded-2xl p-3 text-center"><p id="newCustomers" class="text-2xl font-black text-blue-900">0</p><p class="text-[9px] text-gray-500">New Customers</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center"><p id="activeCustomersCount" class="text-2xl font-black text-green-600">0</p><p class="text-[9px] text-gray-500">Active Customers</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center"><p id="repeatRate" class="text-2xl font-black text-purple-600">0%</p><p class="text-[9px] text-gray-500">Repeat Purchase Rate</p></div></div>
+        <div class="bg-white rounded-2xl shadow-sm overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-50"><tr><th class="p-3">Customer</th><th class="p-3">Orders</th><th class="p-3">Total Spent</th><th class="p-3">Last Order</th></tr></thead><tbody id="customerTable"><tr><td colspan="4" class="text-center p-4">Loading...</td></tr></tbody></table></div>
+    </div>
+</main>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let salesChart = null;
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); setupMobileMenu(); setupDateListeners(); loadSalesReport(); });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||user.user_type!=='owner') location.href='login.html'; }
+    function setupDateListeners() { document.getElementById('salesPeriod').addEventListener('change', ()=>toggleCustomDate('sales')); document.getElementById('rtoPeriod').addEventListener('change', ()=>toggleCustomDate('rto')); }
+    function toggleCustomDate(type) { const period = document.getElementById(`${type}Period`).value; const isCustom = period === 'custom'; document.getElementById(`${type}From`).classList.toggle('hidden', !isCustom); document.getElementById(`${type}To`).classList.toggle('hidden', !isCustom); }
+    
+    async function loadSalesReport() {
+        const period = document.getElementById('salesPeriod').value;
+        let url = `/api/owner/reports/sales?report_type=summary&group_by=day`;
+        if(period === 'custom'){ const from = document.getElementById('salesFrom').value; const to = document.getElementById('salesTo').value; if(from && to) url += `&from_date=${from}&to_date=${to}`; }
+        else url += `&period=${period}`;
+        try {
+            const response = await fetch(url, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                document.getElementById('totalRevenue').innerHTML = `₹${data.summary.total_revenue||0}`;
+                document.getElementById('totalOrders').innerText = data.summary.total_orders||0;
+                document.getElementById('avgOrderValue').innerHTML = `₹${data.summary.average_order_value||0}`;
+                document.getElementById('growthRate').innerHTML = `${data.summary.revenue_growth||0}%`;
+                renderSalesChart(data.breakdown);
+                renderSalesTable(data.breakdown);
+            }
+        } catch(error) { console.error('Error loading sales report:', error); showToast('Failed to load report', 'error'); }
+    }
+    
+    function renderSalesChart(breakdown) {
+        if(salesChart) salesChart.destroy();
+        if(!breakdown||!breakdown.length) return;
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        salesChart = new Chart(ctx, { type: 'line', data: { labels: breakdown.map(b=>b.period), datasets: [{ label: 'Revenue (₹)', data: breakdown.map(b=>b.revenue), borderColor: '#f59e0b', tension: 0.4, fill: true, backgroundColor: 'rgba(245,158,11,0.1)' }] }, options: { responsive: true, maintainAspectRatio: true } });
+    }
+    
+    function renderSalesTable(breakdown) {
+        const tbody = document.getElementById('salesTable');
+        if(!breakdown||!breakdown.length){ tbody.innerHTML='<tr><td colspan="4" class="text-center p-4">No data</td></tr>'; return; }
+        let html='';
+        breakdown.forEach(b=>{ html+=`<tr class="border-b"><td class="p-2">${b.period}</td><td class="p-2">${b.orders}</td><td class="p-2">₹${b.revenue}</td><td class="p-2">₹${b.average_order_value}</td></tr>`; });
+        tbody.innerHTML=html;
+    }
+    
+    async function loadRTOReport() {
+        const period = document.getElementById('rtoPeriod').value;
+        let url = `/api/owner/reports/rto?report_type=detailed`;
+        if(period === 'custom'){ const from = document.getElementById('rtoFrom').value; const to = document.getElementById('rtoTo').value; if(from && to) url += `&from_date=${from}&to_date=${to}`; }
+        else url += `&period=${period}`;
+        try {
+            const response = await fetch(url, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                document.getElementById('totalRto').innerText = data.summary?.total_rto_count||0;
+                document.getElementById('rtoAmount').innerHTML = `₹${data.summary?.total_rto_amount||0}`;
+                document.getElementById('rtoRate').innerHTML = `${data.summary?.rto_rate||0}%`;
+                const tbody = document.getElementById('rtoTable');
+                if(!data.rto_orders||!data.rto_orders.length){ tbody.innerHTML='<tr><td colspan="4" class="text-center p-4">No RTO orders</td></tr>'; return; }
+                let html='';
+                data.rto_orders.forEach(o=>{ html+=`<tr class="border-b"><td class="p-2">${o.book_id}</td><td class="p-2">₹${o.amount}</td><td class="p-2">${o.cancel_reason||'-'}</td><td class="p-2">${formatDate(o.rto_date)}</td></tr>`; });
+                tbody.innerHTML=html;
+            }
+        } catch(error) { console.error('Error loading RTO report:', error); showToast('Failed to load RTO report', 'error'); }
+    }
+    
+    async function loadProductReport() { showToast('Product report loading...', 'info'); }
+    async function loadCustomerReport() { showToast('Customer report loading...', 'info'); }
+    
+    function exportReport(type) { window.location.href=`/api/owner/reports/export?export_type=${type}&format=csv`; }
+    function switchReport(type) {
+        document.getElementById('salesReport').classList.add('hidden'); document.getElementById('rtoReport').classList.add('hidden'); document.getElementById('productReport').classList.add('hidden'); document.getElementById('customerReport').classList.add('hidden');
+        document.getElementById(`${type}Report`).classList.remove('hidden');
+        document.querySelectorAll('.report-tab').forEach(tab=>{ tab.classList.remove('text-orange-600','border-orange-600'); tab.classList.add('text-gray-500'); });
+        document.querySelector(`.report-tab[data-tab="${type}"]`).classList.add('text-orange-600','border-orange-600');
+        if(type === 'sales') loadSalesReport(); else if(type === 'rto') loadRTOReport(); else if(type === 'product') loadProductReport(); else if(type === 'customer') loadCustomerReport();
+    }
+    
+    function formatDate(d) { if(!d) return 'N/A'; return new Date(d).toLocaleDateString('en-IN'); }
+    function setupMobileMenu() { const menuBtn=document.getElementById('menuToggle'),sidebar=document.getElementById('sidebar'); if(menuBtn&&sidebar) menuBtn.addEventListener('click',()=>{ sidebar.classList.toggle('open'); sidebar.style.transform=sidebar.classList.contains('open')?'translateX(0)':'translateX(-100%)'; }); }
+    function logout() { AuthService.logout(); location.href='login.html'; }
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+</script>
+</body>
+</html>

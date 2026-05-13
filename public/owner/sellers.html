@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Sellers - Suriyanwa Saffari Owner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="toast" class="toast"></div>
+
+<!-- Mobile Menu Toggle -->
+<button id="menuToggle" class="fixed bottom-20 left-4 z-50 bg-blue-900 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center md:hidden">
+    <i class="fa-solid fa-bars text-xl"></i>
+</button>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">O</div><div><h2 class="font-black text-blue-900">Suriyanwa</h2><p class="text-[10px] text-gray-500">Owner Portal</p></div></div></div>
+    <nav class="p-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-line w-5"></i><span class="text-sm font-medium">Dashboard</span></a>
+        <a href="customers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-users w-5"></i><span class="text-sm font-medium">Customers</span></a>
+        <a href="sellers.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-orange-50 text-orange-600 mb-1"><i class="fa-solid fa-store w-5"></i><span class="text-sm font-medium">Sellers</span></a>
+        <a href="riders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-motorcycle w-5"></i><span class="text-sm font-medium">Riders</span></a>
+        <a href="orders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-truck w-5"></i><span class="text-sm font-medium">Orders</span></a>
+        <a href="products.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-box w-5"></i><span class="text-sm font-medium">Products</span></a>
+        <a href="payouts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-wallet w-5"></i><span class="text-sm font-medium">Payouts</span></a>
+        <a href="reports.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-simple w-5"></i><span class="text-sm font-medium">Reports</span></a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-gear w-5"></i><span class="text-sm font-medium">Settings</span></a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t"><button onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 w-full"><i class="fa-solid fa-sign-out-alt w-5"></i><span class="text-sm font-medium">Logout</span></button></div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-64 p-4 pb-24">
+    <div class="flex justify-between items-center mb-6">
+        <div><h1 class="text-2xl font-black text-blue-900">Sellers</h1><p class="text-sm text-gray-500">Manage seller accounts</p></div>
+        <button onclick="openCreateSellerModal()" class="bg-blue-900 text-white px-4 py-2 rounded-xl text-sm font-bold"><i class="fa-solid fa-plus mr-1"></i> Add Seller</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-blue-900" id="totalSellers">0</p><p class="text-[9px] text-gray-500">Total</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-green-600" id="activeSellers">0</p><p class="text-[9px] text-gray-500">Active</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p class="text-xl font-black text-yellow-600" id="kycPending">0</p><p class="text-[9px] text-gray-500">KYC Pending</p></div>
+        <div class="bg-white rounded-2xl p-3 text-center shadow-sm"><p id="totalWallet" class="text-xl font-black text-purple-600">₹0</p><p class="text-[9px] text-gray-500">Total Wallet</p></div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-xl p-3 mb-4 flex flex-wrap gap-2 items-center">
+        <input type="text" id="searchInput" placeholder="Search by shop name, owner name..." class="flex-1 border rounded-lg px-3 py-2 text-sm">
+        <select id="kycFilter" class="border rounded-lg px-3 py-2 text-sm"><option value="all">All KYC</option><option value="PENDING">Pending</option><option value="APPROVED">Approved</option><option value="REJECTED">Rejected</option></select>
+        <select id="statusFilter" class="border rounded-lg px-3 py-2 text-sm"><option value="all">All Status</option><option value="active">Active</option><option value="inactive">Inactive</option></select>
+        <button onclick="loadSellers()" class="bg-blue-900 text-white px-4 py-2 rounded-lg text-sm">Filter</button>
+        <button onclick="exportSellers()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm"><i class="fa-solid fa-download"></i> Export</button>
+    </div>
+
+    <!-- Sellers Table -->
+    <div class="bg-white rounded-2xl shadow-sm overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b"><tr><th class="p-3 text-left">Shop</th><th class="p-3 text-left">Owner</th><th class="p-3 text-left">Contact</th><th class="p-3 text-left">KYC</th><th class="p-3 text-left">Commission</th><th class="p-3 text-left">Wallet</th><th class="p-3 text-left">Actions</th></tr></thead>
+            <tbody id="sellersTable"><tr><td colspan="7" class="p-4 text-center text-gray-500">Loading...</td></tr></tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="flex justify-center gap-2 mt-6"></div>
+
+    <!-- Create Seller Modal -->
+    <div id="createSellerModal" class="fixed inset-0 bg-black/50 z-[200] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><h3 class="font-bold text-lg mb-3">Add New Seller</h3>
+            <div class="space-y-3"><input type="text" id="shopName" placeholder="Shop Name" class="w-full border rounded-xl p-3 text-sm"><input type="text" id="ownerName" placeholder="Owner Name" class="w-full border rounded-xl p-3 text-sm"><input type="email" id="email" placeholder="Email" class="w-full border rounded-xl p-3 text-sm"><input type="tel" id="mobile" placeholder="Mobile" class="w-full border rounded-xl p-3 text-sm"><input type="text" id="upiId" placeholder="UPI ID" class="w-full border rounded-xl p-3 text-sm"><input type="text" id="gstNumber" placeholder="GST Number (Optional)" class="w-full border rounded-xl p-3 text-sm"><input type="text" id="panNumber" placeholder="PAN Number (Optional)" class="w-full border rounded-xl p-3 text-sm"><input type="number" id="commissionRate" placeholder="Commission Rate (%)" class="w-full border rounded-xl p-3 text-sm" value="10"><div class="flex gap-3"><button onclick="closeCreateSellerModal()" class="flex-1 border border-gray-300 py-3 rounded-xl">Cancel</button><button onclick="createSeller()" class="flex-1 bg-blue-900 text-white py-3 rounded-xl font-bold">Create</button></div></div>
+        </div>
+    </div>
+
+    <!-- KYC Modal -->
+    <div id="kycModal" class="fixed inset-0 bg-black/50 z-[200] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5"><h3 class="font-bold text-lg mb-3">Approve/Reject KYC</h3><p id="kycSellerName" class="text-sm text-gray-600 mb-3"></p>
+            <div class="flex gap-3"><button onclick="approveKYC(true)" class="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold">Approve</button><button onclick="approveKYC(false)" class="flex-1 bg-red-600 text-white py-3 rounded-xl font-bold">Reject</button><button onclick="closeKycModal()" class="flex-1 border border-gray-300 py-3 rounded-xl">Cancel</button></div>
+        </div>
+    </div>
+</main>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let sellers = [];
+    let currentPage = 1;
+    let totalPages = 1;
+    let selectedSellerId = null;
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); loadSellers(); setupMobileMenu(); });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||user.user_type!=='owner') location.href='login.html'; }
+    
+    async function loadSellers() {
+        const search = document.getElementById('searchInput').value;
+        const kyc = document.getElementById('kycFilter').value;
+        const status = document.getElementById('statusFilter').value;
+        let url = `/api/owner/users/sellers?page=${currentPage}&limit=20`;
+        if(search) url += `&search=${encodeURIComponent(search)}`;
+        if(kyc !== 'all') url += `&kyc_status=${kyc}`;
+        if(status !== 'all') url += `&status=${status}`;
+        try {
+            const response = await fetch(url, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                sellers = data.sellers;
+                totalPages = data.pagination.total_pages;
+                updateStats(data.stats);
+                renderSellers();
+                renderPagination();
+            }
+        } catch(error) { console.error('Error loading sellers:', error); showToast('Failed to load sellers', 'error'); }
+    }
+    
+    function updateStats(stats) {
+        document.getElementById('totalSellers').innerText = stats.total||0;
+        document.getElementById('activeSellers').innerText = stats.active||0;
+        document.getElementById('kycPending').innerText = stats.kyc_pending||0;
+        document.getElementById('totalWallet').innerHTML = `₹${stats.total_wallet_balance||0}`;
+    }
+    
+    function renderSellers() {
+        const tbody = document.getElementById('sellersTable');
+        if(!sellers.length){ tbody.innerHTML='<tr><td colspan="7" class="p-4 text-center text-gray-500">No sellers found</td></tr>'; return; }
+        let html='';
+        sellers.forEach(s=>{ html+=`<tr class="border-b hover:bg-gray-50"><td class="p-3"><p class="font-medium">${s.shop_name}</p><p class="text-[9px] text-gray-500">${s.seller_id}</p></td><td class="p-3">${s.owner_name}</td><td class="p-3"><p class="text-xs">${s.mobile}</p><p class="text-[9px] text-gray-500">${s.email}</p></td><td class="p-3"><span class="px-2 py-1 rounded-full text-[9px] font-bold ${s.kyc_status==='APPROVED'?'bg-green-100 text-green-700':s.kyc_status==='PENDING'?'bg-yellow-100 text-yellow-700':'bg-red-100 text-red-700'}">${s.kyc_status}</span></td><td class="p-3">${s.commission_rate}%</td><td class="p-3">₹${s.wallet_balance}</td><td class="p-3"><button onclick="viewSeller('${s.seller_id}')" class="text-blue-600 text-xs mr-2">View</button>${s.kyc_status==='PENDING'?`<button onclick="openKycModal('${s.seller_id}','${s.shop_name}')" class="text-orange-600 text-xs mr-2">Verify KYC</button>`:''}<button onclick="toggleSellerStatus('${s.seller_id}', ${!s.is_active})" class="text-xs ${s.is_active?'text-red-500':'text-green-600'}">${s.is_active?'Deactivate':'Activate'}</button></td></tr>`; });
+        tbody.innerHTML=html;
+    }
+    
+    function renderPagination() { const container = document.getElementById('pagination'); if(totalPages<=1){ container.innerHTML=''; return; } let html=''; for(let i=1;i<=totalPages;i++) html+=`<button onclick="goToPage(${i})" class="w-8 h-8 rounded-lg ${i===currentPage?'bg-blue-900 text-white':'bg-gray-100 text-gray-600'} text-sm">${i}</button>`; container.innerHTML=html; }
+    function goToPage(page) { currentPage=page; loadSellers(); }
+    function viewSeller(id) { location.href=`seller-detail.html?seller_id=${id}`; }
+    function openCreateSellerModal() { document.getElementById('createSellerModal').classList.add('flex'); document.getElementById('createSellerModal').classList.remove('hidden'); }
+    function closeCreateSellerModal() { document.getElementById('createSellerModal').classList.remove('flex'); document.getElementById('createSellerModal').classList.add('hidden'); }
+    async function createSeller() {
+        const data = { shop_name: document.getElementById('shopName').value, owner_name: document.getElementById('ownerName').value, email: document.getElementById('email').value, mobile: document.getElementById('mobile').value, upi_id: document.getElementById('upiId').value, gst_number: document.getElementById('gstNumber').value, pan_number: document.getElementById('panNumber').value, commission_rate: parseInt(document.getElementById('commissionRate').value) };
+        if(!data.shop_name||!data.owner_name||!data.email||!data.mobile||!data.upi_id){ showToast('Please fill required fields','warning'); return; }
+        try {
+            const response = await fetch('/api/owner/users/create-seller', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(data) });
+            const result = await response.json();
+            if(result.success) { showToast('Seller created successfully','success'); closeCreateSellerModal(); loadSellers(); }
+            else showToast(result.error||'Creation failed','error');
+        } catch(error) { showToast('Creation failed','error'); }
+    }
+    
+    function openKycModal(sellerId, shopName) { selectedSellerId=sellerId; document.getElementById('kycSellerName').innerText=`${shopName} (${sellerId})`; document.getElementById('kycModal').classList.add('flex'); document.getElementById('kycModal').classList.remove('hidden'); }
+    function closeKycModal() { document.getElementById('kycModal').classList.remove('flex'); document.getElementById('kycModal').classList.add('hidden'); selectedSellerId=null; }
+    async function approveKYC(approve) {
+        try {
+            const response = await fetch('/api/owner/users/approve-kyc', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ user_id: selectedSellerId, user_type: 'seller', action: approve?'approve':'reject', reason: approve?'KYC approved':'Documents incomplete' }) });
+            const data = await response.json();
+            if(data.success) { showToast(approve?'KYC approved':'KYC rejected','success'); closeKycModal(); loadSellers(); }
+            else showToast('Action failed','error');
+        } catch(error) { showToast('Action failed','error'); }
+    }
+    
+    async function toggleSellerStatus(sellerId, activate) { if(confirm(activate?'Activate this seller?':'Deactivate this seller?')){ try{
+        const response = await fetch('/api/owner/users/block-user', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ user_id: sellerId, user_type: 'seller', action: activate?'unblock':'block', reason: 'Admin action' }) });
+        const data = await response.json();
+        if(data.success) { showToast(activate?'Seller activated':'Seller deactivated','success'); loadSellers(); }
+        else showToast('Action failed','error');
+    } catch(error){ showToast('Action failed','error'); } } }
+    
+    function exportSellers() { window.location.href='/api/owner/reports/export?export_type=sellers&format=csv'; }
+    function setupMobileMenu() { const menuBtn=document.getElementById('menuToggle'),sidebar=document.getElementById('sidebar'); if(menuBtn&&sidebar) menuBtn.addEventListener('click',()=>{ sidebar.classList.toggle('open'); sidebar.style.transform=sidebar.classList.contains('open')?'translateX(0)':'translateX(-100%)'; }); }
+    function logout() { AuthService.logout(); location.href='login.html'; }
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+</script>
+</body>
+</html>
