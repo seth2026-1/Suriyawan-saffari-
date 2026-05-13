@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Settings - Suriyanwa Saffari</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .setting-item {
+            transition: background 0.2s;
+        }
+        .setting-item:active {
+            background: #f3f4f6;
+        }
+        .golden-claim-btn {
+            background: linear-gradient(135deg, #facc15, #eab308, #ca8a04);
+            color: #451a03;
+            font-weight: 900;
+        }
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 12px;
+            z-index: 200;
+            display: none;
+        }
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 34px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #f59e0b;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans pb-36">
+
+<div id="toast" class="toast"></div>
+
+<!-- Header -->
+<header class="bg-white sticky top-0 z-50 shadow-md">
+    <div class="p-4 flex items-center justify-between border-b border-gray-100">
+        <button onclick="window.history.back()" class="text-blue-900 text-xl">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        
+        <div class="flex flex-col items-center">
+            <h1 class="text-2xl font-black text-blue-900 italic tracking-tighter">
+                SURIYANWA <span class="text-orange-600">SAFFARI</span>
+            </h1>
+            <p class="text-[10px] text-orange-600 uppercase tracking-[2px] mt-0.5 font-bold">
+                SETTINGS
+            </p>
+        </div>
+
+        <div class="flex gap-3 text-gray-500">
+            <button onclick="location.reload()" class="active:rotate-180 transition-all duration-500">
+                <i class="fa-solid fa-arrows-rotate text-lg"></i>
+            </button>
+            <div class="relative cursor-pointer" onclick="location.href='cart.html'">
+                <i class="fa-solid fa-cart-shopping text-lg"></i>
+                <span id="cartCount" class="absolute -top-2 -right-2 bg-orange-600 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Settings Sections -->
+<main class="p-4 pb-32 space-y-4">
+    <!-- Account Settings -->
+    <div class="bg-white rounded-2xl overflow-hidden shadow-sm">
+        <div class="px-4 py-3 bg-gray-50 border-b">
+            <h3 class="text-sm font-bold text-gray-700">Account Settings</h3>
+        </div>
+        <div class="divide-y">
+            <div class="setting-item flex justify-between items-center p-4 cursor-pointer" onclick="location.href='edit-profile.html'">
+                <div class="flex items-center gap-3">
+                    <i class="fa-regular fa-user text-gray-400 w-5"></i>
+                    <span class="text-sm">Edit Profile</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
+            </div>
+            <div class="setting-item flex justify-between items-center p-4 cursor-pointer" onclick="location.href='change-password.html'">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-lock text-gray-400 w-5"></i>
+                    <span class="text-sm">Change Password</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
+            </div>
+            <div class="setting-item flex justify-between items-center p-4 cursor-pointer" onclick="location.href='address-book.html'">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-location-dot text-gray-400 w-5"></i>
+                    <span class="text-sm">Address Book</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
+            </div>
+            <div class="setting-item flex justify-between items-center p-4 cursor-pointer" onclick="location.href='bank-details.html'">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-building-columns text-gray-400 w-5"></i>
+                    <span class="text-sm">Bank & UPI Details</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preferences -->
+    <div class="bg-white rounded-2xl overflow-hidden shadow-sm">
+        <div class="px-4 py-3 bg-gray-50 border-b">
+            <h3 class="text-sm font-bold text-gray-700">Preferences</h3>
+        </div>
+        <div class="divide-y">
+            <div class="flex justify-between items-center p-4">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-language text-gray-400 w-5"></i>
+                    <span class="text-sm">Language</span>
+                </div>
+                <select id="languageSelect" class="border rounded-lg px-3 py-1.5 text-sm bg-white">
+                    <option value="hi">हिंदी</option>
+                    <option value="en">English</option>
+                    <option value="bho">भोजपुरी</option>
+                </select>
+            </div>
+            <div class="flex justify-between items-center p-4">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-moon text-gray-400 w-5"></i>
+                    <span class="text-sm">Dark Mode</span>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="darkModeToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="flex justify-between items-center p-4">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-fingerprint text-gray-400 w-5"></i>
+                    <span class="text-sm">Fingerprint Login</span>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="fingerprintToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="flex justify-between items-center p-4">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-bell text-gray-400 w-5"></i>
+                    <span class="text-sm">Push Notifications</span>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="notificationToggle" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy & Security -->
+    <div class="bg-white rounded-2xl overflow-hidden shadow-sm">
+        <div class="px-4 py-3 bg-gray-50 border-b">
+            <h3 class="text-sm font-bold text-gray-700">Privacy & Security</h3>
+        </div>
+        <div class="divide-y">
+            <div class="setting-item flex justify-between items-center p-4 cursor-pointer" onclick="location.href='privacy-policy.html'">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-shield-halved text-gray-400 w-5"></i>
+                    <span class="text-sm">Privacy Policy</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
+            </div>
+            <div class="setting-item flex justify-between items-center p-4 cursor-pointer" onclick="location.href='terms.html'">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-file-lines text-gray-400 w-5"></i>
+                    <span class="text-sm">Terms & Conditions</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
+            </div>
+            <div class="setting-item flex justify-between items-center p-4 cursor-pointer" onclick="clearCache()">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-database text-gray-400 w-5"></i>
+                    <span class="text-sm">Clear Cache</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
+            </div>
+            <div class="setting-item flex justify-between items-center p-4 cursor-pointer" onclick="downloadData()">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-download text-gray-400 w-5"></i>
+                    <span class="text-sm">Download My Data</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support & About -->
+    <div class="bg-white rounded-2xl overflow-hidden shadow-sm">
+        <div class="px-4 py-3 bg-gray-50 border-b">
+            <h3 class="text-sm font-bold text-gray-700">Support & About</h3>
+        </div>
+        <div class="divide-y">
+            <div class="setting-item flex justify-between items-center p-4 cursor-pointer" onclick="location.href='support.html'">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-headset text-gray-400 w-5"></i>
+                    <span class="text-sm">Customer Support</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
+            </div>
+            <div class="setting-item flex justify-between items-center p-4 cursor-pointer" onclick="location.href='faq.html'">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-question-circle text-gray-400 w-5"></i>
+                    <span class="text-sm">FAQ</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
+            </div>
+            <div class="setting-item flex justify-between items-center p-4 cursor-pointer" onclick="location.href='about.html'">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-info-circle text-gray-400 w-5"></i>
+                    <span class="text-sm">About Us</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
+            </div>
+            <div class="setting-item flex justify-between items-center p-4 cursor-pointer" onclick="rateApp()">
+                <div class="flex items-center gap-3">
+                    <i class="fa-regular fa-star text-gray-400 w-5"></i>
+                    <span class="text-sm">Rate App</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
+            </div>
+            <div class="setting-item flex justify-between items-center p-4">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-code-branch text-gray-400 w-5"></i>
+                    <span class="text-sm">App Version</span>
+                </div>
+                <span class="text-xs text-gray-500">v1.0.0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-red-200">
+        <div class="px-4 py-3 bg-red-50 border-b border-red-200">
+            <h3 class="text-sm font-bold text-red-600">Danger Zone</h3>
+        </div>
+        <div class="divide-y divide-red-100">
+            <div class="setting-item flex justify-between items-center p-4 cursor-pointer" onclick="deactivateAccount()">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-pause-circle text-red-500 w-5"></i>
+                    <span class="text-sm text-red-600">Deactivate Account</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-red-400 text-xs"></i>
+            </div>
+            <div class="setting-item flex justify-between items-center p-4 cursor-pointer" onclick="deleteAccount()">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-trash-can text-red-500 w-5"></i>
+                    <span class="text-sm text-red-600">Delete Account</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-red-400 text-xs"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Button -->
+    <button onclick="logout()" class="w-full bg-red-50 text-red-600 py-3 rounded-xl font-bold text-sm active:scale-95 transition mt-2">
+        <i class="fa-solid fa-sign-out-alt mr-2"></i> Logout
+    </button>
+</main>
+
+<!-- Bottom Navigation -->
+<div class="fixed bottom-3 left-3 right-3 z-[100]">
+    <nav class="bg-white/95 backdrop-blur-xl border border-gray-200 rounded-[2rem] shadow-2xl flex justify-around items-center py-2.5">
+        <button onclick="location.href='index.html'" class="text-gray-400 flex flex-col items-center gap-0.5">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span class="text-[8px] font-black uppercase">Home</span>
+        </button>
+        <button onclick="location.href='shop.html'" class="text-gray-400 flex flex-col items-center gap-0.5">
+            <i class="fa-solid fa-table-cells-large text-xl"></i>
+            <span class="text-[8px] font-bold uppercase">Shop</span>
+        </button>
+        <div class="flex flex-col items-center -mt-7">
+            <button onclick="location.href='cart.html'" class="bg-orange-500 text-white w-14 h-14 rounded-full shadow-2xl border-[5px] border-gray-50 flex items-center justify-center">
+                <i class="fa-solid fa-cart-shopping text-xl"></i>
+            </button>
+            <div class="mt-2 text-center w-24">
+                <div class="text-amber-600 font-bold text-sm flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-coins"></i>
+                    <span id="walletBalance">0</span>
+                </div>
+                <button onclick="claimWallet()" class="golden-claim-btn mt-1 px-5 py-1.5 rounded-2xl text-[10px] uppercase w-full">
+                    Claim
+                </button>
+            </div>
+        </div>
+        <button onclick="location.href='services.html'" class="text-gray-400 flex flex-col items-center gap-0.5">
+            <i class="fa-solid fa-layer-group text-xl"></i>
+            <span class="text-[8px] font-bold uppercase">Services</span>
+        </button>
+        <button onclick="location.href='account.html'" class="text-gray-400 flex flex-col items-center gap-0.5">
+            <i class="fa-regular fa-user text-xl"></i>
+            <span class="text-[8px] font-bold uppercase">Account</span>
+        </button>
+    </nav>
+</div>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/cart-manager.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        loadSettings();
+        loadWalletBalance();
+        updateCartCount();
+    });
+    
+    function loadSettings() {
+        // Load language preference
+        const savedLang = localStorage.getItem('app_language') || 'hi';
+        document.getElementById('languageSelect').value = savedLang;
+        
+        // Load dark mode preference
+        const darkMode = localStorage.getItem('dark_mode') === 'true';
+        document.getElementById('darkModeToggle').checked = darkMode;
+        if (darkMode) {
+            document.body.classList.add('dark');
+        }
+        
+        // Load fingerprint preference
+        const fingerprint = localStorage.getItem('fingerprint_enabled') === 'true';
+        document.getElementById('fingerprintToggle').checked = fingerprint;
+        
+        // Load notification preference
+        const notifications = localStorage.getItem('notifications_enabled') !== 'false';
+        document.getElementById('notificationToggle').checked = notifications;
+        
+        // Add event listeners
+        document.getElementById('languageSelect').addEventListener('change', function(e) {
+            localStorage.setItem('app_language', e.target.value);
+            showToast('Language changed. Refresh to apply.', 'success');
+        });
+        
+        document.getElementById('darkModeToggle').addEventListener('change', function(e) {
+            localStorage.setItem('dark_mode', e.target.checked);
+            if (e.target.checked) {
+                document.body.classList.add('dark');
+            } else {
+                document.body.classList.remove('dark');
+            }
+            showToast(e.target.checked ? 'Dark mode enabled' : 'Light mode enabled', 'success');
+        });
+        
+        document.getElementById('fingerprintToggle').addEventListener('change', function(e) {
+            localStorage.setItem('fingerprint_enabled', e.target.checked);
+            if (e.target.checked) {
+                registerFingerprint();
+            }
+            showToast(e.target.checked ? 'Fingerprint login enabled' : 'Fingerprint login disabled', 'success');
+        });
+        
+        document.getElementById('notificationToggle').addEventListener('change', function(e) {
+            localStorage.setItem('notifications_enabled', e.target.checked);
+            showToast(e.target.checked ? 'Notifications enabled' : 'Notifications disabled', 'success');
+        });
+    }
+    
+    function registerFingerprint() {
+        if (window.PublicKeyCredential) {
+            showToast('Fingerprint registration initiated', 'info');
+            // In production, implement WebAuthn
+        } else {
+            showToast('Fingerprint not supported on this device', 'error');
+            document.getElementById('fingerprintToggle').checked = false;
+        }
+    }
+    
+    function clearCache() {
+        if (confirm('Clear app cache? You will be logged out.')) {
+            localStorage.clear();
+            sessionStorage.clear();
+            showToast('Cache cleared', 'success');
+            setTimeout(() => {
+                location.href = 'login.html';
+            }, 1500);
+        }
+    }
+    
+    function downloadData() {
+        showToast('Preparing your data download...', 'info');
+        setTimeout(() => {
+            const data = {
+                user: AuthService.getCurrentUser(),
+                timestamp: new Date().toISOString(),
+                message: 'Your data export request has been initiated. You will receive an email shortly.'
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `suriyawan_data_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Data downloaded', 'success');
+        }, 1000);
+    }
+    
+    function deactivateAccount() {
+        if (confirm('Deactivate your account? You can reactivate within 30 days.')) {
+            showToast('Account deactivation requested', 'warning');
+            setTimeout(() => {
+                logout();
+            }, 2000);
+        }
+    }
+    
+    function deleteAccount() {
+        if (confirm('WARNING: This action is permanent! All your data will be deleted after 30 days. Are you sure?')) {
+            showToast('Account deletion requested. You will receive confirmation email.', 'warning');
+            setTimeout(() => {
+                logout();
+            }, 2000);
+        }
+    }
+    
+    function rateApp() {
+        showToast('Thank you for rating!', 'success');
+        // In production, redirect to Play Store
+    }
+    
+    function logout() {
+        AuthService.logout();
+        location.href = 'login.html';
+    }
+    
+    async function loadWalletBalance() {
+        const user = AuthService.getCurrentUser();
+        if (user && user.wallet_balance !== undefined) {
+            document.getElementById('walletBalance').innerText = user.wallet_balance || 0;
+        }
+    }
+    
+    function claimWallet() {
+        if (!AuthService.isAuthenticated()) {
+            location.href = 'login.html';
+            return;
+        }
+        location.href = 'wallet.html';
+    }
+    
+    async function updateCartCount() {
+        if (CartManager) {
+            const count = CartManager.getCartCount();
+            const badge = document.getElementById('cartCount');
+            if (badge) {
+                if (count > 0) {
+                    badge.innerText = count;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+        }
+    }
+    
+    function showToast(message, type) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.style.backgroundColor = type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#10b981';
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 2000);
+    }
+</script>
+</body>
+</html>

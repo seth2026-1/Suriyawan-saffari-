@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Returns & Exchanges - Suriyanwa Saffari</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .return-card {
+            transition: all 0.2s ease;
+        }
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .status-pending { background: #fef3c7; color: #d97706; }
+        .status-approved { background: #d1fae5; color: #059669; }
+        .status-rejected { background: #fee2e2; color: #dc2626; }
+        .status-completed { background: #dbeafe; color: #2563eb; }
+        .golden-claim-btn {
+            background: linear-gradient(135deg, #facc15, #eab308, #ca8a04);
+            color: #451a03;
+            font-weight: 900;
+        }
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 12px;
+            z-index: 200;
+            display: none;
+        }
+        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 12px; }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans pb-36">
+
+<div id="toast" class="toast"></div>
+
+<!-- Header -->
+<header class="bg-white sticky top-0 z-50 shadow-md">
+    <div class="p-4 flex items-center justify-between border-b border-gray-100">
+        <button onclick="window.history.back()" class="text-blue-900 text-xl">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        
+        <div class="flex flex-col items-center">
+            <h1 class="text-2xl font-black text-blue-900 italic tracking-tighter">
+                SURIYANWA <span class="text-orange-600">SAFFARI</span>
+            </h1>
+            <p class="text-[10px] text-orange-600 uppercase tracking-[2px] mt-0.5 font-bold">
+                RETURNS & EXCHANGES
+            </p>
+        </div>
+
+        <div class="flex gap-3 text-gray-500">
+            <button onclick="location.reload()" class="active:rotate-180 transition-all duration-500">
+                <i class="fa-solid fa-arrows-rotate text-lg"></i>
+            </button>
+            <div class="relative cursor-pointer" onclick="location.href='cart.html'">
+                <i class="fa-solid fa-cart-shopping text-lg"></i>
+                <span id="cartCount" class="absolute -top-2 -right-2 bg-orange-600 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Info Banner -->
+<div class="bg-orange-50 mx-4 mt-4 p-3 rounded-xl flex items-center gap-2">
+    <i class="fa-solid fa-info-circle text-orange-600"></i>
+    <p class="text-[10px] text-orange-800 flex-1">Same-time return/exchange available at delivery. After delivery, returns accepted within 7 days.</p>
+</div>
+
+<!-- Tabs -->
+<div class="border-b bg-white mt-4">
+    <div class="flex">
+        <button class="tab-btn flex-1 py-3 text-sm font-bold text-orange-600 border-b-2 border-orange-600" data-tab="returns" onclick="switchTab('returns')">Return Requests</button>
+        <button class="tab-btn flex-1 py-3 text-sm font-bold text-gray-500 border-b-2 border-transparent" data-tab="exchanges" onclick="switchTab('exchanges')">Exchanges</button>
+    </div>
+</div>
+
+<!-- Returns Tab -->
+<div id="returnsTab" class="p-4 space-y-3">
+    <div class="skeleton h-28 rounded-xl"></div>
+    <div class="skeleton h-28 rounded-xl"></div>
+</div>
+
+<!-- Exchanges Tab -->
+<div id="exchangesTab" class="p-4 space-y-3 hidden">
+    <div class="skeleton h-28 rounded-xl"></div>
+    <div class="skeleton h-28 rounded-xl"></div>
+</div>
+
+<!-- Return Modal -->
+<div id="returnModal" class="fixed inset-0 bg-black/50 z-[200] hidden items-end md:items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-md max-h-[85vh] overflow-y-auto">
+        <div class="sticky top-0 bg-white p-4 border-b flex justify-between items-center">
+            <h3 class="font-bold text-lg">Request Return</h3>
+            <button onclick="closeReturnModal()" class="w-8 h-8 rounded-full bg-gray-100"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <div class="p-4 space-y-4">
+            <div class="flex gap-3 p-3 bg-gray-50 rounded-xl">
+                <img id="returnProductImage" src="" class="w-16 h-16 rounded-xl object-cover">
+                <div>
+                    <p id="returnProductName" class="font-bold text-sm">Product Name</p>
+                    <p id="returnOrderId" class="text-[10px] text-gray-500">Order #XXXX</p>
+                </div>
+            </div>
+            <div>
+                <label class="text-sm font-medium block mb-1">Reason for Return *</label>
+                <select id="returnReason" class="w-full border rounded-xl p-3 text-sm">
+                    <option value="">Select reason</option>
+                    <option value="Damaged/Defective">Product damaged/defective</option>
+                    <option value="Wrong product">Wrong product delivered</option>
+                    <option value="Size/Color issue">Size/color not matching</option>
+                    <option value="Not as described">Product not as described</option>
+                    <option value="Quality issue">Quality issue</option>
+                    <option value="Missing parts">Missing parts/accessories</option>
+                    <option value="Changed mind">Changed my mind</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-sm font-medium block mb-1">Additional Details</label>
+                <textarea id="returnDetails" rows="3" class="w-full border rounded-xl p-3 text-sm" placeholder="Please provide more details..."></textarea>
+            </div>
+            <div>
+                <label class="text-sm font-medium block mb-1">Upload Photo (Optional)</label>
+                <input type="file" id="returnPhoto" accept="image/*" class="w-full border rounded-xl p-2 text-sm">
+            </div>
+            <div class="bg-yellow-50 p-3 rounded-xl">
+                <p class="text-xs text-yellow-800"><i class="fa-solid fa-clock mr-1"></i> Return window closes in <span id="returnWindowDays">7</span> days</p>
+            </div>
+        </div>
+        <div class="sticky bottom-0 bg-white p-4 border-t flex gap-3">
+            <button onclick="closeReturnModal()" class="flex-1 border border-gray-300 py-3 rounded-xl">Cancel</button>
+            <button onclick="submitReturn()" class="flex-1 bg-orange-600 text-white py-3 rounded-xl font-bold">Submit Request</button>
+        </div>
+    </div>
+</div>
+
+<!-- Exchange Modal -->
+<div id="exchangeModal" class="fixed inset-0 bg-black/50 z-[200] hidden items-end md:items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-md max-h-[85vh] overflow-y-auto">
+        <div class="sticky top-0 bg-white p-4 border-b flex justify-between items-center">
+            <h3 class="font-bold text-lg">Request Exchange</h3>
+            <button onclick="closeExchangeModal()" class="w-8 h-8 rounded-full bg-gray-100"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <div class="p-4 space-y-4">
+            <div class="flex gap-3 p-3 bg-gray-50 rounded-xl">
+                <img id="exchangeProductImage" src="" class="w-16 h-16 rounded-xl object-cover">
+                <div>
+                    <p id="exchangeProductName" class="font-bold text-sm">Product Name</p>
+                    <p id="exchangeOrderId" class="text-[10px] text-gray-500">Order #XXXX</p>
+                </div>
+            </div>
+            <div>
+                <label class="text-sm font-medium block mb-1">Reason for Exchange *</label>
+                <select id="exchangeReason" class="w-full border rounded-xl p-3 text-sm">
+                    <option value="">Select reason</option>
+                    <option value="Size issue">Size issue - need different size</option>
+                    <option value="Color issue">Color issue - want different color</option>
+                    <option value="Different variant">Want different variant</option>
+                    <option value="Quality issue">Quality issue with current piece</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-sm font-medium block mb-1">Select New Product/Variant</label>
+                <select id="exchangeProduct" class="w-full border rounded-xl p-3 text-sm">
+                    <option value="">Select product</option>
+                </select>
+            </div>
+            <div class="bg-blue-50 p-3 rounded-xl">
+                <p class="text-xs text-blue-800"><i class="fa-solid fa-arrow-right-arrow-left mr-1"></i> Price difference: <span id="priceDifference">₹0</span></p>
+            </div>
+        </div>
+        <div class="sticky bottom-0 bg-white p-4 border-t flex gap-3">
+            <button onclick="closeExchangeModal()" class="flex-1 border border-gray-300 py-3 rounded-xl">Cancel</button>
+            <button onclick="submitExchange()" class="flex-1 bg-orange-600 text-white py-3 rounded-xl font-bold">Submit Request</button>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Navigation -->
+<div class="fixed bottom-3 left-3 right-3 z-[100]">
+    <nav class="bg-white/95 backdrop-blur-xl border border-gray-200 rounded-[2rem] shadow-2xl flex justify-around items-center py-2.5">
+        <button onclick="location.href='index.html'" class="text-gray-400 flex flex-col items-center gap-0.5">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span class="text-[8px] font-black uppercase">Home</span>
+        </button>
+        <button onclick="location.href='shop.html'" class="text-gray-400 flex flex-col items-center gap-0.5">
+            <i class="fa-solid fa-table-cells-large text-xl"></i>
+            <span class="text-[8px] font-bold uppercase">Shop</span>
+        </button>
+        <div class="flex flex-col items-center -mt-7">
+            <button onclick="location.href='cart.html'" class="bg-orange-500 text-white w-14 h-14 rounded-full shadow-2xl border-[5px] border-gray-50 flex items-center justify-center">
+                <i class="fa-solid fa-cart-shopping text-xl"></i>
+            </button>
+            <div class="mt-2 text-center w-24">
+                <div class="text-amber-600 font-bold text-sm flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-coins"></i>
+                    <span id="walletBalance">0</span>
+                </div>
+                <button onclick="claimWallet()" class="golden-claim-btn mt-1 px-5 py-1.5 rounded-2xl text-[10px] uppercase w-full">
+                    Claim
+                </button>
+            </div>
+        </div>
+        <button onclick="location.href='services.html'" class="text-gray-400 flex flex-col items-center gap-0.5">
+            <i class="fa-solid fa-layer-group text-xl"></i>
+            <span class="text-[8px] font-bold uppercase">Services</span>
+        </button>
+        <button onclick="location.href='account.html'" class="text-gray-400 flex flex-col items-center gap-0.5">
+            <i class="fa-regular fa-user text-xl"></i>
+            <span class="text-[8px] font-bold uppercase">Account</span>
+        </button>
+    </nav>
+</div>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/cart-manager.js"></script>
+
+<script>
+    let returnsList = [];
+    let exchangesList = [];
+    let selectedOrderForReturn = null;
+    let selectedOrderForExchange = null;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        loadReturns();
+        loadExchanges();
+        loadWalletBalance();
+        updateCartCount();
+    });
+    
+    async function loadReturns() {
+        const user = AuthService.getCurrentUser();
+        if (!user || !user.cust_id) return;
+        
+        try {
+            const response = await fetch(`/api/customer/returns?cust_id=${user.cust_id}`, {
+                headers: AuthService.getAuthHeaders()
+            });
+            const data = await response.json();
+            
+            if (data.success && data.returns) {
+                returnsList = data.returns;
+                renderReturns();
+            } else {
+                renderEmptyReturns();
+            }
+        } catch (error) {
+            console.error('Error loading returns:', error);
+            renderEmptyReturns();
+        }
+    }
+    
+    async function loadExchanges() {
+        const user = AuthService.getCurrentUser();
+        if (!user || !user.cust_id) return;
+        
+        try {
+            const response = await fetch(`/api/customer/exchanges?cust_id=${user.cust_id}`, {
+                headers: AuthService.getAuthHeaders()
+            });
+            const data = await response.json();
+            
+            if (data.success && data.exchanges) {
+                exchangesList = data.exchanges;
+                renderExchanges();
+            } else {
+                renderEmptyExchanges();
+            }
+        } catch (error) {
+            console.error('Error loading exchanges:', error);
+            renderEmptyExchanges();
+        }
+    }
+    
+    function renderReturns() {
+        const container = document.getElementById('returnsTab');
+        if (!returnsList || returnsList.length === 0) {
+            renderEmptyReturns();
+            return;
+        }
+        
+        let html = '';
+        returnsList.forEach(returnReq => {
+            html += `
+                <div class="return-card bg-white rounded-2xl border border-gray-100 p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <p class="text-xs font-mono text-gray-500">Return #${returnReq.return_id}</p>
+                            <p class="text-[10px] text-gray-400">Order #${returnReq.book_id}</p>
+                        </div>
+                        <span class="status-badge status-${returnReq.status.toLowerCase()}">${returnReq.status}</span>
+                    </div>
+                    <div class="flex gap-3 mt-2">
+                        <img src="${returnReq.product_image || 'https://via.placeholder.com/60/f9f9f9/000?text=Product'}" class="w-14 h-14 rounded-xl object-cover">
+                        <div class="flex-1">
+                            <p class="text-sm font-bold text-gray-800">${returnReq.product_name || 'Product'}</p>
+                            <p class="text-[10px] text-gray-500 mt-0.5">Reason: ${returnReq.reason}</p>
+                            <p class="text-[10px] font-bold text-blue-900 mt-1">Refund: ₹${returnReq.refund_amount || 0}</p>
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-gray-100">
+                        <p class="text-[9px] text-gray-400">Requested on: ${formatDate(returnReq.created_at)}</p>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+    
+    function renderEmptyReturns() {
+        document.getElementById('returnsTab').innerHTML = `
+            <div class="text-center py-8">
+                <i class="fa-solid fa-rotate-left text-4xl text-gray-300 mb-3"></i>
+                <p class="text-gray-500 text-sm">No return requests yet</p>
+                <button onclick="loadReturnableOrders()" class="mt-3 text-orange-600 text-sm">Start a Return →</button>
+            </div>
+        `;
+    }
+    
+    function renderExchanges() {
+        const container = document.getElementById('exchangesTab');
+        if (!exchangesList || exchangesList.length === 0) {
+            renderEmptyExchanges();
+            return;
+        }
+        
+        let html = '';
+        exchangesList.forEach(exchange => {
+            html += `
+                <div class="return-card bg-white rounded-2xl border border-gray-100 p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <p class="text-xs font-mono text-gray-500">Exchange #${exchange.exchange_id}</p>
+                            <p class="text-[10px] text-gray-400">Order #${exchange.old_book_id}</p>
+                        </div>
+                        <span class="status-badge status-${exchange.status.toLowerCase()}">${exchange.status}</span>
+                    </div>
+                    <div class="flex gap-3 mt-2">
+                        <img src="${exchange.old_product_image || 'https://via.placeholder.com/60/f9f9f9/000?text=Product'}" class="w-14 h-14 rounded-xl object-cover">
+                        <div class="flex-1">
+                            <p class="text-sm font-bold text-gray-800">${exchange.old_product_name || 'Product'}</p>
+                            <p class="text-[10px] text-gray-500">→ ${exchange.new_product_name || 'New Product'}</p>
+                            ${exchange.price_difference ? `<p class="text-[10px] font-bold text-orange-600 mt-1">Extra payment: ₹${exchange.price_difference}</p>` : ''}
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-gray-100">
+                        <p class="text-[9px] text-gray-400">Requested on: ${formatDate(exchange.created_at)}</p>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+    
+    function renderEmptyExchanges() {
+        document.getElementById('exchangesTab').innerHTML = `
+            <div class="text-center py-8">
+                <i class="fa-solid fa-arrow-right-arrow-left text-4xl text-gray-300 mb-3"></i>
+                <p class="text-gray-500 text-sm">No exchange requests yet</p>
+                <button onclick="loadExchangeableOrders()" class="mt-3 text-orange-600 text-sm">Request Exchange →</button>
+            </div>
+        `;
+    }
+    
+    async function loadReturnableOrders() {
+        const user = AuthService.getCurrentUser();
+        if (!user || !user.cust_id) {
+            showToast('Please login', 'warning');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/customer/return-exchange?cust_id=${user.cust_id}&type=eligible`, {
+                headers: AuthService.getAuthHeaders()
+            });
+            const data = await response.json();
+            
+            if (data.success && data.eligible_orders && data.eligible_orders.length > 0) {
+                // Show order selection dialog
+                showOrderSelection(data.eligible_orders, 'return');
+            } else {
+                showToast('No orders eligible for return', 'info');
+            }
+        } catch (error) {
+            showToast('Failed to load eligible orders', 'error');
+        }
+    }
+    
+    async function loadExchangeableOrders() {
+        const user = AuthService.getCurrentUser();
+        if (!user || !user.cust_id) {
+            showToast('Please login', 'warning');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/customer/return-exchange?cust_id=${user.cust_id}&type=eligible_exchange`, {
+                headers: AuthService.getAuthHeaders()
+            });
+            const data = await response.json();
+            
+            if (data.success && data.eligible_orders && data.eligible_orders.length > 0) {
+                showOrderSelection(data.eligible_orders, 'exchange');
+            } else {
+                showToast('No orders eligible for exchange', 'info');
+            }
+        } catch (error) {
+            showToast('Failed to load eligible orders', 'error');
+        }
+    }
+    
+    function showOrderSelection(orders, type) {
+        // Simple selection via prompt (for demo)
+        const orderOptions = orders.map((o, i) => `${i + 1}. Order #${o.book_id} - ₹${o.final_amount}`).join('\n');
+        const selection = prompt(`Select order to ${type}:\n${orderOptions}\n\nEnter order number:`);
+        const index = parseInt(selection) - 1;
+        
+        if (index >= 0 && index < orders.length) {
+            if (type === 'return') {
+                selectedOrderForReturn = orders[index];
+                openReturnModal();
+            } else {
+                selectedOrderForExchange = orders[index];
+                loadExchangeProducts();
+                openExchangeModal();
+            }
+        }
+    }
+    
+    function openReturnModal() {
+        document.getElementById('returnProductName').innerText = selectedOrderForReturn?.items?.[0]?.name || 'Product';
+        document.getElementById('returnProductImage').src = selectedOrderForReturn?.items?.[0]?.image || 'https://via.placeholder.com/60';
+        document.getElementById('returnOrderId').innerText = `Order #${selectedOrderForReturn?.book_id}`;
+        document.getElementById('returnModal').classList.add('flex');
+        document.getElementById('returnModal').classList.remove('hidden');
+    }
+    
+    function closeReturnModal() {
+        document.getElementById('returnModal').classList.remove('flex');
+        document.getElementById('returnModal').classList.add('hidden');
+    }
+    
+    async function submitReturn() {
+        const reason = document.getElementById('returnReason').value;
+        const details = document.getElementById('returnDetails').value;
+        
+        if (!reason) {
+            showToast('Please select a reason', 'warning');
+            return;
+        }
+        
+        const user = AuthService.getCurrentUser();
+        
+        try {
+            const response = await fetch('/api/customer/return-exchange', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    cust_id: user.cust_id,
+                    book_id: selectedOrderForReturn.book_id,
+                    prod_id: selectedOrderForReturn.items[0].prod_id,
+                    reason: reason,
+                    reason_detail: details,
+                    type: 'return'
+                })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                showToast('Return request submitted successfully', 'success');
+                closeReturnModal();
+                loadReturns();
+            } else {
+                showToast(data.error || 'Submission failed', 'error');
+            }
+        } catch (error) {
+            showToast('Failed to submit return request', 'error');
+        }
+    }
+    
+    async function loadExchangeProducts() {
+        const user = AuthService.getCurrentUser();
+        try {
+            const response = await fetch(`/api/customer/return-exchange?cust_id=${user.cust_id}&type=exchange_options&book_id=${selectedOrderForExchange.book_id}`, {
+                headers: AuthService.getAuthHeaders()
+            });
+            const data = await response.json();
+            
+            if (data.success && data.options) {
+                const select = document.getElementById('exchangeProduct');
+                select.innerHTML = '<option value="">Select product</option>';
+                data.options.forEach(opt => {
+                    select.innerHTML += `<option value="${opt.prod_id}" data-price="${opt.price}">${opt.name} - ₹${opt.price}</option>`;
+                });
+            }
+        } catch (error) {
+            console.error('Error loading exchange options:', error);
+        }
+    }
+    
+    function openExchangeModal() {
+        document.getElementById('exchangeProductName').innerText = selectedOrderForExchange?.items?.[0]?.name || 'Product';
+        document.getElementById('exchangeProductImage').src = selectedOrderForExchange?.items?.[0]?.image || 'https://via.placeholder.com/60';
+        document.getElementById('exchangeOrderId').innerText = `Order #${selectedOrderForExchange?.book_id}`;
+        document.getElementById('exchangeModal').classList.add('flex');
+        document.getElementById('exchangeModal').classList.remove('hidden');
+    }
+    
+    function closeExchangeModal() {
+        document.getElementById('exchangeModal').classList.remove('flex');
+        document.getElementById('exchangeModal').classList.add('hidden');
+    }
+    
+    async function submitExchange() {
+        const reason = document.getElementById('exchangeReason').value;
+        const newProductId = document.getElementById('exchangeProduct').value;
+        
+        if (!reason || !newProductId) {
+            showToast('Please select reason and new product', 'warning');
+            return;
+        }
+        
+        const user = AuthService.getCurrentUser();
+        
+        try {
+            const response = await fetch('/api/customer/return-exchange', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    cust_id: user.cust_id,
+                    book_id: selectedOrderForExchange.book_id,
+                    old_prod_id: selectedOrderForExchange.items[0].prod_id,
+                    new_prod_id: newProductId,
+                    reason: reason,
+                    type: 'exchange'
+                })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                showToast('Exchange request submitted successfully', 'success');
+                closeExchangeModal();
+                loadExchanges();
+            } else {
+                showToast(data.error || 'Submission failed', 'error');
+            }
+        } catch (error) {
+            showToast('Failed to submit exchange request', 'error');
+        }
+    }
+    
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('text-orange-600', 'border-orange-600');
+            btn.classList.add('text-gray-500');
+        });
+        document.querySelector(`.tab-btn[data-tab="${tab}"]`).classList.add('text-orange-600', 'border-orange-600');
+        document.querySelector(`.tab-btn[data-tab="${tab}"]`).classList.remove('text-gray-500');
+        
+        document.getElementById('returnsTab').classList.add('hidden');
+        document.getElementById('exchangesTab').classList.add('hidden');
+        document.getElementById(`${tab}Tab`).classList.remove('hidden');
+    }
+    
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+    
+    async function loadWalletBalance() {
+        const user = AuthService.getCurrentUser();
+        if (user && user.wallet_balance !== undefined) {
+            document.getElementById('walletBalance').innerText = user.wallet_balance || 0;
+        }
+    }
+    
+    function claimWallet() {
+        if (!AuthService.isAuthenticated()) {
+            location.href = 'login.html';
+            return;
+        }
+        location.href = 'account.html?tab=wallet';
+    }
+    
+    async function updateCartCount() {
+        if (CartManager) {
+            const count = CartManager.getCartCount();
+            const badge = document.getElementById('cartCount');
+            if (badge) {
+                if (count > 0) {
+                    badge.innerText = count;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+        }
+    }
+    
+    function showToast(message, type) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.style.backgroundColor = type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#10b981';
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 2000);
+    }
+</script>
+</body>
+</html>

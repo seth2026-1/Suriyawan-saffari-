@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>My Cart - Suriyanwa Saffari</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .quantity-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f3f4f6;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quantity-btn:active { transform: scale(0.95); }
+        .remove-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fee2e2;
+            color: #ef4444;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .remove-btn:active { transform: scale(0.95); }
+        .golden-claim-btn {
+            background: linear-gradient(135deg, #facc15, #eab308, #ca8a04);
+            color: #451a03;
+            font-weight: 900;
+            transition: transform 0.2s;
+        }
+        .golden-claim-btn:active { transform: scale(0.95); }
+        .cart-item {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .cart-item.removing {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 12px; }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans pb-36">
+
+<div id="toast" class="toast"></div>
+
+<!-- Header -->
+<header class="bg-white sticky top-0 z-50 shadow-md">
+    <div class="p-4 flex items-center justify-between border-b border-gray-100">
+        <button onclick="window.history.back()" class="text-blue-900 text-xl">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        
+        <div class="flex flex-col items-center">
+            <h1 class="text-2xl font-black text-blue-900 italic tracking-tighter">
+                SURIYANWA <span class="text-orange-600">SAFFARI</span>
+            </h1>
+            <p class="text-[10px] text-orange-600 uppercase tracking-[2px] mt-0.5 font-bold">
+                MY CART
+            </p>
+        </div>
+
+        <div class="flex gap-3 text-gray-500">
+            <button onclick="location.reload()" class="active:rotate-180 transition-all duration-500">
+                <i class="fa-solid fa-arrows-rotate text-lg"></i>
+            </button>
+            <div class="relative cursor-pointer" onclick="location.href='cart.html'">
+                <i class="fa-solid fa-cart-shopping text-lg"></i>
+                <span id="cartCount" class="absolute -top-2 -right-2 bg-orange-600 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<div class="pt-4 pb-28 px-4">
+    <div id="cartContainer" class="bg-white rounded-3xl shadow-md overflow-hidden">
+        <!-- Cart Header -->
+        <div class="p-4 border-b flex items-center justify-between bg-orange-50">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-cart-shopping text-xl text-orange-600"></i>
+                <h2 class="text-lg font-bold text-gray-800">Your Cart (<span id="cartItemCount">0</span> items)</h2>
+            </div>
+            <div class="text-orange-600 font-semibold"><span id="cartTotal">₹0</span></div>
+        </div>
+
+        <!-- Cart Items -->
+        <div id="cartItemsList" class="p-3 space-y-2 min-h-[200px]">
+            <div class="skeleton h-24 rounded-2xl"></div>
+            <div class="skeleton h-24 rounded-2xl"></div>
+        </div>
+
+        <!-- Empty Cart Message -->
+        <div id="emptyCartMessage" class="text-center py-12 hidden">
+            <i class="fa-solid fa-cart-shopping text-5xl text-gray-300 mb-3"></i>
+            <h3 class="text-lg font-bold text-gray-700 mb-2">Your cart is empty</h3>
+            <p class="text-gray-500 text-sm mb-4">Looks like you haven't added anything to your cart yet</p>
+            <button onclick="location.href='shop.html'" class="bg-orange-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm">
+                Continue Shopping
+            </button>
+        </div>
+
+        <!-- Cart Footer -->
+        <div id="cartFooter" class="p-4 border-t bg-orange-50 hidden">
+            <div class="flex justify-between text-sm mb-2">
+                <span class="text-gray-600">Subtotal</span>
+                <span class="font-semibold"><span id="subtotal">₹0</span></span>
+            </div>
+            <div class="flex justify-between text-sm mb-2">
+                <span class="text-gray-600">Delivery Charge</span>
+                <span id="deliveryCharge" class="font-semibold text-green-600">FREE</span>
+            </div>
+            <div class="flex justify-between text-sm mb-3 pb-2 border-b border-orange-100">
+                <span class="text-gray-600">Discount</span>
+                <span id="discountAmount" class="font-semibold text-green-600">-₹0</span>
+            </div>
+            
+            <div class="flex justify-between text-lg font-bold pt-2">
+                <span>Total</span>
+                <span class="text-orange-600"><span id="totalAmount">₹0</span></span>
+            </div>
+
+            <!-- Coupon Section -->
+            <div class="mt-4 flex gap-2">
+                <input type="text" id="couponCode" placeholder="Enter coupon code" class="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm">
+                <button onclick="applyCoupon()" class="bg-gray-800 text-white px-4 py-2.5 rounded-xl text-sm font-medium">Apply</button>
+            </div>
+            <div id="couponMessage" class="text-xs mt-1 hidden"></div>
+
+            <button id="checkoutBtn" onclick="proceedToCheckout()" class="mt-5 w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 rounded-2xl text-base tracking-wider transition-all active:scale-95">
+                PROCEED TO CHECKOUT
+            </button>
+            
+            <p class="text-center text-[10px] text-gray-400 mt-3 flex items-center justify-center gap-1">
+                <i class="fa-solid fa-shield-alt"></i> 100% Secure | Cash on Delivery Only
+            </p>
+        </div>
+    </div>
+
+    <!-- Recommended Products -->
+    <div class="mt-6">
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="text-base font-bold text-gray-800">🔥 You may also like</h3>
+            <button onclick="location.href='shop.html'" class="text-[10px] text-orange-600 font-bold">View All</button>
+        </div>
+        <div id="recommendedProducts" class="flex overflow-x-auto gap-3 no-scrollbar pb-2">
+            <div class="skeleton w-32 h-40 rounded-xl"></div>
+            <div class="skeleton w-32 h-40 rounded-xl"></div>
+            <div class="skeleton w-32 h-40 rounded-xl"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Navigation -->
+<div class="fixed bottom-3 left-3 right-3 z-[100]">
+    <nav class="bg-white/95 backdrop-blur-xl border border-gray-200 rounded-[2rem] shadow-2xl flex justify-around items-center py-2.5">
+        <button onclick="location.href='index.html'" class="text-gray-400 flex flex-col items-center gap-0.5">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span class="text-[8px] font-black uppercase">Home</span>
+        </button>
+        <button onclick="location.href='shop.html'" class="text-gray-400 flex flex-col items-center gap-0.5">
+            <i class="fa-solid fa-table-cells-large text-xl"></i>
+            <span class="text-[8px] font-bold uppercase">Shop</span>
+        </button>
+        <div class="flex flex-col items-center -mt-7">
+            <button onclick="location.href='cart.html'" class="bg-orange-500 text-white w-14 h-14 rounded-full shadow-2xl border-[5px] border-gray-50 flex items-center justify-center">
+                <i class="fa-solid fa-cart-shopping text-xl"></i>
+            </button>
+            <div class="mt-2 text-center w-24">
+                <div class="text-amber-600 font-bold text-sm flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-coins"></i>
+                    <span id="walletBalance">0</span>
+                </div>
+                <button onclick="claimWallet()" class="golden-claim-btn mt-1 px-5 py-1.5 rounded-2xl text-[10px] uppercase w-full">
+                    Claim
+                </button>
+            </div>
+        </div>
+        <button onclick="location.href='services.html'" class="text-gray-400 flex flex-col items-center gap-0.5">
+            <i class="fa-solid fa-layer-group text-xl"></i>
+            <span class="text-[8px] font-bold uppercase">Services</span>
+        </button>
+        <button onclick="location.href='account.html'" class="text-gray-400 flex flex-col items-center gap-0.5">
+            <i class="fa-regular fa-user text-xl"></i>
+            <span class="text-[8px] font-bold uppercase">Account</span>
+        </button>
+    </nav>
+</div>
+
+<!-- Scripts -->
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/cart-manager.js"></script>
+
+<script>
+    let cartItems = [];
+    let appliedCoupon = null;
+    let deliveryCharge = 40;
+    let freeDeliveryMin = 499;
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+        loadCart();
+        loadRecommendedProducts();
+        loadWalletBalance();
+    });
+
+    // Load cart from server
+    async function loadCart() {
+        const user = AuthService.getCurrentUser();
+        if (!user || !user.cust_id) {
+            showToast('Please login to view cart', 'warning');
+            setTimeout(() => location.href = 'login.html', 1500);
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/customer/cart?cust_id=${user.cust_id}`, {
+                headers: AuthService.getAuthHeaders()
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                cartItems = data.cart || [];
+                renderCart();
+            }
+        } catch (error) {
+            console.error('Error loading cart:', error);
+            showToast('Failed to load cart', 'error');
+        }
+    }
+
+    function renderCart() {
+        const container = document.getElementById('cartItemsList');
+        const footer = document.getElementById('cartFooter');
+        const emptyMsg = document.getElementById('emptyCartMessage');
+        const itemCountSpan = document.getElementById('cartItemCount');
+        
+        if (!cartItems || cartItems.length === 0) {
+            container.innerHTML = '';
+            footer.classList.add('hidden');
+            emptyMsg.classList.remove('hidden');
+            itemCountSpan.innerText = '0';
+            return;
+        }
+        
+        emptyMsg.classList.add('hidden');
+        footer.classList.remove('hidden');
+        
+        let subtotal = 0;
+        let totalDiscount = 0;
+        let itemsHtml = '';
+        
+        cartItems.forEach((item, index) => {
+            const itemTotal = item.quantity * item.current_price;
+            const itemDiscount = (item.mrp - item.current_price) * item.quantity;
+            subtotal += itemTotal;
+            totalDiscount += itemDiscount;
+            
+            itemsHtml += `
+                <div class="cart-item flex gap-3 bg-white border border-gray-200 rounded-2xl p-3 shadow-sm relative" data-index="${index}">
+                    <img src="${item.image || 'https://via.placeholder.com/80/f9f9f9/000?text=Product'}" class="w-20 h-20 object-cover rounded-xl flex-shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-medium text-sm text-gray-800 leading-tight line-clamp-2">${item.name}</h3>
+                        ${item.variation_details ? `<p class="text-[10px] text-gray-500 mt-0.5">${item.variation_details.size || ''} ${item.variation_details.color || ''}</p>` : ''}
+                        <div class="flex justify-between items-center mt-2">
+                            <div>
+                                <span class="text-base font-bold text-orange-600">₹${item.current_price}</span>
+                                <span class="text-[10px] line-through text-gray-400 ml-1">₹${item.mrp}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="updateQuantity(${index}, ${item.quantity - 1})" class="quantity-btn"><i class="fa-solid fa-minus text-xs"></i></button>
+                                <span class="font-medium w-6 text-center text-sm">${item.quantity}</span>
+                                <button onclick="updateQuantity(${index}, ${item.quantity + 1})" class="quantity-btn"><i class="fa-solid fa-plus text-xs"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="removeItem(${index})" class="remove-btn absolute top-2 right-2">
+                        <i class="fa-solid fa-trash-can text-sm"></i>
+                    </button>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = itemsHtml;
+        itemCountSpan.innerText = cartItems.length;
+        document.getElementById('subtotal').innerHTML = `₹${subtotal}`;
+        document.getElementById('discountAmount').innerHTML = `-₹${totalDiscount}`;
+        
+        // Apply coupon discount if any
+        let discount = totalDiscount;
+        let finalSubtotal = subtotal;
+        
+        if (appliedCoupon) {
+            if (appliedCoupon.type === 'percentage') {
+                const couponDiscount = (subtotal * appliedCoupon.value) / 100;
+                discount += couponDiscount;
+                finalSubtotal = subtotal - couponDiscount;
+                document.getElementById('couponMessage').innerHTML = `<span class="text-green-600">Coupon applied: ${appliedCoupon.code} - ${appliedCoupon.value}% off</span>`;
+                document.getElementById('couponMessage').classList.remove('hidden');
+            } else if (appliedCoupon.type === 'fixed') {
+                discount += appliedCoupon.value;
+                finalSubtotal = subtotal - appliedCoupon.value;
+                document.getElementById('couponMessage').innerHTML = `<span class="text-green-600">Coupon applied: ${appliedCoupon.code} - ₹${appliedCoupon.value} off</span>`;
+                document.getElementById('couponMessage').classList.remove('hidden');
+            }
+        }
+        
+        // Calculate delivery charge
+        const finalDelivery = (finalSubtotal >= freeDeliveryMin) ? 0 : deliveryCharge;
+        document.getElementById('deliveryCharge').innerHTML = finalDelivery === 0 ? 'FREE' : `₹${finalDelivery}`;
+        
+        const total = finalSubtotal + finalDelivery;
+        document.getElementById('totalAmount').innerHTML = `₹${total}`;
+        document.getElementById('cartTotal').innerHTML = `₹${total}`;
+    }
+
+    async function updateQuantity(index, newQuantity) {
+        if (newQuantity < 1) return;
+        
+        const item = cartItems[index];
+        if (newQuantity > (item.max_stock || 999)) {
+            showToast(`Only ${item.max_stock} items available`, 'warning');
+            return;
+        }
+        
+        const user = AuthService.getCurrentUser();
+        
+        try {
+            if (item.cart_id) {
+                await fetch('/api/customer/cart', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        cart_id: item.cart_id,
+                        quantity: newQuantity,
+                        cust_id: user.cust_id
+                    })
+                });
+            }
+            
+            item.quantity = newQuantity;
+            renderCart();
+            updateCartCount();
+        } catch (error) {
+            console.error('Error updating quantity:', error);
+            showToast('Failed to update', 'error');
+        }
+    }
+
+    async function removeItem(index) {
+        const item = cartItems[index];
+        const user = AuthService.getCurrentUser();
+        
+        const element = document.querySelector(`.cart-item[data-index="${index}"]`);
+        if (element) element.classList.add('removing');
+        
+        setTimeout(async () => {
+            try {
+                if (item.cart_id) {
+                    await fetch(`/api/customer/cart?cart_id=${item.cart_id}&cust_id=${user.cust_id}`, {
+                        method: 'DELETE'
+                    });
+                }
+                
+                cartItems.splice(index, 1);
+                renderCart();
+                updateCartCount();
+                showToast('Item removed', 'info');
+            } catch (error) {
+                console.error('Error removing item:', error);
+                showToast('Failed to remove', 'error');
+            }
+        }, 200);
+    }
+
+    async function applyCoupon() {
+        const code = document.getElementById('couponCode').value.trim().toUpperCase();
+        if (!code) {
+            showToast('Enter coupon code', 'warning');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/customer/coupons/validate?code=${code}`);
+            const data = await response.json();
+            
+            if (data.success && data.valid) {
+                appliedCoupon = {
+                    code: data.coupon.code,
+                    type: data.coupon.discount_type,
+                    value: data.coupon.discount_value
+                };
+                renderCart();
+                showToast('Coupon applied!', 'success');
+            } else {
+                showToast(data.error || 'Invalid coupon', 'error');
+            }
+        } catch (error) {
+            showToast('Failed to apply coupon', 'error');
+        }
+    }
+
+    function proceedToCheckout() {
+        if (cartItems.length === 0) {
+            showToast('Your cart is empty', 'warning');
+            return;
+        }
+        
+        const user = AuthService.getCurrentUser();
+        if (!user) {
+            location.href = 'login.html?redirect=checkout.html';
+            return;
+        }
+        
+        // Store cart summary in session for checkout
+        const subtotal = cartItems.reduce((sum, item) => sum + (item.current_price * item.quantity), 0);
+        sessionStorage.setItem('checkoutCart', JSON.stringify({
+            items: cartItems,
+            subtotal: subtotal,
+            coupon: appliedCoupon,
+            total: parseInt(document.getElementById('totalAmount').innerHTML.replace('₹', ''))
+        }));
+        
+        location.href = 'checkout.html';
+    }
+
+    async function loadRecommendedProducts() {
+        try {
+            const response = await fetch('/api/customer/products?type=featured&limit=6');
+            const data = await response.json();
+            
+            if (data.success && data.products) {
+                renderRecommendedProducts(data.products.slice(0, 6));
+            }
+        } catch (error) {
+            console.error('Error loading recommended:', error);
+        }
+    }
+
+    function renderRecommendedProducts(products) {
+        const container = document.getElementById('recommendedProducts');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        products.forEach(product => {
+            const discount = Math.round(((product.mrp - product.current_price) / product.mrp) * 100);
+            const card = document.createElement('div');
+            card.className = 'min-w-[140px] bg-white rounded-xl border border-gray-100 p-2 cursor-pointer active:scale-95 transition-all';
+            card.onclick = () => location.href = `product.html?prod_id=${product.prod_id}`;
+            
+            card.innerHTML = `
+                <img src="${product.images?.[0] || 'https://via.placeholder.com/140/f9f9f9/000?text=Product'}" class="w-full h-28 object-cover rounded-lg">
+                <p class="text-xs font-bold text-gray-800 line-clamp-2 mt-2 h-8">${product.name}</p>
+                <div class="flex items-center justify-between mt-1">
+                    <span class="text-sm font-bold text-orange-600">₹${product.current_price}</span>
+                    ${discount > 0 ? `<span class="text-[9px] text-gray-400 line-through">₹${product.mrp}</span>` : ''}
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    async function loadWalletBalance() {
+        const user = AuthService.getCurrentUser();
+        if (user && user.cust_id) {
+            document.getElementById('walletBalance').innerText = user.wallet_balance || 0;
+        }
+    }
+
+    function claimWallet() {
+        if (!AuthService.isAuthenticated()) {
+            location.href = 'login.html';
+            return;
+        }
+        location.href = 'account.html?tab=wallet';
+    }
+
+    async function updateCartCount() {
+        if (CartManager) {
+            const count = CartManager.getCartCount();
+            const badge = document.getElementById('cartCount');
+            if (badge) {
+                if (count > 0) {
+                    badge.innerText = count;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+        }
+    }
+
+    function showToast(message, type) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.style.backgroundColor = type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#10b981';
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 2000);
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Service Booking - Suriyanwa Saffari</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .service-category {
+            transition: all 0.2s ease;
+        }
+        .service-category.active {
+            background: linear-gradient(135deg, #f59e0b, #ea580c) !important;
+            color: white !important;
+        }
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 12px;
+            z-index: 200;
+            display: none;
+        }
+        .golden-claim-btn {
+            background: linear-gradient(135deg, #facc15, #eab308, #ca8a04);
+            color: #451a03;
+            font-weight: 900;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans pb-24">
+
+<div id="toast" class="toast"></div>
+
+<!-- Header -->
+<nav class="bg-white p-4 flex items-center gap-3 border-b sticky top-0 z-50">
+    <button onclick="window.history.back()" class="text-gray-600">
+        <i class="fa-solid fa-chevron-left text-xl"></i>
+    </button>
+    <h2 class="text-xl font-black text-blue-900">Book Service</h2>
+</nav>
+
+<!-- Service Type Selection -->
+<div class="p-4">
+    <h3 class="text-sm font-bold text-gray-700 mb-3">Select Service Type</h3>
+    <div class="grid grid-cols-2 gap-3">
+        <button class="service-category active p-3 rounded-xl bg-gradient-to-r from-blue-900 to-blue-700 text-white text-sm font-bold flex items-center justify-center gap-2" data-service="vehicle_booking" onclick="selectServiceType('vehicle_booking')">
+            <i class="fa-solid fa-car"></i> Vehicle
+        </button>
+        <button class="service-category p-3 rounded-xl bg-gray-100 text-gray-700 text-sm font-bold flex items-center justify-center gap-2" data-service="ac_repair" onclick="selectServiceType('ac_repair')">
+            <i class="fa-solid fa-snowflake"></i> AC Repair
+        </button>
+        <button class="service-category p-3 rounded-xl bg-gray-100 text-gray-700 text-sm font-bold flex items-center justify-center gap-2" data-service="electrician" onclick="selectServiceType('electrician')">
+            <i class="fa-solid fa-bolt"></i> Electrician
+        </button>
+        <button class="service-category p-3 rounded-xl bg-gray-100 text-gray-700 text-sm font-bold flex items-center justify-center gap-2" data-service="plumber" onclick="selectServiceType('plumber')">
+            <i class="fa-solid fa-wrench"></i> Plumber
+        </button>
+        <button class="service-category p-3 rounded-xl bg-gray-100 text-gray-700 text-sm font-bold flex items-center justify-center gap-2" data-service="painter" onclick="selectServiceType('painter')">
+            <i class="fa-solid fa-paintbrush"></i> Painter
+        </button>
+        <button class="service-category p-3 rounded-xl bg-gray-100 text-gray-700 text-sm font-bold flex items-center justify-center gap-2" data-service="catering" onclick="selectServiceType('catering')">
+            <i class="fa-solid fa-utensils"></i> Catering
+        </button>
+        <button class="service-category p-3 rounded-xl bg-gray-100 text-gray-700 text-sm font-bold flex items-center justify-center gap-2" data-service="mehndi" onclick="selectServiceType('mehndi')">
+            <i class="fa-solid fa-hand-fist"></i> Mehndi
+        </button>
+        <button class="service-category p-3 rounded-xl bg-gray-100 text-gray-700 text-sm font-bold flex items-center justify-center gap-2" data-service="car_wash" onclick="selectServiceType('car_wash')">
+            <i class="fa-solid fa-car-side"></i> Car Wash
+        </button>
+        <button class="service-category p-3 rounded-xl bg-gray-100 text-gray-700 text-sm font-bold flex items-center justify-center gap-2" data-service="shadi_card" onclick="selectServiceType('shadi_card')">
+            <i class="fa-solid fa-envelope-open-text"></i> Wedding Card
+        </button>
+        <button class="service-category p-3 rounded-xl bg-gray-100 text-gray-700 text-sm font-bold flex items-center justify-center gap-2" data-service="send_product" onclick="selectServiceType('send_product')">
+            <i class="fa-solid fa-box"></i> Send Product
+        </button>
+        <button class="service-category p-3 rounded-xl bg-gray-100 text-gray-700 text-sm font-bold flex items-center justify-center gap-2" data-service="breakfast_drink" onclick="selectServiceType('breakfast_drink')">
+            <i class="fa-solid fa-mug-hot"></i> Breakfast
+        </button>
+        <button class="service-category p-3 rounded-xl bg-gray-100 text-gray-700 text-sm font-bold flex items-center justify-center gap-2" data-service="suriyawan_special" onclick="selectServiceType('suriyawan_special')">
+            <i class="fa-solid fa-crown"></i> Special
+        </button>
+    </div>
+</div>
+
+<!-- Vehicle Options (Dynamic based on service) -->
+<div id="vehicleOptions" class="px-4 space-y-3">
+    <h3 class="text-sm font-bold text-gray-700">Select Vehicle</h3>
+    <div class="grid grid-cols-2 gap-3">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 cursor-pointer active:scale-95 transition-all" onclick="selectVehicle('Swift Dzire', 12, 4.5, 12)">
+            <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300" class="w-full h-24 rounded-xl object-cover">
+            <h4 class="font-bold mt-2 text-sm">Swift Dzire</h4>
+            <p class="text-xs text-gray-500">₹12/km • ⭐ 4.5</p>
+            <p class="text-xs text-gray-400">4 Seater • AC</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 cursor-pointer active:scale-95 transition-all" onclick="selectVehicle('Mahindra Scorpio', 18, 4.7, 18)">
+            <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300" class="w-full h-24 rounded-xl object-cover">
+            <h4 class="font-bold mt-2 text-sm">Mahindra Scorpio</h4>
+            <p class="text-xs text-gray-500">₹18/km • ⭐ 4.7</p>
+            <p class="text-xs text-gray-400">7 Seater • AC</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 cursor-pointer active:scale-95 transition-all" onclick="selectVehicle('Toyota Innova', 22, 4.8, 22)">
+            <img src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=300" class="w-full h-24 rounded-xl object-cover">
+            <h4 class="font-bold mt-2 text-sm">Toyota Innova</h4>
+            <p class="text-xs text-gray-500">₹22/km • ⭐ 4.8</p>
+            <p class="text-xs text-gray-400">7 Seater • Luxury</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 cursor-pointer active:scale-95 transition-all" onclick="selectVehicle('Tempo Traveller', 30, 4.6, 30)">
+            <img src="https://images.unsplash.com/photo-1580274455191-1c62238fa333?w=300" class="w-full h-24 rounded-xl object-cover">
+            <h4 class="font-bold mt-2 text-sm">Tempo Traveller</h4>
+            <p class="text-xs text-gray-500">₹30/km • ⭐ 4.6</p>
+            <p class="text-xs text-gray-400">12 Seater • AC</p>
+        </div>
+    </div>
+</div>
+
+<!-- Booking Form -->
+<div class="p-4 space-y-4">
+    <div>
+        <label class="text-sm font-medium text-gray-700 block mb-1">Pickup Location</label>
+        <input type="text" id="pickupLocation" class="w-full border rounded-xl p-3 text-sm" placeholder="Enter pickup address">
+    </div>
+    <div>
+        <label class="text-sm font-medium text-gray-700 block mb-1">Drop Location</label>
+        <input type="text" id="dropLocation" class="w-full border rounded-xl p-3 text-sm" placeholder="Enter drop address">
+    </div>
+    <div>
+        <label class="text-sm font-medium text-gray-700 block mb-1">Travel Date</label>
+        <input type="date" id="travelDate" class="w-full border rounded-xl p-3 text-sm">
+    </div>
+    <div>
+        <label class="text-sm font-medium text-gray-700 block mb-1">Travel Time</label>
+        <input type="time" id="travelTime" class="w-full border rounded-xl p-3 text-sm">
+    </div>
+    <div>
+        <label class="text-sm font-medium text-gray-700 block mb-1">Number of Passengers</label>
+        <input type="number" id="passengers" value="1" min="1" max="50" class="w-full border rounded-xl p-3 text-sm">
+    </div>
+    <div>
+        <label class="text-sm font-medium text-gray-700 block mb-1">Special Requests (Optional)</label>
+        <textarea id="specialRequests" rows="2" class="w-full border rounded-xl p-3 text-sm" placeholder="Any special requirements..."></textarea>
+    </div>
+</div>
+
+<!-- Price Estimate -->
+<div class="mx-4 mb-4 bg-blue-50 rounded-xl p-4">
+    <div class="flex justify-between items-center mb-2">
+        <span class="text-sm text-gray-600">Base Fare</span>
+        <span id="baseFare" class="text-sm font-bold">₹0</span>
+    </div>
+    <div class="flex justify-between items-center mb-2">
+        <span class="text-sm text-gray-600">Distance (approx)</span>
+        <span id="distance" class="text-sm font-bold">0 km</span>
+    </div>
+    <div class="flex justify-between items-center pt-2 border-t border-blue-200">
+        <span class="text-base font-bold text-blue-900">Total Estimate</span>
+        <span id="totalEstimate" class="text-xl font-black text-blue-900">₹0</span>
+    </div>
+    <p class="text-[10px] text-gray-500 mt-2">*Final fare based on actual distance traveled</p>
+</div>
+
+<!-- Token Amount Info -->
+<div class="mx-4 mb-4 bg-orange-50 rounded-xl p-3 flex items-center gap-3">
+    <i class="fa-solid fa-ticket-alt text-orange-600 text-xl"></i>
+    <div>
+        <p class="text-sm font-bold text-orange-800">Token Amount: ₹100</p>
+        <p class="text-[10px] text-orange-600">Pay to driver at pickup</p>
+    </div>
+</div>
+
+<!-- Book Button -->
+<div class="p-4 pb-8">
+    <button onclick="bookService()" class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-4 rounded-2xl font-black text-base shadow-lg shadow-orange-200 active:scale-95 transition-all">
+        CONFIRM BOOKING
+    </button>
+</div>
+
+<!-- Scripts -->
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let currentServiceType = 'vehicle_booking';
+    let selectedVehicle = null;
+    let vehicleRate = 0;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('travelDate').valueAsDate = new Date();
+        document.getElementById('travelTime').value = '10:00';
+        calculateEstimate();
+        
+        // Add input listeners for estimate
+        document.getElementById('pickupLocation').addEventListener('input', calculateEstimate);
+        document.getElementById('dropLocation').addEventListener('input', calculateEstimate);
+    });
+    
+    function selectServiceType(serviceType) {
+        currentServiceType = serviceType;
+        
+        // Update active state
+        document.querySelectorAll('.service-category').forEach(btn => {
+            btn.classList.remove('active');
+            btn.classList.add('bg-gray-100', 'text-gray-700');
+            btn.classList.remove('bg-gradient-to-r', 'from-blue-900', 'to-blue-700', 'text-white');
+        });
+        const activeBtn = document.querySelector(`.service-category[data-service="${serviceType}"]`);
+        activeBtn.classList.add('active');
+        activeBtn.classList.remove('bg-gray-100', 'text-gray-700');
+        activeBtn.classList.add('bg-gradient-to-r', 'from-blue-900', 'to-blue-700', 'text-white');
+        
+        // Show/hide vehicle options
+        const vehicleOptionsDiv = document.getElementById('vehicleOptions');
+        if (serviceType === 'vehicle_booking') {
+            vehicleOptionsDiv.classList.remove('hidden');
+        } else {
+            vehicleOptionsDiv.classList.add('hidden');
+        }
+    }
+    
+    function selectVehicle(name, rate, rating, baseFare) {
+        selectedVehicle = name;
+        vehicleRate = rate;
+        
+        // Show selection feedback
+        showToast(`${name} selected!`, 'success');
+        calculateEstimate();
+    }
+    
+    function calculateEstimate() {
+        // For demo, calculate random distance between 5-50 km
+        const distance = Math.floor(Math.random() * 45) + 5;
+        const baseFare = vehicleRate * distance;
+        
+        document.getElementById('distance').innerHTML = `${distance} km`;
+        document.getElementById('baseFare').innerHTML = `₹${baseFare}`;
+        document.getElementById('totalEstimate').innerHTML = `₹${baseFare}`;
+    }
+    
+    async function bookService() {
+        if (!AuthService.isAuthenticated()) {
+            showToast('Please login to book service', 'warning');
+            setTimeout(() => location.href = 'login.html', 1500);
+            return;
+        }
+        
+        if (currentServiceType === 'vehicle_booking' && !selectedVehicle) {
+            showToast('Please select a vehicle', 'warning');
+            return;
+        }
+        
+        const pickup = document.getElementById('pickupLocation').value;
+        const drop = document.getElementById('dropLocation').value;
+        const date = document.getElementById('travelDate').value;
+        const time = document.getElementById('travelTime').value;
+        const passengers = document.getElementById('passengers').value;
+        
+        if (!pickup || !drop || !date || !time) {
+            showToast('Please fill all required fields', 'warning');
+            return;
+        }
+        
+        const user = AuthService.getCurrentUser();
+        if (!user || !user.cust_id) {
+            showToast('User not found', 'error');
+            return;
+        }
+        
+        const bookingData = {
+            cust_id: user.cust_id,
+            service_type: currentServiceType,
+            scheduled_date: date,
+            scheduled_time: time,
+            address: { pickup, drop },
+            form_data: {
+                vehicle: selectedVehicle,
+                passengers: passengers,
+                special_requests: document.getElementById('specialRequests').value,
+                estimated_fare: parseInt(document.getElementById('totalEstimate').innerHTML.replace('₹', ''))
+            }
+        };
+        
+        try {
+            const response = await fetch('/api/customer/service-book', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(bookingData)
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                showToast('Service booked successfully!', 'success');
+                setTimeout(() => {
+                    location.href = 'services.html';
+                }, 1500);
+            } else {
+                showToast(data.error || 'Booking failed', 'error');
+            }
+        } catch (error) {
+            console.error('Booking error:', error);
+            showToast('Failed to book service', 'error');
+        }
+    }
+    
+    function showToast(message, type) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.style.backgroundColor = type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#10b981';
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 2000);
+    }
+</script>
+</body>
+</html>

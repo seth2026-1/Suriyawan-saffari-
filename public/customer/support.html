@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Customer Support - Suriyanwa Saffari</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .faq-item {
+            transition: all 0.2s ease;
+        }
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .faq-item.open .faq-answer {
+            max-height: 300px;
+        }
+        .golden-claim-btn {
+            background: linear-gradient(135deg, #facc15, #eab308, #ca8a04);
+            color: #451a03;
+            font-weight: 900;
+        }
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 12px;
+            z-index: 200;
+            display: none;
+        }
+        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 12px; }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans pb-36">
+
+<div id="toast" class="toast"></div>
+
+<!-- Header -->
+<header class="bg-white sticky top-0 z-50 shadow-md">
+    <div class="p-4 flex items-center justify-between border-b border-gray-100">
+        <button onclick="window.history.back()" class="text-blue-900 text-xl">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        
+        <div class="flex flex-col items-center">
+            <h1 class="text-2xl font-black text-blue-900 italic tracking-tighter">
+                SURIYANWA <span class="text-orange-600">SAFFARI</span>
+            </h1>
+            <p class="text-[10px] text-orange-600 uppercase tracking-[2px] mt-0.5 font-bold">
+                SUPPORT
+            </p>
+        </div>
+
+        <div class="flex gap-3 text-gray-500">
+            <button onclick="location.reload()" class="active:rotate-180 transition-all duration-500">
+                <i class="fa-solid fa-arrows-rotate text-lg"></i>
+            </button>
+            <div class="relative cursor-pointer" onclick="location.href='cart.html'">
+                <i class="fa-solid fa-cart-shopping text-lg"></i>
+                <span id="cartCount" class="absolute -top-2 -right-2 bg-orange-600 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Contact Options -->
+<div class="grid grid-cols-3 gap-3 p-4 bg-white border-b">
+    <button onclick="callSupport()" class="flex flex-col items-center gap-2 p-3 bg-green-50 rounded-2xl active:scale-95 transition">
+        <i class="fa-solid fa-phone text-green-600 text-2xl"></i>
+        <span class="text-[10px] font-bold text-gray-700">Call</span>
+    </button>
+    <button onclick="whatsappSupport()" class="flex flex-col items-center gap-2 p-3 bg-green-50 rounded-2xl active:scale-95 transition">
+        <i class="fa-brands fa-whatsapp text-green-600 text-2xl"></i>
+        <span class="text-[10px] font-bold text-gray-700">WhatsApp</span>
+    </button>
+    <button onclick="emailSupport()" class="flex flex-col items-center gap-2 p-3 bg-blue-50 rounded-2xl active:scale-95 transition">
+        <i class="fa-solid fa-envelope text-blue-600 text-2xl"></i>
+        <span class="text-[10px] font-bold text-gray-700">Email</span>
+    </button>
+</div>
+
+<!-- Quick Actions -->
+<div class="grid grid-cols-2 gap-3 p-4">
+    <button onclick="openTicketModal()" class="bg-blue-900 text-white p-4 rounded-2xl text-center active:scale-95 transition">
+        <i class="fa-solid fa-ticket-alt text-2xl mb-1"></i>
+        <p class="text-sm font-bold">Raise Ticket</p>
+        <p class="text-[9px] opacity-80">Get help in 24hrs</p>
+    </button>
+    <button onclick="location.href='orders.html'" class="bg-orange-500 text-white p-4 rounded-2xl text-center active:scale-95 transition">
+        <i class="fa-solid fa-box text-2xl mb-1"></i>
+        <p class="text-sm font-bold">My Orders</p>
+        <p class="text-[9px] opacity-80">Track & support</p>
+    </button>
+</div>
+
+<!-- Support Info Card -->
+<div class="mx-4 mb-4 bg-gray-100 rounded-2xl p-4">
+    <div class="flex items-center gap-3 mb-3">
+        <i class="fa-solid fa-clock text-blue-900"></i>
+        <span class="text-xs font-bold">Support Hours</span>
+    </div>
+    <p class="text-xs text-gray-600">Monday - Saturday: 9:00 AM - 9:00 PM</p>
+    <p class="text-xs text-gray-600">Sunday: 10:00 AM - 6:00 PM</p>
+    <p class="text-xs text-gray-500 mt-2">📞 Toll Free: 1800-xxx-xxx</p>
+    <p class="text-xs text-gray-500">📧 Email: support@suriyawansaffari.com</p>
+</div>
+
+<!-- My Tickets Section -->
+<div class="px-4 py-3 bg-white border-t border-b">
+    <div class="flex items-center justify-between">
+        <h3 class="text-base font-black text-blue-900">🎫 My Tickets</h3>
+        <button onclick="openTicketModal()" class="text-[10px] text-orange-600 font-bold">+ New Ticket</button>
+    </div>
+</div>
+<div id="ticketsList" class="p-4 space-y-3">
+    <div class="skeleton h-20 rounded-xl"></div>
+    <div class="skeleton h-20 rounded-xl"></div>
+</div>
+
+<!-- FAQ Section -->
+<div class="px-4 py-3 bg-white border-t">
+    <h3 class="text-base font-black text-blue-900 mb-3">❓ Frequently Asked Questions</h3>
+    <div id="faqList" class="space-y-2">
+        <div class="skeleton h-16 rounded-xl"></div>
+        <div class="skeleton h-16 rounded-xl"></div>
+        <div class="skeleton h-16 rounded-xl"></div>
+    </div>
+</div>
+
+<!-- Ticket Modal -->
+<div id="ticketModal" class="fixed inset-0 bg-black/50 z-[200] hidden items-end md:items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-md max-h-[85vh] overflow-y-auto">
+        <div class="sticky top-0 bg-white p-4 border-b flex justify-between items-center">
+            <h3 class="font-bold text-lg">Raise Support Ticket</h3>
+            <button onclick="closeTicketModal()" class="w-8 h-8 rounded-full bg-gray-100"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <div class="p-4 space-y-4">
+            <div>
+                <label class="text-sm font-medium block mb-1">Category *</label>
+                <select id="ticketCategory" class="w-full border rounded-xl p-3 text-sm">
+                    <option value="">Select category</option>
+                    <option value="order">Order Related</option>
+                    <option value="payment">Payment Issue</option>
+                    <option value="delivery">Delivery Problem</option>
+                    <option value="product">Product Issue</option>
+                    <option value="return">Return/Exchange</option>
+                    <option value="account">Account Issue</option>
+                    <option value="cod_block">COD Block</option>
+                    <option value="wallet">Wallet/Coins</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-sm font-medium block mb-1">Order ID (Optional)</label>
+                <input type="text" id="ticketOrderId" class="w-full border rounded-xl p-3 text-sm" placeholder="Enter order ID if related">
+            </div>
+            <div>
+                <label class="text-sm font-medium block mb-1">Subject *</label>
+                <input type="text" id="ticketSubject" class="w-full border rounded-xl p-3 text-sm" placeholder="Brief subject">
+            </div>
+            <div>
+                <label class="text-sm font-medium block mb-1">Message *</label>
+                <textarea id="ticketMessage" rows="4" class="w-full border rounded-xl p-3 text-sm" placeholder="Describe your issue in detail..."></textarea>
+            </div>
+            <div>
+                <label class="text-sm font-medium block mb-1">Upload Photo (Optional)</label>
+                <input type="file" id="ticketPhoto" accept="image/*" class="w-full border rounded-xl p-2 text-sm">
+            </div>
+            <div class="bg-blue-50 p-3 rounded-xl">
+                <p class="text-[10px] text-blue-800"><i class="fa-solid fa-clock mr-1"></i> Response within 24 hours</p>
+            </div>
+        </div>
+        <div class="sticky bottom-0 bg-white p-4 border-t flex gap-3">
+            <button onclick="closeTicketModal()" class="flex-1 border border-gray-300 py-3 rounded-xl">Cancel</button>
+            <button onclick="submitTicket()" class="flex-1 bg-orange-600 text-white py-3 rounded-xl font-bold">Submit Ticket</button>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Navigation -->
+<div class="fixed bottom-3 left-3 right-3 z-[100]">
+    <nav class="bg-white/95 backdrop-blur-xl border border-gray-200 rounded-[2rem] shadow-2xl flex justify-around items-center py-2.5">
+        <button onclick="location.href='index.html'" class="text-gray-400 flex flex-col items-center gap-0.5">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span class="text-[8px] font-black uppercase">Home</span>
+        </button>
+        <button onclick="location.href='shop.html'" class="text-gray-400 flex flex-col items-center gap-0.5">
+            <i class="fa-solid fa-table-cells-large text-xl"></i>
+            <span class="text-[8px] font-bold uppercase">Shop</span>
+        </button>
+        <div class="flex flex-col items-center -mt-7">
+            <button onclick="location.href='cart.html'" class="bg-orange-500 text-white w-14 h-14 rounded-full shadow-2xl border-[5px] border-gray-50 flex items-center justify-center">
+                <i class="fa-solid fa-cart-shopping text-xl"></i>
+            </button>
+            <div class="mt-2 text-center w-24">
+                <div class="text-amber-600 font-bold text-sm flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-coins"></i>
+                    <span id="walletBalance">0</span>
+                </div>
+                <button onclick="claimWallet()" class="golden-claim-btn mt-1 px-5 py-1.5 rounded-2xl text-[10px] uppercase w-full">
+                    Claim
+                </button>
+            </div>
+        </div>
+        <button onclick="location.href='services.html'" class="text-gray-400 flex flex-col items-center gap-0.5">
+            <i class="fa-solid fa-layer-group text-xl"></i>
+            <span class="text-[8px] font-bold uppercase">Services</span>
+        </button>
+        <button onclick="location.href='account.html'" class="text-gray-400 flex flex-col items-center gap-0.5">
+            <i class="fa-regular fa-user text-xl"></i>
+            <span class="text-[8px] font-bold uppercase">Account</span>
+        </button>
+    </nav>
+</div>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/cart-manager.js"></script>
+
+<script>
+    let tickets = [];
+    let faqs = [];
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        loadTickets();
+        loadFAQs();
+        loadWalletBalance();
+        updateCartCount();
+    });
+    
+    async function loadTickets() {
+        const user = AuthService.getCurrentUser();
+        if (!user || !user.cust_id) {
+            document.getElementById('ticketsList').innerHTML = '<div class="text-center text-gray-500 py-4">Login to view tickets</div>';
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/customer/support?cust_id=${user.cust_id}`, {
+                headers: AuthService.getAuthHeaders()
+            });
+            const data = await response.json();
+            
+            if (data.success && data.tickets) {
+                tickets = data.tickets;
+                renderTickets();
+            } else {
+                renderEmptyTickets();
+            }
+        } catch (error) {
+            console.error('Error loading tickets:', error);
+            renderEmptyTickets();
+        }
+    }
+    
+    function renderTickets() {
+        const container = document.getElementById('ticketsList');
+        if (!tickets || tickets.length === 0) {
+            renderEmptyTickets();
+            return;
+        }
+        
+        let html = '';
+        tickets.slice(0, 5).forEach(ticket => {
+            const statusColors = {
+                'OPEN': 'bg-yellow-100 text-yellow-800',
+                'IN_PROGRESS': 'bg-blue-100 text-blue-800',
+                'RESOLVED': 'bg-green-100 text-green-800',
+                'CLOSED': 'bg-gray-100 text-gray-600'
+            };
+            html += `
+                <div class="bg-white rounded-xl p-3 border border-gray-100">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <p class="text-xs font-mono text-gray-500">#${ticket.ticket_id}</p>
+                            <p class="text-sm font-bold text-gray-800">${ticket.subject}</p>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${statusColors[ticket.status] || 'bg-gray-100'}">${ticket.status}</span>
+                    </div>
+                    <p class="text-[10px] text-gray-500 line-clamp-2">${ticket.message.substring(0, 80)}${ticket.message.length > 80 ? '...' : ''}</p>
+                    <p class="text-[9px] text-gray-400 mt-2">${formatDate(ticket.created_at)}</p>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+    
+    function renderEmptyTickets() {
+        document.getElementById('ticketsList').innerHTML = `
+            <div class="text-center py-8">
+                <i class="fa-solid fa-ticket-alt text-3xl text-gray-300 mb-2"></i>
+                <p class="text-gray-500 text-sm">No support tickets yet</p>
+                <button onclick="openTicketModal()" class="mt-2 text-orange-600 text-xs">Raise a Ticket →</button>
+            </div>
+        `;
+    }
+    
+    async function loadFAQs() {
+        try {
+            const response = await fetch('/api/customer/support/faq');
+            const data = await response.json();
+            
+            if (data.success && data.faqs) {
+                faqs = data.faqs;
+                renderFAQs();
+            } else {
+                renderDefaultFAQs();
+            }
+        } catch (error) {
+            console.error('Error loading FAQs:', error);
+            renderDefaultFAQs();
+        }
+    }
+    
+    function renderFAQs() {
+        const container = document.getElementById('faqList');
+        if (!faqs || faqs.length === 0) {
+            renderDefaultFAQs();
+            return;
+        }
+        
+        let html = '';
+        faqs.slice(0, 5).forEach((faq, index) => {
+            html += `
+                <div class="faq-item bg-gray-50 rounded-xl overflow-hidden" onclick="toggleFAQ(this)">
+                    <div class="flex justify-between items-center p-3 cursor-pointer">
+                        <p class="text-sm font-medium text-gray-800">${faq.question}</p>
+                        <i class="fa-solid fa-chevron-down text-gray-400 text-xs transition-transform"></i>
+                    </div>
+                    <div class="faq-answer px-3 pb-3">
+                        <p class="text-xs text-gray-600">${faq.answer}</p>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+    
+    function renderDefaultFAQs() {
+        const defaultFaqs = [
+            { question: 'How do I place an order?', answer: 'Browse products, add to cart, proceed to checkout, select COD payment, and confirm order.' },
+            { question: 'How does Cancel Code work?', answer: 'Cancel Code is a 6-digit code sent with your order. Provide it to rider for cancellation.' },
+            { question: 'What is Open Box Delivery?', answer: 'You can open and check the product in front of the rider before making payment.' },
+            { question: 'Can I return a product?', answer: 'Yes, same-time return is available. Check product at delivery and return immediately if needed.' },
+            { question: 'How to claim wallet balance?', answer: 'Go to Wallet section, click Claim, enter amount (min ₹100), and provide UPI ID.' }
+        ];
+        
+        let html = '';
+        defaultFaqs.forEach((faq, index) => {
+            html += `
+                <div class="faq-item bg-gray-50 rounded-xl overflow-hidden" onclick="toggleFAQ(this)">
+                    <div class="flex justify-between items-center p-3 cursor-pointer">
+                        <p class="text-sm font-medium text-gray-800">${faq.question}</p>
+                        <i class="fa-solid fa-chevron-down text-gray-400 text-xs transition-transform"></i>
+                    </div>
+                    <div class="faq-answer px-3 pb-3">
+                        <p class="text-xs text-gray-600">${faq.answer}</p>
+                    </div>
+                </div>
+            `;
+        });
+        document.getElementById('faqList').innerHTML = html;
+    }
+    
+    function toggleFAQ(element) {
+        element.classList.toggle('open');
+        const icon = element.querySelector('.fa-chevron-down');
+        if (icon) {
+            icon.style.transform = element.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0)';
+        }
+    }
+    
+    function openTicketModal() {
+        document.getElementById('ticketModal').classList.add('flex');
+        document.getElementById('ticketModal').classList.remove('hidden');
+    }
+    
+    function closeTicketModal() {
+        document.getElementById('ticketModal').classList.remove('flex');
+        document.getElementById('ticketModal').classList.add('hidden');
+        document.getElementById('ticketCategory').value = '';
+        document.getElementById('ticketOrderId').value = '';
+        document.getElementById('ticketSubject').value = '';
+        document.getElementById('ticketMessage').value = '';
+    }
+    
+    async function submitTicket() {
+        const category = document.getElementById('ticketCategory').value;
+        const subject = document.getElementById('ticketSubject').value;
+        const message = document.getElementById('ticketMessage').value;
+        
+        if (!category || !subject || !message) {
+            showToast('Please fill all required fields', 'warning');
+            return;
+        }
+        
+        const user = AuthService.getCurrentUser();
+        if (!user || !user.cust_id) {
+            showToast('Please login to submit ticket', 'warning');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/customer/support', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    cust_id: user.cust_id,
+                    name: user.name,
+                    email: user.email,
+                    mobile: user.mobile,
+                    category: category,
+                    subject: subject,
+                    message: message,
+                    order_id: document.getElementById('ticketOrderId').value || null
+                })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                showToast('Ticket submitted successfully!', 'success');
+                closeTicketModal();
+                loadTickets();
+            } else {
+                showToast(data.error || 'Submission failed', 'error');
+            }
+        } catch (error) {
+            showToast('Failed to submit ticket', 'error');
+        }
+    }
+    
+    function callSupport() {
+        window.location.href = 'tel:1800-xxx-xxx';
+    }
+    
+    function whatsappSupport() {
+        window.open('https://wa.me/91xxxxxxxxxx?text=Hello%2C%20I%20need%20help%20with%20my%20order', '_blank');
+    }
+    
+    function emailSupport() {
+        window.location.href = 'mailto:support@suriyawansaffari.com';
+    }
+    
+    function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+    
+    async function loadWalletBalance() {
+        const user = AuthService.getCurrentUser();
+        if (user && user.wallet_balance !== undefined) {
+            document.getElementById('walletBalance').innerText = user.wallet_balance || 0;
+        }
+    }
+    
+    function claimWallet() {
+        if (!AuthService.isAuthenticated()) {
+            location.href = 'login.html';
+            return;
+        }
+        location.href = 'wallet.html';
+    }
+    
+    async function updateCartCount() {
+        if (CartManager) {
+            const count = CartManager.getCartCount();
+            const badge = document.getElementById('cartCount');
+            if (badge) {
+                if (count > 0) {
+                    badge.innerText = count;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+        }
+    }
+    
+    function showToast(message, type) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.style.backgroundColor = type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#10b981';
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 2000);
+    }
+</script>
+</body>
+</html>

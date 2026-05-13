@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Services - Suriyanwa Saffari</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .service-chip {
+            transition: all 0.2s ease;
+        }
+        .service-chip.active {
+            background: linear-gradient(135deg, #f59e0b, #ea580c) !important;
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+        .service-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .service-card:active { transform: scale(0.98); }
+        .golden-claim-btn {
+            background: linear-gradient(135deg, #facc15, #eab308, #ca8a04);
+            color: #451a03;
+            font-weight: 900;
+        }
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 12px;
+            z-index: 200;
+            display: none;
+        }
+        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 12px; }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans pb-36">
+
+<div id="toast" class="toast"></div>
+
+<!-- Header -->
+<header class="bg-white sticky top-0 z-50 shadow-md">
+    <div class="p-4 flex items-center justify-between border-b border-gray-100">
+        <button onclick="window.history.back()" class="text-blue-900 text-xl">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        
+        <div class="flex flex-col items-center">
+            <h1 class="text-2xl font-black text-blue-900 italic tracking-tighter">
+                SURIYANWA <span class="text-orange-600">SAFFARI</span>
+            </h1>
+            <p class="text-[10px] text-orange-600 uppercase tracking-[2px] mt-0.5 font-bold">
+                SERVICES
+            </p>
+        </div>
+
+        <div class="flex gap-3 text-gray-500">
+            <i class="fa-regular fa-heart text-lg" onclick="location.href='wishlist.html'"></i>
+            <div class="relative cursor-pointer" onclick="location.href='cart.html'">
+                <i class="fa-solid fa-cart-shopping text-lg"></i>
+                <span id="cartCount" class="absolute -top-2 -right-2 bg-orange-600 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Search Bar -->
+    <div class="px-4 py-3">
+        <div class="relative flex items-center">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 text-gray-400 text-sm"></i>
+            <input type="text" id="searchInput" placeholder="Search services..." class="w-full bg-gray-100 rounded-xl py-2.5 pl-10 pr-10 text-sm focus:outline-none border border-gray-200">
+        </div>
+    </div>
+</header>
+
+<!-- Service Categories Chips -->
+<div class="px-4 py-3 flex gap-3 overflow-x-auto no-scrollbar">
+    <button class="service-chip active shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-blue-900 to-blue-700 text-white shadow-lg shadow-blue-200 font-bold text-sm" data-service="vehicle_booking" onclick="selectService('vehicle_booking')">
+        <span class="text-lg">🚗</span> Vehicle Booking
+    </button>
+    <button class="service-chip shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/80 backdrop-blur-md border border-gray-200 shadow-md font-bold text-sm" data-service="other_booking" onclick="selectService('other_booking')">
+        <span class="text-lg">📅</span> Other Booking
+    </button>
+    <button class="service-chip shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/80 backdrop-blur-md border border-gray-200 shadow-md font-bold text-sm" data-service="breakfast_drink" onclick="selectService('breakfast_drink')">
+        <span class="text-lg">☕</span> Breakfast & Drink
+    </button>
+    <button class="service-chip shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/80 backdrop-blur-md border border-gray-200 shadow-md font-bold text-sm" data-service="send_product" onclick="selectService('send_product')">
+        <span class="text-lg">📦</span> Send Product
+    </button>
+    <button class="service-chip shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/80 backdrop-blur-md border border-gray-200 shadow-md font-bold text-sm" data-service="shadi_card" onclick="selectService('shadi_card')">
+        <span class="text-lg">💍</span> Shadi Card
+    </button>
+    <button class="service-chip shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-yellow-400 to-amber-500 text-black shadow-lg shadow-yellow-200 font-bold text-sm" data-service="suriyawan_special" onclick="selectService('suriyawan_special')">
+        <span class="text-lg">👑</span> Suriyawan Special
+    </button>
+    <button class="service-chip shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/80 backdrop-blur-md border border-gray-200 shadow-md font-bold text-sm" data-service="ac_repair" onclick="selectService('ac_repair')">
+        <span class="text-lg">❄️</span> AC Repair
+    </button>
+    <button class="service-chip shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/80 backdrop-blur-md border border-gray-200 shadow-md font-bold text-sm" data-service="painter" onclick="selectService('painter')">
+        <span class="text-lg">🎨</span> Painter
+    </button>
+    <button class="service-chip shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/80 backdrop-blur-md border border-gray-200 shadow-md font-bold text-sm" data-service="electrician" onclick="selectService('electrician')">
+        <span class="text-lg">⚡</span> Electrician
+    </button>
+    <button class="service-chip shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/80 backdrop-blur-md border border-gray-200 shadow-md font-bold text-sm" data-service="plumber" onclick="selectService('plumber')">
+        <span class="text-lg">🔧</span> Plumber
+    </button>
+    <button class="service-chip shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/80 backdrop-blur-md border border-gray-200 shadow-md font-bold text-sm" data-service="car_wash" onclick="selectService('car_wash')">
+        <span class="text-lg">🚗</span> Car Wash
+    </button>
+    <button class="service-chip shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/80 backdrop-blur-md border border-gray-200 shadow-md font-bold text-sm" data-service="mehndi" onclick="selectService('mehndi')">
+        <span class="text-lg">🤚</span> Mehndi
+    </button>
+    <button class="service-chip shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/80 backdrop-blur-md border border-gray-200 shadow-md font-bold text-sm" data-service="catering" onclick="selectService('catering')">
+        <span class="text-lg">🍽️</span> Catering
+    </button>
+</div>
+
+<!-- Services Grid -->
+<main class="px-4 py-4 pb-32">
+    <div id="servicesGrid" class="grid grid-cols-2 gap-4">
+        <!-- Vehicle Booking Services -->
+        <div class="service-card bg-white rounded-2xl shadow p-3 cursor-pointer" onclick="bookService('vehicle_booking', 'Swift Dzire')">
+            <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300" class="w-full h-28 rounded-xl object-cover">
+            <h2 class="font-bold mt-2 text-sm">Swift Dzire</h2>
+            <p class="text-xs text-gray-500">12 km away</p>
+            <div class="text-xs text-gray-600 mt-1">🚗 4 Seater • ❄️ AC • ⛽ Petrol</div>
+            <div class="text-xs text-gray-600">⭐ 4.5 • ⏱ 10 min</div>
+            <p class="text-sm font-bold text-blue-900 mt-1">₹12/km</p>
+            <button class="mt-2 w-full bg-blue-900 text-white text-xs py-2 rounded-lg font-bold">Book Now</button>
+        </div>
+        <div class="service-card bg-white rounded-2xl shadow p-3 cursor-pointer" onclick="bookService('vehicle_booking', 'Mahindra Scorpio')">
+            <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300" class="w-full h-28 rounded-xl object-cover">
+            <h2 class="font-bold mt-2 text-sm">Mahindra Scorpio</h2>
+            <p class="text-xs text-gray-500">18 km away</p>
+            <div class="text-xs text-gray-600 mt-1">🚙 7 Seater • ❄️ AC • ⛽ Diesel</div>
+            <div class="text-xs text-gray-600">⭐ 4.7 • ⏱ 15 min</div>
+            <p class="text-sm font-bold text-blue-900 mt-1">₹18/km</p>
+            <button class="mt-2 w-full bg-blue-900 text-white text-xs py-2 rounded-lg font-bold">Book Now</button>
+        </div>
+    </div>
+    <div id="noServices" class="text-center py-8 hidden">
+        <i class="fa-solid fa-briefcase text-4xl text-gray-300 mb-3"></i>
+        <p class="text-gray-500">No services found in this category</p>
+    </div>
+</main>
+
+<!-- My Bookings Section -->
+<div class="px-4 py-4 bg-white border-t border-gray-100 mt-2">
+    <div class="flex items-center justify-between mb-3">
+        <h3 class="text-base font-black text-blue-900">📋 My Bookings</h3>
+        <button onclick="location.href='my-bookings.html'" class="text-[10px] text-orange-600 font-bold">View All</button>
+    </div>
+    <div id="myBookings" class="space-y-2">
+        <div class="skeleton h-20 rounded-xl"></div>
+        <div class="skeleton h-20 rounded-xl"></div>
+    </div>
+</div>
+
+<!-- Bottom Navigation -->
+<div class="fixed bottom-3 left-3 right-3 z-[100]">
+    <nav class="bg-white/95 backdrop-blur-xl border border-gray-200 rounded-[2rem] shadow-2xl flex justify-around items-center py-2.5">
+        <button onclick="location.href='index.html'" class="text-gray-400 flex flex-col items-center gap-0.5">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span class="text-[8px] font-black uppercase">Home</span>
+        </button>
+        <button onclick="location.href='shop.html'" class="text-gray-400 flex flex-col items-center gap-0.5">
+            <i class="fa-solid fa-table-cells-large text-xl"></i>
+            <span class="text-[8px] font-bold uppercase">Shop</span>
+        </button>
+        <div class="flex flex-col items-center -mt-7">
+            <button onclick="location.href='cart.html'" class="bg-orange-500 text-white w-14 h-14 rounded-full shadow-2xl border-[5px] border-gray-50 flex items-center justify-center">
+                <i class="fa-solid fa-cart-shopping text-xl"></i>
+            </button>
+            <div class="mt-2 text-center w-24">
+                <div class="text-amber-600 font-bold text-sm flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-coins"></i>
+                    <span id="walletBalance">0</span>
+                </div>
+                <button onclick="claimWallet()" class="golden-claim-btn mt-1 px-5 py-1.5 rounded-2xl text-[10px] uppercase w-full">
+                    Claim
+                </button>
+            </div>
+        </div>
+        <button onclick="location.href='services.html'" class="text-orange-600 flex flex-col items-center gap-0.5">
+            <i class="fa-solid fa-layer-group text-xl"></i>
+            <span class="text-[8px] font-black uppercase">Services</span>
+        </button>
+        <button onclick="location.href='account.html'" class="text-gray-400 flex flex-col items-center gap-0.5">
+            <i class="fa-regular fa-user text-xl"></i>
+            <span class="text-[8px] font-bold uppercase">Account</span>
+        </button>
+    </nav>
+</div>
+
+<!-- Booking Modal -->
+<div id="bookingModal" class="fixed inset-0 bg-black/50 z-[200] hidden items-end md:items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-md max-h-[85vh] overflow-y-auto">
+        <div class="sticky top-0 bg-white p-4 border-b flex justify-between items-center">
+            <h3 id="modalTitle" class="font-bold text-lg">Book Service</h3>
+            <button onclick="closeBookingModal()" class="w-8 h-8 rounded-full bg-gray-100"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <div class="p-4 space-y-4">
+            <div>
+                <label class="text-sm font-medium block mb-1">Select Date</label>
+                <input type="date" id="bookingDate" class="w-full border rounded-xl p-3 text-sm">
+            </div>
+            <div>
+                <label class="text-sm font-medium block mb-1">Select Time</label>
+                <select id="bookingTime" class="w-full border rounded-xl p-3 text-sm">
+                    <option value="09:00">09:00 AM - 10:00 AM</option>
+                    <option value="10:00">10:00 AM - 11:00 AM</option>
+                    <option value="11:00">11:00 AM - 12:00 PM</option>
+                    <option value="12:00">12:00 PM - 01:00 PM</option>
+                    <option value="14:00">02:00 PM - 03:00 PM</option>
+                    <option value="15:00">03:00 PM - 04:00 PM</option>
+                    <option value="16:00">04:00 PM - 05:00 PM</option>
+                    <option value="17:00">05:00 PM - 06:00 PM</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-sm font-medium block mb-1">Address</label>
+                <textarea id="bookingAddress" rows="3" class="w-full border rounded-xl p-3 text-sm" placeholder="Enter your full address"></textarea>
+            </div>
+            <div id="serviceSpecificFields"></div>
+            <div class="bg-orange-50 p-3 rounded-xl">
+                <p class="text-sm font-bold text-orange-800">Token Amount: ₹<span id="tokenAmount">100</span></p>
+                <p class="text-[10px] text-gray-500 mt-1">Token amount to be paid at service start</p>
+            </div>
+        </div>
+        <div class="sticky bottom-0 bg-white p-4 border-t flex gap-3">
+            <button onclick="closeBookingModal()" class="flex-1 border border-gray-300 py-3 rounded-xl">Cancel</button>
+            <button onclick="confirmBooking()" class="flex-1 bg-orange-600 text-white py-3 rounded-xl font-bold">Confirm Booking</button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/cart-manager.js"></script>
+
+<script>
+    let currentServiceType = 'vehicle_booking';
+    let currentServiceName = '';
+    let allBookings = [];
+    
+    // Service data mapping
+    const serviceData = {
+        vehicle_booking: { name: 'Vehicle Booking', token: 100, fields: ['vehicle_type', 'pickup_location', 'drop_location'] },
+        other_booking: { name: 'Other Booking', token: 50, fields: ['booking_type', 'participants'] },
+        breakfast_drink: { name: 'Breakfast & Drink', token: 50, fields: ['item_type', 'quantity'] },
+        send_product: { name: 'Send Product', token: 50, fields: ['product_name', 'receiver_name', 'receiver_mobile'] },
+        shadi_card: { name: 'Wedding Card Printing', token: 200, fields: ['card_type', 'quantity'] },
+        suriyawan_special: { name: 'Suriyawan Special', token: 500, fields: ['occasion', 'guest_count', 'budget'] },
+        ac_repair: { name: 'AC Repair', token: 100, fields: ['ac_type', 'brand', 'issue'] },
+        painter: { name: 'Painter', token: 100, fields: ['room_type', 'area_sqft', 'color_preference'] },
+        electrician: { name: 'Electrician', token: 100, fields: ['work_type', 'description'] },
+        plumber: { name: 'Plumber', token: 100, fields: ['issue_type', 'description'] },
+        car_wash: { name: 'Car Wash', token: 50, fields: ['car_model', 'car_number', 'service_type'] },
+        mehndi: { name: 'Mehndi Artist', token: 200, fields: ['occasion', 'style', 'persons_count'] },
+        catering: { name: 'Catering', token: 500, fields: ['event_type', 'guest_count', 'cuisine', 'budget_per_plate'] }
+    };
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        loadMyBookings();
+        loadWalletBalance();
+        updateCartCount();
+    });
+    
+    function selectService(serviceType) {
+        currentServiceType = serviceType;
+        
+        // Update active chip
+        document.querySelectorAll('.service-chip').forEach(chip => {
+            chip.classList.remove('active');
+            if (chip.dataset.service === serviceType) {
+                chip.classList.add('active');
+            }
+        });
+        
+        // Load services for this category
+        loadServicesForCategory(serviceType);
+    }
+    
+    function loadServicesForCategory(serviceType) {
+        const grid = document.getElementById('servicesGrid');
+        const noServices = document.getElementById('noServices');
+        
+        // Show/hide based on category
+        if (serviceType === 'vehicle_booking') {
+            grid.classList.remove('hidden');
+            noServices.classList.add('hidden');
+        } else {
+            grid.classList.add('hidden');
+            noServices.classList.remove('hidden');
+            // For demo, show message
+            noServices.innerHTML = `<div class="text-center py-8"><i class="fa-solid fa-tools text-4xl text-gray-300 mb-3"></i><p class="text-gray-500">Coming soon! Service providers will be added shortly.</p><button onclick="selectService('vehicle_booking')" class="mt-4 text-orange-600 text-sm">Browse Vehicle Booking →</button></div>`;
+        }
+    }
+    
+    function bookService(serviceType, serviceName) {
+        if (!AuthService.isAuthenticated()) {
+            showToast('Please login to book service', 'warning');
+            setTimeout(() => location.href = 'login.html', 1500);
+            return;
+        }
+        
+        currentServiceType = serviceType;
+        currentServiceName = serviceName;
+        
+        const service = serviceData[serviceType];
+        document.getElementById('modalTitle').innerHTML = `Book ${service.name}`;
+        document.getElementById('tokenAmount').innerHTML = service.token;
+        document.getElementById('bookingDate').valueAsDate = new Date();
+        
+        // Generate service specific fields
+        const fieldsContainer = document.getElementById('serviceSpecificFields');
+        if (service.fields && service.fields.length > 0) {
+            let fieldsHtml = '';
+            service.fields.forEach(field => {
+                fieldsHtml += `
+                    <div>
+                        <label class="text-sm font-medium block mb-1">${formatFieldLabel(field)}</label>
+                        <input type="text" id="field_${field}" class="w-full border rounded-xl p-3 text-sm" placeholder="Enter ${formatFieldLabel(field)}">
+                    </div>
+                `;
+            });
+            fieldsContainer.innerHTML = fieldsHtml;
+        } else {
+            fieldsContainer.innerHTML = '';
+        }
+        
+        document.getElementById('bookingModal').classList.add('flex');
+        document.getElementById('bookingModal').classList.remove('hidden');
+    }
+    
+    function formatFieldLabel(field) {
+        const labels = {
+            vehicle_type: 'Vehicle Type',
+            pickup_location: 'Pickup Location',
+            drop_location: 'Drop Location',
+            booking_type: 'Booking Type',
+            participants: 'Number of Participants',
+            item_type: 'Item Type',
+            quantity: 'Quantity',
+            product_name: 'Product Name',
+            receiver_name: 'Receiver Name',
+            receiver_mobile: 'Receiver Mobile',
+            card_type: 'Card Type',
+            occasion: 'Occasion',
+            guest_count: 'Guest Count',
+            budget: 'Budget',
+            ac_type: 'AC Type',
+            brand: 'Brand',
+            issue: 'Issue Description',
+            room_type: 'Room Type',
+            area_sqft: 'Area (sq ft)',
+            color_preference: 'Color Preference',
+            work_type: 'Work Type',
+            description: 'Description',
+            issue_type: 'Issue Type',
+            car_model: 'Car Model',
+            car_number: 'Car Number',
+            service_type: 'Service Type',
+            style: 'Mehndi Style',
+            persons_count: 'Number of Persons',
+            event_type: 'Event Type',
+            cuisine: 'Cuisine Type',
+            budget_per_plate: 'Budget per Plate'
+        };
+        return labels[field] || field;
+    }
+    
+    function closeBookingModal() {
+        document.getElementById('bookingModal').classList.remove('flex');
+        document.getElementById('bookingModal').classList.add('hidden');
+    }
+    
+    async function confirmBooking() {
+        const date = document.getElementById('bookingDate').value;
+        const time = document.getElementById('bookingTime').value;
+        const address = document.getElementById('bookingAddress').value;
+        
+        if (!date || !time || !address) {
+            showToast('Please fill all required fields', 'warning');
+            return;
+        }
+        
+        const user = AuthService.getCurrentUser();
+        if (!user || !user.cust_id) {
+            showToast('Please login to continue', 'warning');
+            return;
+        }
+        
+        // Collect form data
+        const formData = {};
+        const service = serviceData[currentServiceType];
+        if (service.fields) {
+            service.fields.forEach(field => {
+                formData[field] = document.getElementById(`field_${field}`)?.value || '';
+            });
+        }
+        
+        const bookingData = {
+            cust_id: user.cust_id,
+            service_type: currentServiceType,
+            scheduled_date: date,
+            scheduled_time: time,
+            address: address,
+            form_data: formData,
+            service_name: currentServiceName
+        };
+        
+        try {
+            const response = await fetch('/api/customer/service-book', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(bookingData)
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                showToast('Service booked successfully!', 'success');
+                closeBookingModal();
+                loadMyBookings();
+            } else {
+                showToast(data.error || 'Booking failed', 'error');
+            }
+        } catch (error) {
+            console.error('Booking error:', error);
+            showToast('Failed to book service', 'error');
+        }
+    }
+    
+    async function loadMyBookings() {
+        const user = AuthService.getCurrentUser();
+        if (!user || !user.cust_id) {
+            document.getElementById('myBookings').innerHTML = '<div class="text-center text-gray-500 py-4">Login to see your bookings</div>';
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/customer/services?cust_id=${user.cust_id}&limit=3`, {
+                headers: AuthService.getAuthHeaders()
+            });
+            const data = await response.json();
+            
+            if (data.success && data.bookings && data.bookings.length > 0) {
+                renderMyBookings(data.bookings.slice(0, 3));
+            } else {
+                document.getElementById('myBookings').innerHTML = '<div class="text-center text-gray-500 py-4">No bookings yet</div>';
+            }
+        } catch (error) {
+            console.error('Error loading bookings:', error);
+        }
+    }
+    
+    function renderMyBookings(bookings) {
+        const container = document.getElementById('myBookings');
+        if (!container) return;
+        
+        let html = '';
+        bookings.forEach(booking => {
+            html += `
+                <div class="bg-gray-50 rounded-xl p-3 flex justify-between items-center">
+                    <div>
+                        <p class="font-bold text-sm">${booking.service_name || booking.service_type}</p>
+                        <p class="text-[10px] text-gray-500 mt-0.5">${booking.scheduled_date} at ${booking.scheduled_time}</p>
+                        <span class="text-[9px] px-2 py-0.5 rounded-full mt-1 inline-block ${getBookingStatusColor(booking.status)}">${booking.status_display}</span>
+                    </div>
+                    <button onclick="location.href='service-detail.html?serv_id=${booking.serv_id}'" class="text-orange-600 text-xs font-bold">View →</button>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+    }
+    
+    function getBookingStatusColor(status) {
+        const colors = {
+            'PENDING': 'bg-yellow-100 text-yellow-800',
+            'ACCEPTED': 'bg-blue-100 text-blue-800',
+            'IN_PROGRESS': 'bg-purple-100 text-purple-800',
+            'COMPLETED': 'bg-green-100 text-green-800',
+            'CANCELLED': 'bg-red-100 text-red-800'
+        };
+        return colors[status] || 'bg-gray-100 text-gray-600';
+    }
+    
+    async function loadWalletBalance() {
+        const user = AuthService.getCurrentUser();
+        if (user && user.wallet_balance !== undefined) {
+            document.getElementById('walletBalance').innerText = user.wallet_balance || 0;
+        }
+    }
+    
+    function claimWallet() {
+        if (!AuthService.isAuthenticated()) {
+            location.href = 'login.html';
+            return;
+        }
+        location.href = 'account.html?tab=wallet';
+    }
+    
+    async function updateCartCount() {
+        if (CartManager) {
+            const count = CartManager.getCartCount();
+            const badge = document.getElementById('cartCount');
+            if (badge) {
+                if (count > 0) {
+                    badge.innerText = count;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+        }
+    }
+    
+    function showToast(message, type) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.style.backgroundColor = type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#10b981';
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 2000);
+    }
+</script>
+</body>
+</html>
