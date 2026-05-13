@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Profile - Suriyanwa Saffari Seller</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="toast" class="toast"></div>
+
+<!-- Mobile Menu Toggle -->
+<button id="menuToggle" class="fixed bottom-20 left-4 z-50 bg-blue-900 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center md:hidden">
+    <i class="fa-solid fa-bars text-xl"></i>
+</button>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">S</div><div><h2 class="font-black text-blue-900">Suriyanwa</h2><p class="text-[10px] text-gray-500">Seller Portal</p></div></div></div>
+    <nav class="p-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-line w-5"></i><span class="text-sm font-medium">Dashboard</span></a>
+        <a href="products.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-box w-5"></i><span class="text-sm font-medium">Products</span></a>
+        <a href="orders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-truck w-5"></i><span class="text-sm font-medium">Orders</span></a>
+        <a href="payouts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-wallet w-5"></i><span class="text-sm font-medium">Payouts</span></a>
+        <a href="analytics.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-simple w-5"></i><span class="text-sm font-medium">Analytics</span></a>
+        <a href="coupons.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-ticket w-5"></i><span class="text-sm font-medium">Coupons</span></a>
+        <a href="ads.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-bullhorn w-5"></i><span class="text-sm font-medium">Ad Campaigns</span></a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-gear w-5"></i><span class="text-sm font-medium">Settings</span></a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t"><button onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 w-full"><i class="fa-solid fa-sign-out-alt w-5"></i><span class="text-sm font-medium">Logout</span></button></div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-64 p-4 pb-24">
+    <div class="flex justify-between items-center mb-6"><div><h1 class="text-2xl font-black text-blue-900">Seller Profile</h1><p class="text-sm text-gray-500">Manage your account information</p></div><button onclick="location.href='settings.html'" class="text-gray-500"><i class="fa-solid fa-gear"></i> Settings</button></div>
+
+    <div id="profileContent" class="space-y-6">
+        <div class="bg-white rounded-2xl p-5 shadow-sm"><div class="skeleton h-40 w-full"></div></div>
+    </div>
+</main>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let sellerData = null;
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); loadProfile(); setupMobileMenu(); });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||!user.seller_id) location.href='login.html'; else sellerData=user; }
+    
+    async function loadProfile() {
+        try {
+            const response = await fetch(`/api/seller/settings?seller_id=${sellerData.seller_id}`, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) renderProfile(data);
+            else showToast('Failed to load profile','error');
+        } catch(error) { showToast('Failed to load profile','error'); }
+    }
+    
+    function renderProfile(data) {
+        const p = data.profile;
+        const bank = data.bank_details;
+        const kyc = data.kyc_documents;
+        document.getElementById('profileContent').innerHTML = `
+            <div class="bg-white rounded-2xl p-5 shadow-sm"><h3 class="font-bold mb-4">Shop Information</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><p class="text-xs text-gray-500">Shop Name</p><p class="font-medium">${p.shop_name}</p></div><div><p class="text-xs text-gray-500">Owner Name</p><p class="font-medium">${p.owner_name}</p></div><div><p class="text-xs text-gray-500">Email</p><p class="font-medium">${p.email}</p></div><div><p class="text-xs text-gray-500">Mobile</p><p class="font-medium">${p.mobile}</p></div><div><p class="text-xs text-gray-500">UPI ID</p><p class="font-medium">${p.upi_id||'Not added'}</p></div><div><p class="text-xs text-gray-500">GST Number</p><p class="font-medium">${p.gst_number||'Not provided'}</p></div><div><p class="text-xs text-gray-500">PAN Number</p><p class="font-medium">${p.pan_number||'Not provided'}</p></div><div><p class="text-xs text-gray-500">Commission Rate</p><p class="font-medium text-orange-600">${p.commission_rate}%</p></div></div><button onclick="location.href='edit-profile.html'" class="mt-4 text-orange-600 text-sm font-medium">Edit Profile →</button></div>
+            <div class="bg-white rounded-2xl p-5 shadow-sm"><h3 class="font-bold mb-4">Bank & Payout Details</h3>${bank?`<div><p class="text-xs text-gray-500">Account Holder</p><p class="font-medium">${bank.account_holder_name}</p><p class="text-xs text-gray-500 mt-2">Account Number</p><p class="font-medium">****${bank.account_number?.slice(-4)}</p><p class="text-xs text-gray-500 mt-2">IFSC Code</p><p class="font-medium">${bank.ifsc_code}</p><p class="text-xs text-gray-500 mt-2">Bank Name</p><p class="font-medium">${bank.bank_name}</p><p class="text-xs text-gray-500 mt-2">UPI ID</p><p class="font-medium">${bank.upi_id||p.upi_id}</p></div><button onclick="location.href='bank-details.html'" class="mt-4 text-orange-600 text-sm font-medium">Update Bank Details →</button>`:`<div class="text-center py-4"><p class="text-gray-500">No bank details added</p><button onclick="location.href='bank-details.html'" class="mt-2 text-orange-600 text-sm">Add Bank Details</button></div>`}</div>
+            <div class="bg-white rounded-2xl p-5 shadow-sm"><h3 class="font-bold mb-4">KYC Status</h3><div class="flex justify-between items-center"><div><span class="px-2 py-1 rounded-full text-xs font-bold ${p.kyc_status==='APPROVED'?'bg-green-100 text-green-700':p.kyc_status==='PENDING'?'bg-yellow-100 text-yellow-700':'bg-red-100 text-red-700'}">${p.kyc_status}</span><p class="text-xs text-gray-500 mt-2">${p.kyc_status==='APPROVED'?'Your KYC is verified':p.kyc_status==='PENDING'?'Awaiting verification':'Please update documents'}</p></div>${p.kyc_status!=='APPROVED'?`<button onclick="location.href='kyc.html'" class="bg-blue-900 text-white px-4 py-2 rounded-xl text-sm">Complete KYC</button>`:''}</div></div>`;
+    }
+    
+    function setupMobileMenu() { const menuBtn=document.getElementById('menuToggle'),sidebar=document.getElementById('sidebar'); if(menuBtn&&sidebar) menuBtn.addEventListener('click',()=>{ sidebar.classList.toggle('open'); sidebar.style.transform=sidebar.classList.contains('open')?'translateX(0)':'translateX(-100%)'; }); }
+    function logout() { AuthService.logout(); location.href='login.html'; }
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+</script>
+</body>
+</html>

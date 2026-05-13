@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Edit Product - Suriyanwa Saffari Seller</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .tag-btn { transition: all 0.2s; }
+        .tag-btn.selected { background: #f59e0b !important; color: white !important; }
+        .image-preview { position: relative; display: inline-block; }
+        .remove-image { position: absolute; top: -8px; right: -8px; background: red; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; }
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 12px;
+            z-index: 200;
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="toast" class="toast"></div>
+
+<!-- Mobile Menu Toggle -->
+<button id="menuToggle" class="fixed bottom-20 left-4 z-50 bg-blue-900 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center md:hidden">
+    <i class="fa-solid fa-bars text-xl"></i>
+</button>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">S</div>
+            <div>
+                <h2 class="font-black text-blue-900">Suriyanwa</h2>
+                <p class="text-[10px] text-gray-500">Seller Portal</p>
+            </div>
+        </div>
+    </div>
+    <nav class="p-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1">
+            <i class="fa-solid fa-chart-line w-5"></i>
+            <span class="text-sm font-medium">Dashboard</span>
+        </a>
+        <a href="products.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-orange-50 text-orange-600 mb-1">
+            <i class="fa-solid fa-box w-5"></i>
+            <span class="text-sm font-medium">Products</span>
+        </a>
+        <a href="orders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1">
+            <i class="fa-solid fa-truck w-5"></i>
+            <span class="text-sm font-medium">Orders</span>
+        </a>
+        <a href="payouts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1">
+            <i class="fa-solid fa-wallet w-5"></i>
+            <span class="text-sm font-medium">Payouts</span>
+        </a>
+        <a href="analytics.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1">
+            <i class="fa-solid fa-chart-simple w-5"></i>
+            <span class="text-sm font-medium">Analytics</span>
+        </a>
+        <a href="coupons.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1">
+            <i class="fa-solid fa-ticket w-5"></i>
+            <span class="text-sm font-medium">Coupons</span>
+        </a>
+        <a href="ads.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1">
+            <i class="fa-solid fa-bullhorn w-5"></i>
+            <span class="text-sm font-medium">Ad Campaigns</span>
+        </a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1">
+            <i class="fa-solid fa-gear w-5"></i>
+            <span class="text-sm font-medium">Settings</span>
+        </a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t">
+        <button onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 w-full">
+            <i class="fa-solid fa-sign-out-alt w-5"></i>
+            <span class="text-sm font-medium">Logout</span>
+        </button>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-64 p-4 pb-24">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-black text-blue-900">Edit Product</h1>
+            <p class="text-sm text-gray-500">Update product details</p>
+        </div>
+        <button onclick="window.history.back()" class="text-gray-500"><i class="fa-solid fa-times text-xl"></i></button>
+    </div>
+
+    <form id="productForm" class="space-y-6">
+        <input type="hidden" id="prodId">
+        
+        <div class="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 class="font-bold text-gray-800 mb-4">Basic Information</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><label class="text-sm font-medium block mb-1">Product Name *</label><input type="text" id="productName" class="w-full border rounded-xl p-3 text-sm" required></div>
+                <div><label class="text-sm font-medium block mb-1">Category *</label><select id="category" class="w-full border rounded-xl p-3 text-sm" required><option value="">Loading...</option></select></div>
+                <div><label class="text-sm font-medium block mb-1">Sub Category</label><select id="subCategory" class="w-full border rounded-xl p-3 text-sm"><option value="">None</option></select></div>
+                <div><label class="text-sm font-medium block mb-1">Stock Quantity *</label><input type="number" id="stock" class="w-full border rounded-xl p-3 text-sm" required></div>
+            </div>
+            <div class="mt-4"><label class="text-sm font-medium block mb-1">Short Description</label><input type="text" id="shortDesc" class="w-full border rounded-xl p-3 text-sm"></div>
+            <div class="mt-4"><label class="text-sm font-medium block mb-1">Full Description</label><textarea id="description" rows="4" class="w-full border rounded-xl p-3 text-sm"></textarea></div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 class="font-bold text-gray-800 mb-4">Pricing</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><label class="text-sm font-medium block mb-1">MRP *</label><input type="number" id="mrp" class="w-full border rounded-xl p-3 text-sm" required></div>
+                <div><label class="text-sm font-medium block mb-1">Selling Price *</label><input type="number" id="sellingPrice" class="w-full border rounded-xl p-3 text-sm" required></div>
+            </div>
+            <div class="mt-3 bg-blue-50 p-3 rounded-xl"><p class="text-xs text-blue-800">Commission: <span id="commissionInfo">10%</span> | Estimated earnings: ₹<span id="estimatedEarnings">0</span></p></div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 class="font-bold text-gray-800 mb-4">Product Images</h2>
+            <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center">
+                <input type="file" id="imageUpload" accept="image/*" multiple class="hidden">
+                <button type="button" onclick="document.getElementById('imageUpload').click()" class="bg-gray-100 text-gray-600 px-4 py-2 rounded-lg text-sm"><i class="fa-solid fa-cloud-upload-alt"></i> Upload Images</button>
+                <p class="text-[10px] text-gray-400 mt-2">Max 8 images</p>
+                <div id="imagePreviewContainer" class="flex flex-wrap gap-2 mt-3"></div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 class="font-bold text-gray-800 mb-4">Tags</h2>
+            <div id="tagsContainer" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 shadow-sm">
+            <div class="flex justify-between items-center mb-4"><h2 class="font-bold text-gray-800">Variations</h2><button type="button" onclick="addVariation()" class="text-orange-600 text-sm"><i class="fa-solid fa-plus"></i> Add Variation</button></div>
+            <div id="variationsContainer" class="space-y-3"></div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 shadow-sm">
+            <div class="flex items-center justify-between"><div><p class="text-sm font-medium">Enable Cash on Delivery</p><p class="text-[10px] text-gray-500">Allow COD for this product</p></div><label class="toggle-switch"><input type="checkbox" id="codEnabled" checked><span class="toggle-slider"></span></label></div>
+            <div class="mt-3"><label class="text-sm font-medium block mb-1">Minimum COD Amount</label><input type="number" id="minCodAmount" class="w-full border rounded-xl p-3 text-sm" value="200"></div>
+        </div>
+
+        <div class="flex gap-3"><button type="button" onclick="window.history.back()" class="flex-1 border border-gray-300 py-3 rounded-xl font-medium">Cancel</button><button type="submit" class="flex-1 bg-blue-900 text-white py-3 rounded-xl font-bold">Update Product</button></div>
+    </form>
+</main>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let sellerData = null;
+    let productData = null;
+    let selectedTags = [];
+    let uploadedImages = [];
+    let allTags = [];
+    const urlParams = new URLSearchParams(window.location.search);
+    const prodId = urlParams.get('prod_id');
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        checkAuth();
+        if (!prodId) { showToast('Product ID missing', 'error'); setTimeout(() => location.href='products.html', 1500); return; }
+        loadProduct();
+        loadCategories();
+        loadTags();
+        setupMobileMenu();
+        document.getElementById('productForm').addEventListener('submit', submitUpdate);
+        document.getElementById('imageUpload').addEventListener('change', handleImageUpload);
+        document.getElementById('mrp').addEventListener('input', calculateEarnings);
+        document.getElementById('sellingPrice').addEventListener('input', calculateEarnings);
+    });
+    
+    function checkAuth() {
+        const user = AuthService.getCurrentUser();
+        if (!user || !user.seller_id) { location.href = 'login.html'; return; }
+        sellerData = user;
+        document.getElementById('commissionInfo').innerText = `${user.commission_rate || 10}%`;
+    }
+    
+    async function loadProduct() {
+        try {
+            const response = await fetch(`/api/seller/edit-product?prod_id=${prodId}&seller_id=${sellerData.seller_id}`, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if (data.success) {
+                productData = data.product;
+                document.getElementById('prodId').value = productData.prod_id;
+                document.getElementById('productName').value = productData.name;
+                document.getElementById('description').value = productData.description || '';
+                document.getElementById('shortDesc').value = productData.short_description || '';
+                document.getElementById('mrp').value = productData.mrp;
+                document.getElementById('sellingPrice').value = productData.selling_price;
+                document.getElementById('stock').value = productData.stock;
+                document.getElementById('codEnabled').checked = productData.is_cod_available;
+                document.getElementById('minCodAmount').value = productData.min_cod_amount || 200;
+                selectedTags = productData.tags || [];
+                uploadedImages = productData.images || [];
+                renderImages();
+                calculateEarnings();
+                if (productData.category_id) document.getElementById('category').value = productData.category_id;
+                if (productData.sub_category_id) document.getElementById('subCategory').value = productData.sub_category_id;
+                if (productData.variations) renderVariations(productData.variations);
+            }
+        } catch (error) { console.error('Error loading product:', error); showToast('Failed to load product', 'error'); }
+    }
+    
+    async function loadCategories() {
+        try {
+            const response = await fetch('/api/owner/catalog/categories');
+            const data = await response.json();
+            if (data.success) {
+                const mainCats = data.categories.filter(c => !c.parent_id);
+                const catSelect = document.getElementById('category');
+                catSelect.innerHTML = '<option value="">Select category</option>';
+                mainCats.forEach(cat => catSelect.innerHTML += `<option value="${cat.cat_id}">${cat.name}</option>`);
+                const subCats = data.categories.filter(c => c.parent_id);
+                const subSelect = document.getElementById('subCategory');
+                subSelect.innerHTML = '<option value="">None</option>';
+                subCats.forEach(cat => subSelect.innerHTML += `<option value="${cat.cat_id}">${cat.name}</option>`);
+            }
+        } catch (error) { console.error('Error loading categories:', error); }
+    }
+    
+    async function loadTags() {
+        try {
+            const response = await fetch('/api/owner/catalog/tags');
+            const data = await response.json();
+            if (data.success) {
+                allTags = data.tags;
+                renderTags();
+            }
+        } catch (error) { console.error('Error loading tags:', error); }
+    }
+    
+    function renderTags() {
+        const container = document.getElementById('tagsContainer');
+        let html = '';
+        allTags.forEach(tag => {
+            const isSelected = selectedTags.includes(tag.tag_name);
+            html += `<button type="button" onclick="toggleTag('${tag.tag_name}')" class="tag-btn px-3 py-1.5 rounded-full text-xs ${isSelected ? 'selected bg-orange-500 text-white' : 'bg-gray-100 text-gray-700'}">${tag.tag_name}</button>`;
+        });
+        container.innerHTML = html;
+    }
+    
+    function toggleTag(tagName) {
+        const index = selectedTags.indexOf(tagName);
+        const btns = document.querySelectorAll('.tag-btn');
+        let targetBtn = null;
+        btns.forEach(btn => { if (btn.innerText === tagName) targetBtn = btn; });
+        if (index > -1) { selectedTags.splice(index, 1); targetBtn.classList.remove('selected', 'bg-orange-500', 'text-white'); targetBtn.classList.add('bg-gray-100', 'text-gray-700'); }
+        else if (selectedTags.length < 3) { selectedTags.push(tagName); targetBtn.classList.add('selected', 'bg-orange-500', 'text-white'); targetBtn.classList.remove('bg-gray-100', 'text-gray-700'); }
+        else showToast('Select up to 3 tags', 'warning');
+    }
+    
+    function renderVariations(variations) {
+        const container = document.getElementById('variationsContainer');
+        container.innerHTML = '';
+        variations.forEach((v, idx) => {
+            const div = document.createElement('div');
+            div.className = 'variation-item bg-gray-50 p-3 rounded-xl';
+            div.innerHTML = `<div class="flex justify-between items-center mb-2"><p class="text-xs font-bold">Variation ${idx+1}</p><button type="button" onclick="this.closest('.variation-item').remove()" class="text-red-500 text-xs"><i class="fa-solid fa-trash"></i></button></div>
+                <div class="grid grid-cols-2 gap-2"><input type="text" name="variation_size" placeholder="Size" value="${v.size||''}" class="border rounded-lg p-2 text-sm"><input type="text" name="variation_color" placeholder="Color" value="${v.color||''}" class="border rounded-lg p-2 text-sm">
+                <input type="text" name="variation_material" placeholder="Material" value="${v.material||''}" class="border rounded-lg p-2 text-sm"><input type="number" name="variation_stock" placeholder="Stock" value="${v.stock||0}" class="border rounded-lg p-2 text-sm">
+                <input type="number" name="variation_price_adj" placeholder="Price Adjustment" value="${v.price_adjustment||0}" class="border rounded-lg p-2 text-sm"></div>`;
+            container.appendChild(div);
+        });
+    }
+    
+    function addVariation() {
+        const container = document.getElementById('variationsContainer');
+        const idx = container.children.length + 1;
+        const div = document.createElement('div');
+        div.className = 'variation-item bg-gray-50 p-3 rounded-xl';
+        div.innerHTML = `<div class="flex justify-between items-center mb-2"><p class="text-xs font-bold">Variation ${idx}</p><button type="button" onclick="this.closest('.variation-item').remove()" class="text-red-500 text-xs"><i class="fa-solid fa-trash"></i></button></div>
+            <div class="grid grid-cols-2 gap-2"><input type="text" name="variation_size" placeholder="Size" class="border rounded-lg p-2 text-sm"><input type="text" name="variation_color" placeholder="Color" class="border rounded-lg p-2 text-sm">
+            <input type="text" name="variation_material" placeholder="Material" class="border rounded-lg p-2 text-sm"><input type="number" name="variation_stock" placeholder="Stock" class="border rounded-lg p-2 text-sm">
+            <input type="number" name="variation_price_adj" placeholder="Price Adjustment" class="border rounded-lg p-2 text-sm"></div>`;
+        container.appendChild(div);
+    }
+    
+    function renderImages() {
+        const container = document.getElementById('imagePreviewContainer');
+        container.innerHTML = '';
+        uploadedImages.forEach((img, idx) => {
+            const div = document.createElement('div');
+            div.className = 'image-preview';
+            div.innerHTML = `<img src="${img}" class="w-20 h-20 object-cover rounded-lg"><span class="remove-image" onclick="removeImage(this, ${idx})">×</span>`;
+            container.appendChild(div);
+        });
+    }
+    
+    function handleImageUpload(e) {
+        const files = Array.from(e.target.files);
+        files.forEach(file => {
+            if (uploadedImages.length >= 8) { showToast('Max 8 images', 'warning'); return; }
+            const reader = new FileReader();
+            reader.onload = function(ev) { uploadedImages.push(ev.target.result); renderImages(); };
+            reader.readAsDataURL(file);
+        });
+    }
+    
+    function removeImage(el, idx) { uploadedImages.splice(idx, 1); renderImages(); }
+    
+    function calculateEarnings() {
+        const sp = parseFloat(document.getElementById('sellingPrice').value) || 0;
+        const commission = (sellerData?.commission_rate || 10) / 100;
+        document.getElementById('estimatedEarnings').innerText = Math.round(sp * (1 - commission));
+    }
+    
+    async function submitUpdate(e) {
+        e.preventDefault();
+        const variations = [];
+        document.querySelectorAll('.variation-item').forEach(item => {
+            variations.push({
+                size: item.querySelector('[name="variation_size"]').value,
+                color: item.querySelector('[name="variation_color"]').value,
+                material: item.querySelector('[name="variation_material"]').value,
+                stock: parseInt(item.querySelector('[name="variation_stock"]').value) || 0,
+                price_adjustment: parseInt(item.querySelector('[name="variation_price_adj"]').value) || 0
+            });
+        });
+        const updateData = {
+            prod_id: prodId, seller_id: sellerData.seller_id,
+            name: document.getElementById('productName').value,
+            description: document.getElementById('description').value,
+            short_description: document.getElementById('shortDesc').value,
+            mrp: parseFloat(document.getElementById('mrp').value),
+            selling_price: parseFloat(document.getElementById('sellingPrice').value),
+            stock: parseInt(document.getElementById('stock').value),
+            category_id: document.getElementById('category').value || null,
+            sub_category_id: document.getElementById('subCategory').value || null,
+            tags: selectedTags, images: uploadedImages,
+            is_cod_available: document.getElementById('codEnabled').checked,
+            min_cod_amount: parseInt(document.getElementById('minCodAmount').value),
+            variations: variations
+        };
+        try {
+            const response = await fetch('/api/seller/edit-product', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updateData)
+            });
+            const data = await response.json();
+            if (data.success) { showToast('Product updated!', 'success'); setTimeout(() => location.href='products.html', 1500); }
+            else showToast(data.error || 'Update failed', 'error');
+        } catch (error) { showToast('Update failed', 'error'); }
+    }
+    
+    function setupMobileMenu() {
+        const menuBtn = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        if (menuBtn && sidebar) menuBtn.addEventListener('click', () => { sidebar.classList.toggle('open'); sidebar.style.transform = sidebar.classList.contains('open') ? 'translateX(0)' : 'translateX(-100%)'; });
+    }
+    
+    function logout() { AuthService.logout(); location.href = 'login.html'; }
+    function showToast(msg, type) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.style.backgroundColor = type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#10b981';
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 2000);
+    }
+</script>
+</body>
+</html>

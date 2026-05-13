@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Ad Campaigns - Suriyanwa Saffari Seller</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 200; display: none; }
+        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 12px; }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="toast" class="toast"></div>
+
+<!-- Mobile Menu Toggle -->
+<button id="menuToggle" class="fixed bottom-20 left-4 z-50 bg-blue-900 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center md:hidden">
+    <i class="fa-solid fa-bars text-xl"></i>
+</button>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">S</div><div><h2 class="font-black text-blue-900">Suriyanwa</h2><p class="text-[10px] text-gray-500">Seller Portal</p></div></div></div>
+    <nav class="p-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-line w-5"></i><span class="text-sm font-medium">Dashboard</span></a>
+        <a href="products.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-box w-5"></i><span class="text-sm font-medium">Products</span></a>
+        <a href="orders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-truck w-5"></i><span class="text-sm font-medium">Orders</span></a>
+        <a href="payouts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-wallet w-5"></i><span class="text-sm font-medium">Payouts</span></a>
+        <a href="analytics.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-chart-simple w-5"></i><span class="text-sm font-medium">Analytics</span></a>
+        <a href="coupons.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-ticket w-5"></i><span class="text-sm font-medium">Coupons</span></a>
+        <a href="ads.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-orange-50 text-orange-600 mb-1"><i class="fa-solid fa-bullhorn w-5"></i><span class="text-sm font-medium">Ad Campaigns</span></a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1"><i class="fa-solid fa-gear w-5"></i><span class="text-sm font-medium">Settings</span></a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t"><button onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 w-full"><i class="fa-solid fa-sign-out-alt w-5"></i><span class="text-sm font-medium">Logout</span></button></div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-64 p-4 pb-24">
+    <div class="flex justify-between items-center mb-6"><div><h1 class="text-2xl font-black text-blue-900">Ad Campaigns</h1><p class="text-sm text-gray-500">Boost your products with ads</p></div><button onclick="openCreateModal()" class="bg-blue-900 text-white px-4 py-2 rounded-xl text-sm font-bold"><i class="fa-solid fa-plus mr-1"></i> Create Campaign</button></div>
+
+    <!-- Wallet Balance -->
+    <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl p-4 text-white mb-6 flex justify-between items-center"><div><p class="text-sm opacity-80">Wallet Balance</p><p id="walletBalance" class="text-2xl font-black">₹0</p></div><i class="fa-solid fa-wallet text-3xl opacity-50"></i></div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-3 gap-3 mb-6">
+        <div class="bg-white rounded-xl p-3 text-center shadow-sm"><p id="activeAds" class="text-xl font-black text-blue-900">0</p><p class="text-[9px] text-gray-500">Active</p></div>
+        <div class="bg-white rounded-xl p-3 text-center shadow-sm"><p id="totalSpent" class="text-xl font-black text-orange-600">₹0</p><p class="text-[9px] text-gray-500">Total Spent</p></div>
+        <div class="bg-white rounded-xl p-3 text-center shadow-sm"><p id="totalClicks" class="text-xl font-black text-green-600">0</p><p class="text-[9px] text-gray-500">Total Clicks</p></div>
+    </div>
+
+    <!-- Active Campaigns -->
+    <div class="bg-white rounded-2xl shadow-sm mb-6"><div class="px-4 py-3 border-b"><h3 class="font-bold text-gray-800">Active Campaigns</h3></div><div id="activeCampaigns" class="divide-y"><div class="skeleton h-20 m-3"></div></div></div>
+
+    <!-- Campaign History -->
+    <div class="bg-white rounded-2xl shadow-sm"><div class="px-4 py-3 border-b"><h3 class="font-bold text-gray-800">Campaign History</h3></div><div id="campaignHistory" class="divide-y"><div class="skeleton h-20 m-3"></div></div></div>
+
+    <!-- Create Campaign Modal -->
+    <div id="createModal" class="fixed inset-0 bg-black/50 z-[200] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto"><div class="sticky top-0 bg-white p-4 border-b flex justify-between"><h3 class="font-bold text-lg">Create Ad Campaign</h3><button onclick="closeCreateModal()" class="text-gray-500"><i class="fa-solid fa-times"></i></button></div>
+            <div class="p-4 space-y-3"><select id="productSelect" class="w-full border rounded-xl p-3 text-sm"><option value="">Select Product</option></select>
+                <div class="grid grid-cols-2 gap-3"><select id="planSelect" class="border rounded-xl p-3 text-sm"><option value="100">Starter - ₹100/day</option><option value="250">Popular - ₹250/day</option><option value="500">Premium - ₹500/day</option></select>
+                <input type="number" id="durationDays" placeholder="Duration (Days)" class="border rounded-xl p-3 text-sm" value="7"></div>
+                <input type="text" id="targetKeywords" placeholder="Target Keywords (comma separated)" class="w-full border rounded-xl p-3 text-sm">
+                <select id="targetCategory" class="w-full border rounded-xl p-3 text-sm"><option value="">Target Category (Optional)</option></select>
+                <div class="bg-blue-50 p-3 rounded-xl"><p class="text-xs text-blue-800">Total Budget: ₹<span id="totalBudget">700</span></p><p class="text-[9px] text-blue-600 mt-1">Campaign will run for selected duration</p></div>
+                <div class="flex gap-3"><button onclick="closeCreateModal()" class="flex-1 border border-gray-300 py-3 rounded-xl">Cancel</button><button onclick="createCampaign()" class="flex-1 bg-orange-600 text-white py-3 rounded-xl font-bold">Start Campaign</button></div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let sellerData = null;
+    let products = [];
+    let ads = [];
+    
+    document.addEventListener('DOMContentLoaded', function() { checkAuth(); loadAds(); loadProducts(); setupMobileMenu(); });
+    
+    function checkAuth() { const user = AuthService.getCurrentUser(); if(!user||!user.seller_id) location.href='login.html'; else sellerData=user; }
+    
+    async function loadAds() {
+        try {
+            const response = await fetch(`/api/seller/ads?seller_id=${sellerData.seller_id}`, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                ads = data.active_ads;
+                document.getElementById('walletBalance').innerHTML = `₹${data.wallet_balance || 0}`;
+                document.getElementById('activeAds').innerText = data.statistics?.active_ads_count || 0;
+                document.getElementById('totalSpent').innerHTML = `₹${data.statistics?.total_spent || 0}`;
+                document.getElementById('totalClicks').innerText = data.statistics?.total_clicks || 0;
+                renderActiveCampaigns(data.active_ads);
+                renderCampaignHistory(data.ad_history || []);
+            }
+        } catch(error) { console.error('Error loading ads:', error); showToast('Failed to load campaigns', 'error'); }
+    }
+    
+    async function loadProducts() {
+        try {
+            const response = await fetch(`/api/seller/products?seller_id=${sellerData.seller_id}&status=active`, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if(data.success) {
+                products = data.products;
+                const select = document.getElementById('productSelect');
+                select.innerHTML = '<option value="">Select Product</option>';
+                products.forEach(p => select.innerHTML += `<option value="${p.prod_id}">${p.name}</option>`);
+            }
+        } catch(error) { console.error('Error loading products:', error); }
+    }
+    
+    function renderActiveCampaigns(campaigns) {
+        const container = document.getElementById('activeCampaigns');
+        if(!campaigns||campaigns.length===0) { container.innerHTML='<div class="p-4 text-center text-gray-500">No active campaigns</div>'; return; }
+        let html='';
+        campaigns.forEach(c => { html+=`<div class="p-3 flex justify-between items-center"><div><p class="font-medium text-sm">${c.product_name||c.prod_id}</p><p class="text-[9px] text-gray-500">Budget: ₹${c.daily_budget}/day | Clicks: ${c.clicks||0}</p></div><div class="text-right"><p class="text-sm font-bold text-green-600">ROAS: ${c.roas||0}x</p><button onclick="pauseCampaign('${c.ad_id}')" class="text-[10px] text-red-500 mt-1">Pause</button></div></div>`; });
+        container.innerHTML=html;
+    }
+    
+    function renderCampaignHistory(history) {
+        const container = document.getElementById('campaignHistory');
+        if(!history||history.length===0) { container.innerHTML='<div class="p-4 text-center text-gray-500">No campaign history</div>'; return; }
+        let html='';
+        history.slice(0,10).forEach(c=>{ html+=`<div class="p-3 flex justify-between items-center"><div><p class="font-medium text-sm">${c.product_name||c.prod_id}</p><p class="text-[9px] text-gray-400">${c.start_date?.split('T')[0]} to ${c.end_date?.split('T')[0]}</p></div><div class="text-right"><p class="text-xs font-bold">₹${c.total_budget}</p><span class="text-[9px] ${c.status==='COMPLETED'?'text-green-600':'text-red-600'}">${c.status}</span></div></div>`; });
+        container.innerHTML=html;
+    }
+    
+    function openCreateModal() { document.getElementById('createModal').classList.add('flex'); document.getElementById('createModal').classList.remove('hidden'); document.getElementById('planSelect').addEventListener('change',updateBudget); document.getElementById('durationDays').addEventListener('input',updateBudget); updateBudget(); }
+    function closeCreateModal() { document.getElementById('createModal').classList.remove('flex'); document.getElementById('createModal').classList.add('hidden'); }
+    function updateBudget() { const daily=parseInt(document.getElementById('planSelect').value); const days=parseInt(document.getElementById('durationDays').value)||0; document.getElementById('totalBudget').innerText=daily*days; }
+    
+    async function createCampaign() {
+        const prodId = document.getElementById('productSelect').value;
+        const dailyBudget = parseInt(document.getElementById('planSelect').value);
+        const duration = parseInt(document.getElementById('durationDays').value);
+        if(!prodId) { showToast('Select product','warning'); return; }
+        if(!duration||duration<1) { showToast('Enter valid duration','warning'); return; }
+        try {
+            const response = await fetch('/api/seller/ads', {
+                method: 'POST',
+                headers: { 'Content-Type':'application/json' },
+                body: JSON.stringify({ seller_id: sellerData.seller_id, prod_id: prodId, daily_budget: dailyBudget, duration_days: duration, keywords: document.getElementById('targetKeywords').value, target_categories: document.getElementById('targetCategory').value ? [document.getElementById('targetCategory').value] : null })
+            });
+            const data = await response.json();
+            if(data.success) { showToast('Campaign created!','success'); closeCreateModal(); loadAds(); }
+            else showToast(data.error||'Creation failed','error');
+        } catch(error) { showToast('Creation failed','error'); }
+    }
+    
+    async function pauseCampaign(adId) {
+        try {
+            const response = await fetch('/api/seller/ads', {
+                method: 'PUT',
+                headers: { 'Content-Type':'application/json' },
+                body: JSON.stringify({ ad_id: adId, seller_id: sellerData.seller_id, action: 'pause' })
+            });
+            const data = await response.json();
+            if(data.success) { showToast('Campaign paused','success'); loadAds(); }
+            else showToast('Operation failed','error');
+        } catch(error) { showToast('Operation failed','error'); }
+    }
+    
+    function setupMobileMenu() { const menuBtn=document.getElementById('menuToggle'),sidebar=document.getElementById('sidebar'); if(menuBtn&&sidebar) menuBtn.addEventListener('click',()=>{ sidebar.classList.toggle('open'); sidebar.style.transform=sidebar.classList.contains('open')?'translateX(0)':'translateX(-100%)'; }); }
+    function logout() { AuthService.logout(); location.href='login.html'; }
+    function showToast(msg,type) { const toast=document.getElementById('toast'); toast.textContent=msg; toast.style.backgroundColor=type==='error'?'#ef4444':type==='warning'?'#f59e0b':'#10b981'; toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; },2000); }
+</script>
+</body>
+</html>

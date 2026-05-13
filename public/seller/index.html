@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Seller Dashboard - Suriyanwa Saffari</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .stat-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card:active { transform: scale(0.98); }
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 12px;
+            z-index: 200;
+            display: none;
+        }
+        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 12px; }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="toast" class="toast"></div>
+
+<!-- Mobile Menu Toggle -->
+<button id="menuToggle" class="fixed bottom-20 left-4 z-50 bg-blue-900 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center md:hidden">
+    <i class="fa-solid fa-bars text-xl"></i>
+</button>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">S</div>
+            <div>
+                <h2 class="font-black text-blue-900">Suriyanwa</h2>
+                <p class="text-[10px] text-gray-500">Seller Portal</p>
+            </div>
+        </div>
+    </div>
+    <nav class="p-3">
+        <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-orange-50 text-orange-600 mb-1">
+            <i class="fa-solid fa-chart-line w-5"></i>
+            <span class="text-sm font-medium">Dashboard</span>
+        </a>
+        <a href="products.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1">
+            <i class="fa-solid fa-box w-5"></i>
+            <span class="text-sm font-medium">Products</span>
+        </a>
+        <a href="orders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1">
+            <i class="fa-solid fa-truck w-5"></i>
+            <span class="text-sm font-medium">Orders</span>
+        </a>
+        <a href="payouts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1">
+            <i class="fa-solid fa-wallet w-5"></i>
+            <span class="text-sm font-medium">Payouts</span>
+        </a>
+        <a href="analytics.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1">
+            <i class="fa-solid fa-chart-simple w-5"></i>
+            <span class="text-sm font-medium">Analytics</span>
+        </a>
+        <a href="coupons.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1">
+            <i class="fa-solid fa-ticket w-5"></i>
+            <span class="text-sm font-medium">Coupons</span>
+        </a>
+        <a href="ads.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1">
+            <i class="fa-solid fa-bullhorn w-5"></i>
+            <span class="text-sm font-medium">Ad Campaigns</span>
+        </a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1">
+            <i class="fa-solid fa-gear w-5"></i>
+            <span class="text-sm font-medium">Settings</span>
+        </a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t">
+        <button onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 w-full">
+            <i class="fa-solid fa-sign-out-alt w-5"></i>
+            <span class="text-sm font-medium">Logout</span>
+        </button>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-64 p-4 pb-24">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-black text-blue-900">Dashboard</h1>
+            <p id="shopName" class="text-sm text-gray-500">Loading shop info...</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="relative">
+                <i class="fa-regular fa-bell text-xl text-gray-500 cursor-pointer"></i>
+                <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full bg-blue-900 flex items-center justify-center text-white font-bold">S</div>
+                <div class="hidden sm:block">
+                    <p id="sellerName" class="text-sm font-bold">Loading...</p>
+                    <p id="sellerRating" class="text-[10px] text-gray-500">⭐ 0.0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KYC Warning -->
+    <div id="kycWarning" class="bg-yellow-50 border border-yellow-200 rounded-xl p-3 mb-4 hidden">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-circle-exclamation text-yellow-600"></i>
+            <p class="text-xs text-yellow-800">Your KYC is pending approval. Complete KYC to start selling.</p>
+            <button onclick="location.href='settings.html'" class="ml-auto text-xs font-bold text-yellow-800">Complete KYC →</button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        <div class="stat-card bg-white rounded-2xl p-3 shadow-sm">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-[10px] text-gray-400 uppercase">Today Orders</p>
+                    <p id="todayOrders" class="text-2xl font-black text-blue-900">0</p>
+                </div>
+                <i class="fa-solid fa-cart-shopping text-2xl text-orange-500 opacity-50"></i>
+            </div>
+            <p id="todayCod" class="text-[10px] text-green-600 mt-1">COD: ₹0</p>
+        </div>
+        <div class="stat-card bg-white rounded-2xl p-3 shadow-sm">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-[10px] text-gray-400 uppercase">Pending Orders</p>
+                    <p id="pendingOrders" class="text-2xl font-black text-yellow-600">0</p>
+                </div>
+                <i class="fa-solid fa-clock text-2xl text-yellow-500 opacity-50"></i>
+            </div>
+            <p class="text-[9px] text-gray-400 mt-1">Need action</p>
+        </div>
+        <div class="stat-card bg-white rounded-2xl p-3 shadow-sm">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-[10px] text-gray-400 uppercase">Total Revenue</p>
+                    <p id="totalRevenue" class="text-2xl font-black text-green-600">₹0</p>
+                </div>
+                <i class="fa-solid fa-indian-rupee-sign text-2xl text-green-500 opacity-50"></i>
+            </div>
+            <p id="netEarnings" class="text-[9px] text-gray-500 mt-1">Net: ₹0</p>
+        </div>
+        <div class="stat-card bg-white rounded-2xl p-3 shadow-sm">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-[10px] text-gray-400 uppercase">Wallet Balance</p>
+                    <p id="walletBalance" class="text-2xl font-black text-blue-900">₹0</p>
+                </div>
+                <i class="fa-solid fa-wallet text-2xl text-purple-500 opacity-50"></i>
+            </div>
+            <button onclick="location.href='payouts.html'" class="text-[9px] text-orange-600 mt-1">Claim →</button>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-2 gap-3 mb-6">
+        <button onclick="location.href='add-product.html'" class="bg-blue-900 text-white p-3 rounded-xl text-center active:scale-95 transition">
+            <i class="fa-solid fa-plus-circle text-xl"></i>
+            <p class="text-xs font-bold mt-1">Add Product</p>
+        </button>
+        <button onclick="location.href='orders.html?status=PENDING'" class="bg-orange-500 text-white p-3 rounded-xl text-center active:scale-95 transition">
+            <i class="fa-solid fa-box-open text-xl"></i>
+            <p class="text-xs font-bold mt-1">Pending Orders</p>
+        </button>
+        <button onclick="location.href='products.html?filter=low_stock'" class="bg-red-500 text-white p-3 rounded-xl text-center active:scale-95 transition">
+            <i class="fa-solid fa-exclamation-triangle text-xl"></i>
+            <p class="text-xs font-bold mt-1">Low Stock Alert</p>
+        </button>
+        <button onclick="location.href='analytics.html'" class="bg-green-600 text-white p-3 rounded-xl text-center active:scale-95 transition">
+            <i class="fa-solid fa-chart-line text-xl"></i>
+            <p class="text-xs font-bold mt-1">View Reports</p>
+        </button>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="bg-white rounded-2xl shadow-sm mb-6">
+        <div class="px-4 py-3 border-b flex justify-between items-center">
+            <h3 class="font-bold text-gray-800">Recent Orders</h3>
+            <button onclick="location.href='orders.html'" class="text-[10px] text-orange-600">View All →</button>
+        </div>
+        <div id="recentOrders" class="divide-y">
+            <div class="skeleton h-20 m-3"></div>
+            <div class="skeleton h-20 m-3"></div>
+            <div class="skeleton h-20 m-3"></div>
+        </div>
+    </div>
+
+    <!-- Top Products -->
+    <div class="bg-white rounded-2xl shadow-sm">
+        <div class="px-4 py-3 border-b flex justify-between items-center">
+            <h3 class="font-bold text-gray-800">Top Selling Products</h3>
+            <button onclick="location.href='products.html'" class="text-[10px] text-orange-600">Manage →</button>
+        </div>
+        <div id="topProducts" class="divide-y">
+            <div class="skeleton h-16 m-3"></div>
+            <div class="skeleton h-16 m-3"></div>
+        </div>
+    </div>
+</main>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let sellerData = null;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        checkAuth();
+        loadDashboard();
+        setupMobileMenu();
+    });
+
+    function checkAuth() {
+        const user = AuthService.getCurrentUser();
+        if (!user || !user.seller_id) {
+            location.href = 'login.html';
+            return;
+        }
+        sellerData = user;
+        document.getElementById('sellerName').innerText = user.shop_name || user.owner_name || 'Seller';
+        document.getElementById('shopName').innerHTML = `${user.shop_name || 'Shop'} • <span class="text-orange-600">Seller ID: ${user.seller_id}</span>`;
+        document.getElementById('sellerRating').innerHTML = `⭐ ${user.rating || 0} • ${user.trust_score || 100} Trust Score`;
+
+        if (user.kyc_status !== 'APPROVED') {
+            document.getElementById('kycWarning').classList.remove('hidden');
+        }
+    }
+
+    async function loadDashboard() {
+        if (!sellerData) return;
+
+        try {
+            const response = await fetch(`/api/seller/dashboard?seller_id=${sellerData.seller_id}`, {
+                headers: AuthService.getAuthHeaders()
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                const dash = data.dashboard;
+                document.getElementById('todayOrders').innerText = dash.today?.orders || 0;
+                document.getElementById('todayCod').innerHTML = `COD: ₹${dash.today?.cod_amount || 0}`;
+                document.getElementById('pendingOrders').innerText = dash.summary?.pending_orders || 0;
+                document.getElementById('totalRevenue').innerHTML = `₹${dash.summary?.total_revenue || 0}`;
+                document.getElementById('netEarnings').innerHTML = `Net: ₹${Math.round(dash.summary?.total_revenue * (1 - (sellerData.commission_rate || 10)/100)) || 0}`;
+                document.getElementById('walletBalance').innerHTML = `₹${dash.seller?.wallet_balance || 0}`;
+
+                renderRecentOrders(dash.recent_orders);
+                renderTopProducts(dash.top_products);
+            }
+        } catch (error) {
+            console.error('Error loading dashboard:', error);
+            showToast('Failed to load dashboard', 'error');
+        }
+    }
+
+    function renderRecentOrders(orders) {
+        const container = document.getElementById('recentOrders');
+        if (!orders || orders.length === 0) {
+            container.innerHTML = '<div class="p-4 text-center text-gray-500">No recent orders</div>';
+            return;
+        }
+
+        let html = '';
+        orders.slice(0, 5).forEach(order => {
+            html += `
+                <div class="p-3 flex justify-between items-center" onclick="location.href='order-detail.html?book_id=${order.book_id}'">
+                    <div>
+                        <p class="text-xs font-mono text-gray-500">#${order.book_id}</p>
+                        <p class="text-xs font-bold text-gray-800">₹${order.final_amount}</p>
+                        <p class="text-[9px] text-gray-400">${order.customer_name || 'Customer'}</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${getStatusColor(order.status)}">${order.status}</span>
+                        <p class="text-[9px] text-gray-400 mt-1">${formatDate(order.placed_at)}</p>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    function renderTopProducts(products) {
+        const container = document.getElementById('topProducts');
+        if (!products || products.length === 0) {
+            container.innerHTML = '<div class="p-4 text-center text-gray-500">No products sold yet</div>';
+            return;
+        }
+
+        let html = '';
+        products.slice(0, 5).forEach(product => {
+            html += `
+                <div class="p-3 flex justify-between items-center" onclick="location.href='edit-product.html?prod_id=${product.prod_id}'">
+                    <div class="flex items-center gap-3">
+                        <img src="${product.image || 'https://via.placeholder.com/40/f9f9f9/000?text=Product'}" class="w-10 h-10 rounded-lg object-cover">
+                        <div>
+                            <p class="text-sm font-bold text-gray-800">${product.name}</p>
+                            <p class="text-[9px] text-gray-500">Sold: ${product.quantity || 0}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-bold text-green-600">₹${product.selling_price || product.price}</p>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    function getStatusColor(status) {
+        const colors = {
+            'PENDING': 'bg-yellow-100 text-yellow-800',
+            'ACCEPTED': 'bg-blue-100 text-blue-800',
+            'PACKED': 'bg-purple-100 text-purple-800',
+            'SHIPPED': 'bg-cyan-100 text-cyan-800',
+            'OUT_FOR_DELIVERY': 'bg-green-100 text-green-800',
+            'DELIVERED': 'bg-emerald-100 text-emerald-800',
+            'CANCELLED': 'bg-red-100 text-red-800',
+            'RTO': 'bg-red-100 text-red-800'
+        };
+        return colors[status] || 'bg-gray-100 text-gray-600';
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+    }
+
+    function setupMobileMenu() {
+        const menuBtn = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        if (menuBtn && sidebar) {
+            menuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                if (sidebar.classList.contains('open')) {
+                    sidebar.style.transform = 'translateX(0)';
+                } else {
+                    sidebar.style.transform = 'translateX(-100%)';
+                }
+            });
+        }
+    }
+
+    function logout() {
+        AuthService.logout();
+        location.href = 'login.html';
+    }
+
+    function showToast(message, type) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.style.backgroundColor = type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#10b981';
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 2000);
+    }
+</script>
+</body>
+</html>

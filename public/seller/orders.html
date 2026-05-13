@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Orders - Suriyanwa Saffari Seller</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .sidebar { transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .order-card { transition: all 0.2s; }
+        .order-card:active { transform: scale(0.98); }
+        .filter-chip-active { background: #f59e0b !important; color: white !important; }
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 12px;
+            z-index: 200;
+            display: none;
+        }
+        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 12px; }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="toast" class="toast"></div>
+
+<!-- Mobile Menu Toggle -->
+<button id="menuToggle" class="fixed bottom-20 left-4 z-50 bg-blue-900 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center md:hidden">
+    <i class="fa-solid fa-bars text-xl"></i>
+</button>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 overflow-y-auto">
+    <div class="p-5 border-b">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl">S</div>
+            <div>
+                <h2 class="font-black text-blue-900">Suriyanwa</h2>
+                <p class="text-[10px] text-gray-500">Seller Portal</p>
+            </div>
+        </div>
+    </div>
+    <nav class="p-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1">
+            <i class="fa-solid fa-chart-line w-5"></i><span class="text-sm font-medium">Dashboard</span>
+        </a>
+        <a href="products.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1">
+            <i class="fa-solid fa-box w-5"></i><span class="text-sm font-medium">Products</span>
+        </a>
+        <a href="orders.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-orange-50 text-orange-600 mb-1">
+            <i class="fa-solid fa-truck w-5"></i><span class="text-sm font-medium">Orders</span>
+        </a>
+        <a href="payouts.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1">
+            <i class="fa-solid fa-wallet w-5"></i><span class="text-sm font-medium">Payouts</span>
+        </a>
+        <a href="analytics.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1">
+            <i class="fa-solid fa-chart-simple w-5"></i><span class="text-sm font-medium">Analytics</span>
+        </a>
+        <a href="coupons.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1">
+            <i class="fa-solid fa-ticket w-5"></i><span class="text-sm font-medium">Coupons</span>
+        </a>
+        <a href="ads.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1">
+            <i class="fa-solid fa-bullhorn w-5"></i><span class="text-sm font-medium">Ad Campaigns</span>
+        </a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 mb-1">
+            <i class="fa-solid fa-gear w-5"></i><span class="text-sm font-medium">Settings</span>
+        </a>
+    </nav>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t">
+        <button onclick="logout()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 w-full">
+            <i class="fa-solid fa-sign-out-alt w-5"></i><span class="text-sm font-medium">Logout</span>
+        </button>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-64 p-4 pb-24">
+    <div class="flex justify-between items-center mb-6">
+        <div><h1 class="text-2xl font-black text-blue-900">Orders</h1><p class="text-sm text-gray-500">Manage customer orders</p></div>
+        <div class="flex gap-2"><i class="fa-regular fa-bell text-xl text-gray-500"></i><div class="relative"><i class="fa-regular fa-user text-xl text-gray-500"></i></div></div>
+    </div>
+
+    <!-- Status Filters -->
+    <div class="flex overflow-x-auto gap-2 mb-4 pb-2">
+        <button class="filter-chip px-4 py-1.5 rounded-full text-xs font-medium bg-orange-500 text-white" data-status="all" onclick="filterOrders('all')">All</button>
+        <button class="filter-chip px-4 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700" data-status="PENDING" onclick="filterOrders('PENDING')">Pending</button>
+        <button class="filter-chip px-4 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700" data-status="ACCEPTED" onclick="filterOrders('ACCEPTED')">Accepted</button>
+        <button class="filter-chip px-4 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700" data-status="PACKED" onclick="filterOrders('PACKED')">Packed</button>
+        <button class="filter-chip px-4 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700" data-status="SHIPPED" onclick="filterOrders('SHIPPED')">Shipped</button>
+        <button class="filter-chip px-4 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700" data-status="OUT_FOR_DELIVERY" onclick="filterOrders('OUT_FOR_DELIVERY')">Out for Delivery</button>
+        <button class="filter-chip px-4 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700" data-status="DELIVERED" onclick="filterOrders('DELIVERED')">Delivered</button>
+        <button class="filter-chip px-4 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700" data-status="CANCELLED" onclick="filterOrders('CANCELLED')">Cancelled</button>
+        <button class="filter-chip px-4 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700" data-status="RTO" onclick="filterOrders('RTO')">RTO</button>
+    </div>
+
+    <!-- Search -->
+    <div class="bg-white rounded-xl p-3 mb-4 flex gap-2"><i class="fa-solid fa-search text-gray-400 mt-2"></i><input type="text" id="searchInput" placeholder="Search by Order ID or Customer Name" class="flex-1 text-sm outline-none"></div>
+
+    <!-- Orders List -->
+    <div id="ordersContainer" class="space-y-3">
+        <div class="skeleton h-28 rounded-xl"></div>
+        <div class="skeleton h-28 rounded-xl"></div>
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="flex justify-center gap-2 mt-6"></div>
+</main>
+
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/common.js"></script>
+
+<script>
+    let sellerData = null;
+    let orders = [];
+    let currentStatus = 'all';
+    let currentPage = 1;
+    let totalPages = 1;
+    let searchQuery = '';
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        checkAuth();
+        loadOrders();
+        setupMobileMenu();
+        document.getElementById('searchInput').addEventListener('keyup', function(e) { searchQuery = e.target.value; loadOrders(); });
+    });
+    
+    function checkAuth() {
+        const user = AuthService.getCurrentUser();
+        if (!user || !user.seller_id) { location.href = 'login.html'; return; }
+        sellerData = user;
+    }
+    
+    async function loadOrders() {
+        if (!sellerData) return;
+        try {
+            let url = `/api/seller/orders?seller_id=${sellerData.seller_id}&page=${currentPage}&limit=15`;
+            if (currentStatus !== 'all') url += `&status=${currentStatus}`;
+            if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
+            const response = await fetch(url, { headers: AuthService.getAuthHeaders() });
+            const data = await response.json();
+            if (data.success) {
+                orders = data.orders;
+                totalPages = data.pagination.total_pages;
+                renderOrders();
+                renderPagination();
+            }
+        } catch (error) { console.error('Error loading orders:', error); showToast('Failed to load orders', 'error'); }
+    }
+    
+    function renderOrders() {
+        const container = document.getElementById('ordersContainer');
+        if (!orders || orders.length === 0) { container.innerHTML = '<div class="text-center py-8 text-gray-500">No orders found</div>'; return; }
+        let html = '';
+        orders.forEach(order => {
+            html += `<div class="order-card bg-white rounded-xl border border-gray-100 p-4 cursor-pointer" onclick="location.href='order-detail.html?book_id=${order.book_id}'">
+                <div class="flex justify-between items-start"><div><p class="text-xs font-mono text-gray-500">#${order.book_id}</p><p class="text-xs text-gray-500">${order.customer?.name}</p></div><span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${getStatusColor(order.status)}">${order.status_display}</span></div>
+                <div class="flex justify-between items-center mt-3"><div><p class="text-sm font-bold text-blue-900">₹${order.final_amount}</p><p class="text-[9px] text-gray-400">${order.items?.length || 0} items</p></div>
+                <div class="flex gap-2">${order.can_accept ? `<button onclick="event.stopPropagation(); updateOrderStatus('${order.book_id}', 'accept')" class="bg-green-600 text-white px-3 py-1 rounded-lg text-[9px]">Accept</button>` : ''}
+                ${order.can_reject ? `<button onclick="event.stopPropagation(); rejectOrder('${order.book_id}')" class="bg-red-600 text-white px-3 py-1 rounded-lg text-[9px]">Reject</button>` : ''}
+                ${order.can_pack ? `<button onclick="event.stopPropagation(); updateOrderStatus('${order.book_id}', 'pack')" class="bg-blue-600 text-white px-3 py-1 rounded-lg text-[9px]">Mark Packed</button>` : ''}
+                ${order.can_ship ? `<button onclick="event.stopPropagation(); updateOrderStatus('${order.book_id}', 'ship')" class="bg-purple-600 text-white px-3 py-1 rounded-lg text-[9px]">Mark Shipped</button>` : ''}
+                <button onclick="event.stopPropagation(); location.href='order-detail.html?book_id=${order.book_id}'" class="text-gray-500 text-xs"><i class="fa-solid fa-eye"></i></button></div></div></div>`;
+        });
+        container.innerHTML = html;
+    }
+    
+    function renderPagination() {
+        const container = document.getElementById('pagination');
+        if (totalPages <= 1) { container.innerHTML = ''; return; }
+        let html = '';
+        for (let i = 1; i <= totalPages; i++) html += `<button onclick="goToPage(${i})" class="w-8 h-8 rounded-lg ${i === currentPage ? 'bg-blue-900 text-white' : 'bg-gray-100 text-gray-600'} text-sm">${i}</button>`;
+        container.innerHTML = html;
+    }
+    
+    function goToPage(page) { currentPage = page; loadOrders(); window.scrollTo(0, 0); }
+    function filterOrders(status) { currentStatus = status; currentPage = 1; loadOrders(); document.querySelectorAll('.filter-chip').forEach(chip => { chip.classList.remove('bg-orange-500', 'text-white'); chip.classList.add('bg-gray-100', 'text-gray-700'); if (chip.dataset.status === status) chip.classList.add('bg-orange-500', 'text-white'); }); }
+    
+    async function updateOrderStatus(bookId, action) {
+        try {
+            const response = await fetch('/api/seller/order-action', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ book_id: bookId, seller_id: sellerData.seller_id, action: action })
+            });
+            const data = await response.json();
+            if (data.success) { showToast(`Order ${action}ed`, 'success'); loadOrders(); }
+            else showToast(data.error || 'Action failed', 'error');
+        } catch (error) { showToast('Action failed', 'error'); }
+    }
+    
+    async function rejectOrder(bookId) {
+        const reason = prompt('Reason for rejection:');
+        if (!reason) return;
+        try {
+            const response = await fetch('/api/seller/order-action', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ book_id: bookId, seller_id: sellerData.seller_id, action: 'reject', rejection_reason: reason })
+            });
+            const data = await response.json();
+            if (data.success) { showToast('Order rejected', 'success'); loadOrders(); }
+            else showToast(data.error || 'Rejection failed', 'error');
+        } catch (error) { showToast('Rejection failed', 'error'); }
+    }
+    
+    function getStatusColor(status) {
+        const colors = { 'PENDING':'bg-yellow-100 text-yellow-800','ACCEPTED':'bg-blue-100 text-blue-800','PACKED':'bg-purple-100 text-purple-800','SHIPPED':'bg-cyan-100 text-cyan-800','OUT_FOR_DELIVERY':'bg-green-100 text-green-800','DELIVERED':'bg-emerald-100 text-emerald-800','CANCELLED':'bg-red-100 text-red-800','RTO':'bg-red-100 text-red-800' };
+        return colors[status] || 'bg-gray-100 text-gray-600';
+    }
+    
+    function setupMobileMenu() {
+        const menuBtn = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        if (menuBtn && sidebar) menuBtn.addEventListener('click', () => { sidebar.classList.toggle('open'); sidebar.style.transform = sidebar.classList.contains('open') ? 'translateX(0)' : 'translateX(-100%)'; });
+    }
+    
+    function logout() { AuthService.logout(); location.href = 'login.html'; }
+    function showToast(msg, type) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.style.backgroundColor = type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#10b981';
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 2000);
+    }
+</script>
+</body>
+</html>
