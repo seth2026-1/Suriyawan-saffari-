@@ -1,0 +1,53 @@
+{
+  "projectId": "your-supabase-project-id",
+  "database": {
+    "host": "db.your-supabase-project-id.supabase.co",
+    "port": 5432,
+    "database": "postgres",
+    "schema": "public"
+  },
+  "auth": {
+    "enabled": true,
+    "siteUrl": "https://your-domain.vercel.app",
+    "additionalRedirectUrls": ["http://localhost:3000"],
+    "jwtExpiry": 3600,
+    "enableRefreshToken": true,
+    "enableEmailSignup": true,
+    "enableEmailAutoconfirm": false,
+    "enablePhoneSignup": false,
+    "enableAnonymousSignUp": false
+  },
+  "storage": {
+    "enabled": true,
+    "bucket": "product-images",
+    "maxFileSize": 10485760,
+    "allowedMimeTypes": ["image/jpeg", "image/png", "image/webp", "video/mp4"]
+  },
+  "edgeFunctions": {
+    "enabled": true,
+    "limits": {
+      "timeout": 10,
+      "memory": 1024
+    }
+  },
+  "realtime": {
+    "enabled": true,
+    "tables": ["orders", "shipment_tracking", "notifications"]
+  },
+  "api": {
+    "enabled": true,
+    "rateLimit": {
+      "enabled": true,
+      "maxRequests": 100,
+      "timeWindow": 60
+    }
+  },
+  "webhooks": {
+    "enabled": false,
+    "endpoints": []
+  },
+  "secrets": {
+    "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtdGJ1dnB4bnNpcm1tcGpqcW9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0Mjg0NDcsImV4cCI6MjA5NDAwNDQ0N30.U9uKwBftSYx9t7w5HHRUB_9h98ULmhfbnPv3K3g-VkM",
+    "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtdGJ1dnB4bnNpcm1tcGpqcW9wIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODQyODQ0NywiZXhwIjoyMDk0MDA0NDQ3fQ.INoxmbq7goKZDdtTe6hzvOLRdJ2zP9XOjB3uX8AvQJ0"
+  }
+}
